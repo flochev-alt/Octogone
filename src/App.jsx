@@ -264,4 +264,19 @@ function FighterPanel({ fighter, onClose, closing }) {
           )}
         </div>
       </div>
-    
+    </div>
+  );
+}
+
+function Stat({ icon: Icon, label, value, delay = 0 }) {
+  if (!value) return null;
+  return (
+    <div style={{ animationDelay: `${delay}ms` }} className="row-rise flex items-center justify-between py-2.5 border-b border-neutral-800 last:border-0">
+      <span className="flex items-center gap-2 text-xs text-neutral-400">
+        {Icon && <Icon className="w-3.5 h-3.5" />}
+        {label}
+      </span>
+      <span className="text-sm font-medium text-right">{value}</span>
+    </div>
+  );
+}
