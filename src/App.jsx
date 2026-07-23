@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords } from "lucide-react";
+import Simulator from "./Simulator.jsx";
 
 const DIVISIONS = [
   "flyweight", "bantamweight", "featherweight", "lightweight",
@@ -38,6 +39,7 @@ const METHOD_COLOR = {
 };
 
 export default function App() {
+  const [view, setView] = useState("combattants");
   const [rankings, setRankings] = useState(null);
   const [division, setDivision] = useState("lightweight");
   const [query, setQuery] = useState("");
@@ -47,13 +49,14 @@ export default function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (view !== "combattants") return;
     setLoading(true);
     setError(null);
     fetch(`/api/division/${division}`)
       .then((r) => { if (!r.ok) throw new Error("indisponible"); return r.json(); })
       .then((data) => { setRankings(data); setLoading(false); })
       .catch((e) => { setError(e.message); setLoading(false); });
-  }, [division]);
+  }, [division, view]);
 
   const fighters = useMemo(() => {
     if (!rankings?.fighters) return [];
@@ -103,80 +106,103 @@ export default function App() {
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
           </div>
-          <span className="mono text-[11px] text-neutral-400 hidden sm:block">UFC DATA LIVE</span>
+          <nav className="flex items-center gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800">
+            <button
+              onClick={() => setView("combattants")}
+              className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
+                view === "combattants" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
+              }`}
+            >
+              Combattants
+            </button>
+            <button
+              onClick={() => setView("simulateur")}
+              className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
+                view === "simulateur" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
+              }`}
+            >
+              Simulateur
+            </button>
+          </nav>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-5 py-8">
-        <div className="flex gap-1.5 overflow-x-auto pb-4 mb-6 -mx-1 px-1">
-          {DIVISIONS.map((d) => (
-            <button
-              key={d}
-              onClick={() => { setDivision(d); setQuery(""); }}
-              className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border ${
-                division === d
-                  ? "bg-amber-400 text-neutral-950 border-amber-400"
-                  : "bg-transparent text-neutral-400 border-neutral-800 hover:border-amber-400/50 hover:text-neutral-50"
-              }`}
-            >
-              {label(d)}
-            </button>
-          ))}
-        </div>
-
-        {rankings?.champion && (
-          <div key={division + "-champ"} className="row-rise mb-6 rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-5 flex items-center gap-4">
-            <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
-              <Trophy className="w-5 h-5 text-amber-400" />
+      {view === "simulateur" ? (
+        <Simulator />
+      ) : (
+        <>
+          <main className="max-w-5xl mx-auto px-5 py-8">
+            <div className="flex gap-1.5 overflow-x-auto pb-4 mb-6 -mx-1 px-1">
+              {DIVISIONS.map((d) => (
+                <button
+                  key={d}
+                  onClick={() => { setDivision(d); setQuery(""); }}
+                  className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border ${
+                    division === d
+                      ? "bg-amber-400 text-neutral-950 border-amber-400"
+                      : "bg-transparent text-neutral-400 border-neutral-800 hover:border-amber-400/50 hover:text-neutral-50"
+                  }`}
+                >
+                  {label(d)}
+                </button>
+              ))}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">Champion — {label(division)}</div>
-              <div className="disp text-xl truncate">{rankings.champion.championName}</div>
+
+            {rankings?.champion && (
+              <div key={division + "-champ"} className="row-rise mb-6 rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-5 flex items-center gap-4">
+                <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
+                  <Trophy className="w-5 h-5 text-amber-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">Champion — {label(division)}</div>
+                  <div className="disp text-xl truncate">{rankings.champion.championName}</div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-2.5 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 mb-6 transition-colors focus-within:border-amber-400/50">
+              <Search className="w-4 h-4 text-neutral-400" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher un combattant"
+                className="bg-transparent outline-none w-full text-sm placeholder:text-neutral-500"
+              />
             </div>
-          </div>
-        )}
 
-        <div className="flex items-center gap-2.5 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 mb-6 transition-colors focus-within:border-amber-400/50">
-          <Search className="w-4 h-4 text-neutral-400" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher un combattant"
-            className="bg-transparent outline-none w-full text-sm placeholder:text-neutral-500"
-          />
-        </div>
+            {loading && (
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-neutral-900 animate-pulse" />)}
+              </div>
+            )}
+            {error && <p className="text-sm text-amber-400">Cette catégorie est indisponible pour le moment.</p>}
 
-        {loading && (
-          <div className="space-y-2">
-            {[...Array(5)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-neutral-900 animate-pulse" />)}
-          </div>
-        )}
-        {error && <p className="text-sm text-amber-400">Cette catégorie est indisponible pour le moment.</p>}
+            <div key={division + query} className="space-y-2">
+              {fighters.map((f, i) => (
+                <button
+                  key={f.id}
+                  onClick={() => setSelected(f)}
+                  style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
+                  className="tap row-rise w-full text-left rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3.5 flex items-center gap-4"
+                >
+                  <span className="mono text-xs text-neutral-500 w-6 shrink-0">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="flex-1 font-medium text-sm truncate">{f.name}</span>
+                  <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
+                </button>
+              ))}
+            </div>
 
-        <div key={division + query} className="space-y-2">
-          {fighters.map((f, i) => (
-            <button
-              key={f.id}
-              onClick={() => setSelected(f)}
-              style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
-              className="tap row-rise w-full text-left rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3.5 flex items-center gap-4"
-            >
-              <span className="mono text-xs text-neutral-500 w-6 shrink-0">{String(i + 1).padStart(2, "0")}</span>
-              <span className="flex-1 font-medium text-sm truncate">{f.name}</span>
-              <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
-            </button>
-          ))}
-        </div>
+            {!loading && !error && fighters.length === 0 && (
+              <p className="text-sm text-neutral-400">Aucun résultat pour « {query} ».</p>
+            )}
+          </main>
 
-        {!loading && !error && fighters.length === 0 && (
-          <p className="text-sm text-neutral-400">Aucun résultat pour « {query} ».</p>
-        )}
-      </main>
-
-      {selected && <FighterPanel fighter={selected} closing={closing} onClose={closePanel} />}
+          {selected && <FighterPanel fighter={selected} closing={closing} onClose={closePanel} />}
+        </>
+      )}
 
       <footer className="max-w-5xl mx-auto px-5 py-10 text-[11px] text-neutral-500">
-        Octogone — données UFC via Octagon API. Autres organisations à intégrer prochainement.
+        Octogone — données UFC via Octagon API. Simulateur basé sur une base de combattants vérifiée manuellement.
       </footer>
     </div>
   );
