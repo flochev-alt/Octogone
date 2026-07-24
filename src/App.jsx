@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords } from "lucide-react";
 import Simulator from "./Simulator.jsx";
+import Landing from "./Landing.jsx";
 
 const DIVISIONS = [
   "flyweight", "bantamweight", "featherweight", "lightweight",
@@ -39,7 +40,7 @@ const METHOD_COLOR = {
 };
 
 export default function App() {
-  const [view, setView] = useState("combattants");
+  const [view, setView] = useState("landing");
   const [rankings, setRankings] = useState(null);
   const [division, setDivision] = useState("lightweight");
   const [query, setQuery] = useState("");
@@ -68,6 +69,10 @@ export default function App() {
     setClosing(true);
     setTimeout(() => { setSelected(null); setClosing(false); }, 260);
   };
+
+  if (view === "landing") {
+    return <Landing onEnter={() => setView("combattants")} />;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-50" style={{ fontFamily: "'Inter', sans-serif" }}>
