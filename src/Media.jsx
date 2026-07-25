@@ -4,6 +4,17 @@ import { Newspaper, Calendar, MapPin, CheckCircle2 } from "lucide-react";
 // Chaque élément a une vraie date ISO : le tri chronologique est automatique (plus de risque d'erreur manuelle).
 const UPCOMING = [
   {
+    iso: "2026-09-05",
+    date: "5 septembre 2026",
+    name: "UFC Paris",
+    location: "Accor Arena, Paris, France",
+    main: "Salahdine Parnasse vs. Dan Hooker (poids léger) — main event",
+    note: "Grosse nouvelle : signature officielle de Salahdine Parnasse à l'UFC, annoncée le 24 juillet 2026. Double champion KSW (poids plume et poids léger), il fait ses débuts directement en main event, devant son public.",
+    fighters: ["Salahdine Parnasse", "Dan Hooker"],
+    highlight: true,
+    badge: "Grande signature",
+  },
+  {
     iso: "2026-08-29",
     date: "29 août 2026",
     name: "UFC Fight Night : Nurmagomedov vs. Song",
@@ -112,7 +123,7 @@ const TONIGHT_POSTER = {
   date: "25 JUILLET · SAMEDI",
   mainCard: [
     { a: "Magomed Ankalaev", flagA: "🇷🇺", b: "Bogdan Guskov", flagB: "🇺🇿", weight: "Poids mi-lourd" },
-    { a: "Robert Erceg", flagA: "🇦🇺", b: "Shamil Temirov", flagB: "🇺🇿", weight: "Poids mouche" },
+    { a: "Robert Erceg", flagA: "🇦", b: "Shamil Temirov", flagB: "🇺🇿", weight: "Poids mouche" },
     { a: "Ruslan Dulatov", flagA: "🇹🇷", b: "Chris Turman", flagB: "🇧🇷", weight: "Poids welter" },
     { a: "Said Zaynukov", flagA: "🇷🇺", b: "Filip Rzepecki", flagB: "🇵🇱", weight: "Poids léger" },
     { a: "Rustam Kuniev", flagA: "🇷🇺", b: "Chris Fortune", flagB: "🇺🇸", weight: "Poids lourd" },
@@ -236,7 +247,7 @@ function UpcomingPost({ c }) {
           <span className="text-neutral-500 text-xs">@ufc</span>
           <span className="text-neutral-600 text-xs">· {c.date}</span>
           {c.highlight && (
-            <span className="ml-1 text-[10px] font-semibold text-amber-400 border border-amber-400/40 rounded-full px-2 py-0.5">Combat pour le titre</span>
+            <span className="ml-1 text-[10px] font-semibold text-amber-400 border border-amber-400/40 rounded-full px-2 py-0.5">{c.badge || "Combat pour le titre"}</span>
           )}
         </div>
         <div className="disp text-base mt-1">{c.name}</div>
