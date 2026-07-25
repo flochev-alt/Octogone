@@ -80,6 +80,7 @@ export const T = {
   fr: {
     navCombattants: "Combattants",
     navSimulateur: "Simulateur",
+    navMedia: "Médias",
     landingKicker: "Stats MMA",
     landingTitle1: "ENTREZ DANS",
     landingTitle2: "L'OCTOGONE.",
@@ -126,6 +127,7 @@ export const T = {
   en: {
     navCombattants: "Fighters",
     navSimulateur: "Simulator",
+    navMedia: "Media",
     landingKicker: "MMA Stats",
     landingTitle1: "ENTER THE",
     landingTitle2: "OCTAGON.",
@@ -172,6 +174,7 @@ export const T = {
   es: {
     navCombattants: "Combatientes",
     navSimulateur: "Simulador",
+    navMedia: "Media",
     landingKicker: "Stats MMA",
     landingTitle1: "ENTRA EN",
     landingTitle2: "EL OCTÁGONO.",
