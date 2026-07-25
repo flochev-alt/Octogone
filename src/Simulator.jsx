@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, Swords, Sparkles, Ruler, TrendingUp } from "lucide-react";
 import { FIGHTERS } from "./fightersData.js";
+import { T, translateCategory, formatHeight } from "./i18n.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -30,7 +31,8 @@ function computeScore(f) {
   return winRate * 0.45 + striking * 0.2 + tdAcc * 0.1 + tdDef * 0.15 + finishRate * 0.1;
 }
 
-export default function Simulator() {
+export default function Simulator({ lang = "fr" }) {
+  const t = T[lang];
   const [categorie, setCategorie] = useState(CATEGORIES[0]);
   const fightersInCategorie = useMemo(
     () => FIGHTERS.filter((f) => f.categorie === categorie),
@@ -91,9 +93,7 @@ export default function Simulator() {
       setAiText(data.analysis);
       setDailyUsage(incrementDailyUsage());
     } catch (e) {
-      setAiError(
-        "L'analyse IA n'est pas encore activée sur ce site (il manque une clé API Anthropic dans les réglages Vercel)."
-      );
+      setAiError(t.aiUnavailable);
     } finally {
       setAiLoading(false);
     }
@@ -105,38 +105,36 @@ export default function Simulator() {
     <div className="max-w-5xl mx-auto px-5 py-8">
       <div className="row-rise flex items-center gap-2 mb-6">
         <Swords className="w-4 h-4 text-amber-400" />
-        <span className="text-xs uppercase tracking-widest text-neutral-400">Simulateur de duel</span>
+        <span className="text-xs uppercase tracking-widest text-neutral-400">{t.simTitle}</span>
       </div>
 
       <div className="mb-4">
-        <label className="block text-[11px] uppercase tracking-widest text-neutral-500 mb-1.5">Catégorie de poids</label>
+        <label className="block text-[11px] uppercase tracking-widest text-neutral-500 mb-1.5">{t.weightCategory}</label>
         <select
           value={categorie}
           onChange={(e) => setCategorie(e.target.value)}
           className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-3 text-sm text-neutral-100 outline-none focus:border-amber-400/50"
         >
           {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>{translateCategory(c, lang)}</option>
           ))}
         </select>
       </div>
 
       {notEnoughFighters ? (
-        <p className="text-sm text-neutral-400 mb-6">
-          Pas assez de combattants dans cette catégorie pour l'instant — reviens plus tard une fois la base enrichie.
-        </p>
+        <p className="text-sm text-neutral-400 mb-6">{t.notEnoughFighters}</p>
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <FighterPicker label="Combattant 1" fighters={fightersInCategorie} value={idA} onChange={setIdA} exclude={idB} />
-            <FighterPicker label="Combattant 2" fighters={fightersInCategorie} value={idB} onChange={setIdB} exclude={idA} />
+            <FighterPicker label={t.fighter1} fighters={fightersInCategorie} value={idA} onChange={setIdA} exclude={idB} />
+            <FighterPicker label={t.fighter2} fighters={fightersInCategorie} value={idB} onChange={setIdB} exclude={idA} />
           </div>
 
           <button
             onClick={analyser}
             className="tap w-full rounded-xl bg-amber-400 text-neutral-950 font-semibold text-sm py-3.5 mb-6 hover:bg-amber-300"
           >
-            Analyser le duel
+            {t.analyze}
           </button>
         </>
       )}
@@ -157,24 +155,24 @@ export default function Simulator() {
               <span className="mono text-2xl text-neutral-300">{probB}%</span>
             </div>
             <div className="text-center text-xs text-neutral-500 mt-2">
-              Probabilité de victoire estimée à partir des stats connues — {categorie}
+              {t.probLabel(translateCategory(categorie, lang))}
             </div>
           </div>
 
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 space-y-3">
             <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-1">
-              <TrendingUp className="w-3.5 h-3.5" /> Comparatif
+              <TrendingUp className="w-3.5 h-3.5" /> {t.comparatif}
             </div>
-            <StatRow label="Bilan" a={`${fighterA.victoires}-${fighterA.defaites}`} b={`${fighterB.victoires}-${fighterB.defaites}`} />
-            <StatRow label="Précision striking" a={pct(fighterA.striking)} b={pct(fighterB.striking)} />
-            <StatRow label="Précision takedown" a={pct(fighterA.tdAcc)} b={pct(fighterB.tdAcc)} />
-            <StatRow label="Défense takedown" a={pct(fighterA.tdDef)} b={pct(fighterB.tdDef)} />
-            <StatRow label="Allonge" a={`${fighterA.allonge} cm`} b={`${fighterB.allonge} cm`} icon={Ruler} />
+            <StatRow label={t.record2} a={`${fighterA.victoires}-${fighterA.defaites}`} b={`${fighterB.victoires}-${fighterB.defaites}`} />
+            <StatRow label={t.strikingAcc} a={pct(fighterA.striking)} b={pct(fighterB.striking)} />
+            <StatRow label={t.tdAcc} a={pct(fighterA.tdAcc)} b={pct(fighterB.tdAcc)} />
+            <StatRow label={t.tdDef} a={pct(fighterA.tdDef)} b={pct(fighterB.tdDef)} />
+            <StatRow label={t.reach} a={formatHeight(fighterA.allonge, lang) ?? "—"} b={formatHeight(fighterB.allonge, lang) ?? "—"} icon={Ruler} />
           </div>
 
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
             <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Analyse experte
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {t.expertAnalysis}
             </div>
             {!aiText && !aiError && dailyUsage < DAILY_LIMIT && (
               <>
@@ -183,17 +181,15 @@ export default function Simulator() {
                   disabled={aiLoading}
                   className="tap text-sm px-4 py-2 rounded-lg border border-amber-400/40 text-amber-400 hover:bg-amber-400/10 disabled:opacity-50"
                 >
-                  {aiLoading ? "Génération..." : "Générer une analyse IA"}
+                  {aiLoading ? t.generating : t.generateAI}
                 </button>
                 <p className="text-[11px] text-neutral-500 mt-2">
-                  {DAILY_LIMIT - dailyUsage} analyse{DAILY_LIMIT - dailyUsage > 1 ? "s" : ""} gratuite{DAILY_LIMIT - dailyUsage > 1 ? "s" : ""} restante{DAILY_LIMIT - dailyUsage > 1 ? "s" : ""} aujourd'hui
+                  {t.freeLeft(DAILY_LIMIT - dailyUsage)}
                 </p>
               </>
             )}
             {!aiText && !aiError && dailyUsage >= DAILY_LIMIT && (
-              <p className="text-sm text-neutral-400">
-                Limite quotidienne atteinte ({DAILY_LIMIT} analyses/jour). Reviens demain pour de nouvelles analyses !
-              </p>
+              <p className="text-sm text-neutral-400">{t.limitReached(DAILY_LIMIT)}</p>
             )}
             {aiText && <p className="text-sm text-neutral-200 leading-relaxed">{aiText}</p>}
             {aiError && <p className="text-sm text-neutral-400">{aiError}</p>}
