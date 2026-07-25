@@ -3,6 +3,7 @@ import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords, Instagra
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Media from "./Media.jsx";
+import MentionsLegales from "./MentionsLegales.jsx";
 import { LANGUAGES, T, translateDivision, formatHeight, getInitialLang, setStoredLang } from "./i18n.js";
 
 // Comptes Instagram officiels vérifiés manuellement — recherche par nom (pas exhaustif,
@@ -257,6 +258,8 @@ export default function App() {
         <Simulator lang={lang} />
       ) : view === "media" ? (
         <Media />
+      ) : view === "mentions" ? (
+        <MentionsLegales />
       ) : (
         <>
           <main className="max-w-5xl mx-auto px-5 py-8">
@@ -336,8 +339,11 @@ export default function App() {
         </>
       )}
 
-      <footer className="max-w-5xl mx-auto px-5 py-10 text-[11px] text-neutral-500">
-        {t.footer}
+      <footer className="max-w-5xl mx-auto px-5 py-10 text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span>{t.footer}</span>
+        <button onClick={() => setView("mentions")} className="tap underline hover:text-neutral-300">
+          Mentions légales
+        </button>
       </footer>
     </div>
   );
