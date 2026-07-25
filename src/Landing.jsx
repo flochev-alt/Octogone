@@ -120,6 +120,14 @@ export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, l
           </svg>
         )}
 
+        {/* Logo, en haut à gauche */}
+        <div className="rise absolute top-5 left-5 z-20 w-10 h-10 rounded-xl bg-neutral-950 border border-neutral-800 flex items-center justify-center">
+          <svg width="26" height="26" viewBox="0 0 100 100">
+            <polygon points="32,10 68,10 90,32 90,68 68,90 32,90 10,68 10,32" fill="none" stroke="#fbbf24" strokeWidth="9" />
+            <text x="50" y="66" textAnchor="middle" fontFamily="Archivo, sans-serif" fontWeight="800" fontSize="48" fill="white">O<tspan fill="#fbbf24">.</tspan></text>
+          </svg>
+        </div>
+
         {/* Sélecteur de langue */}
         <div className="rise absolute top-5 right-5 z-20 flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
           {LANGUAGES.map((l) => (
