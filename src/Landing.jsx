@@ -10,6 +10,11 @@ const TICKER_FIGHTERS = [
   { nom: "Khamzat Chimaev", record: "15-1-0" },
 ];
 
+const SPARKS = Array.from({ length: 12 }, (_, i) => ({
+  angle: (360 / 12) * i,
+  delay: i * 0.18,
+}));
+
 export default function Landing({ onEnter = () => {} }) {
   const [mounted, setMounted] = useState(false);
 
@@ -31,8 +36,16 @@ export default function Landing({ onEnter = () => {} }) {
         @keyframes glowBreathe { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.5; } }
         @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-        .octo-ring { animation: octoSpin 35s linear infinite; }
-        .octo-ring-2 { animation: octoSpin 50s linear infinite reverse; }
+        @keyframes sparkFly {
+          0% { opacity: 0; transform: rotate(var(--a)) translateX(0) scale(0.4); }
+          15% { opacity: 0.9; }
+          75% { opacity: 0.7; }
+          100% { opacity: 0; transform: rotate(var(--a)) translateX(260px) scale(1); }
+        }
+        @keyframes shine { 0% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(220%) skewX(-20deg); } }
+
+        .octo-outer { }
+        .octo-inner { }
         .octo-in { animation: octoFade 1.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
         .blur-in { animation: blurIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
         .rise { animation: riseUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
@@ -46,16 +59,37 @@ export default function Landing({ onEnter = () => {} }) {
           color: transparent;
           animation: shimmer 3s linear infinite;
         }
+        .spark { animation: sparkFly 3.4s ease-out infinite; }
+        .shine-btn { position: relative; overflow: hidden; }
+        .shine-sweep {
+          position: absolute; top: 0; left: 0; width: 40%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+          animation: shine 2.6s ease-in-out infinite;
+          animation-delay: 1.2s;
+        }
         .tap { transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, border-color 0.2s; }
         .tap:active { transform: scale(0.97); }
       `}</style>
 
       {/* Hero */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-5 text-center">
-        {/* Halo central */}
-        <div className="glow absolute w-[420px] h-[420px] rounded-full bg-amber-400/20 blur-3xl" />
+        {/* Fondu chaud discret, contenu dans le petit octogone */}
+        <div className="absolute inset-0 m-auto w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-amber-400/40 blur-2xl pointer-events-none" />
 
-        {/* Octogone signature */}
+        {/* Étincelles discrètes */}
+        {mounted && (
+          <div className="absolute w-2 h-2" aria-hidden>
+            {SPARKS.map((s, i) => (
+              <div
+                key={i}
+                className="spark absolute w-1 h-1 rounded-full bg-amber-300"
+                style={{ "--a": `${s.angle}deg`, animationDelay: `${1.6 + s.delay}s` }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Octogone : anneau extérieur épais fixe + anneau intérieur fin */}
         {mounted && (
           <svg
             className="octo-in absolute w-[420px] h-[420px] sm:w-[620px] sm:h-[620px]"
@@ -63,21 +97,20 @@ export default function Landing({ onEnter = () => {} }) {
             style={{ animationDelay: "0ms" }}
           >
             <polygon
-              className="octo-ring"
+              className="octo-outer"
               points="30,4 70,4 96,30 96,70 70,96 30,96 4,70 4,30"
               fill="none"
               stroke="#fbbf24"
               strokeOpacity="0.5"
               strokeWidth="3.4"
-              style={{ transformOrigin: "50% 50%" }}
             />
             <polygon
-              className="octo-ring-2"
+              className="octo-inner"
               points="30,4 70,4 96,30 96,70 70,96 30,96 4,70 4,30"
               fill="none"
               stroke="#fbbf24"
-              strokeOpacity="0.22"
-              strokeWidth="2"
+              strokeOpacity="0.28"
+              strokeWidth="1.2"
               transform="scale(0.8)"
               style={{ transformOrigin: "50% 50%" }}
             />
@@ -102,10 +135,13 @@ export default function Landing({ onEnter = () => {} }) {
 
           <button
             onClick={onEnter}
-            className="tap group inline-flex items-center gap-2 bg-amber-400 text-neutral-950 font-semibold text-sm px-6 py-3.5 rounded-full hover:bg-amber-300"
+            className="shine-btn tap group inline-flex items-center gap-2 bg-amber-400 text-neutral-950 font-semibold text-sm px-6 py-3.5 rounded-full hover:bg-amber-300"
           >
-            Explorer le site
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            <span className="shine-sweep" aria-hidden />
+            <span className="relative z-10 flex items-center gap-2">
+              Explorer le site
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
           </button>
         </div>
 
