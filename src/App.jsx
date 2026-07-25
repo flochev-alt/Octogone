@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords, Instagram } from "lucide-react";
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
+import Media from "./Media.jsx";
 import { LANGUAGES, T, translateDivision, formatHeight, getInitialLang, setStoredLang } from "./i18n.js";
 
 // Comptes Instagram officiels vérifiés manuellement — recherche par nom (pas exhaustif,
@@ -108,6 +109,8 @@ export default function App() {
     return rankings.fighters.filter((f) => f.name?.toLowerCase().includes(query.toLowerCase()));
   }, [rankings, query]);
 
+  // Si la recherche ne donne rien dans la catégorie actuelle, on cherche
+  // le combattant dans les autres catégories et on bascule automatiquement dessus.
   useEffect(() => {
     if (view !== "combattants") return;
     if (loading) return;
@@ -146,7 +149,7 @@ export default function App() {
   };
 
   if (view === "landing") {
-    return <Landing onEnter={() => setView("combattants")} lang={lang} setLang={setLang} />;
+    return <Landing onEnter={() => setView("combattants")} onEnterMedia={() => setView("media")} lang={lang} setLang={setLang} />;
   }
 
   return (
@@ -182,10 +185,10 @@ export default function App() {
 
       <header className="sticky top-0 z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800">
         <div className="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 shrink-0">
+          <button onClick={() => setView("landing")} className="tap flex items-center gap-2.5 shrink-0">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
-          </div>
+          </button>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5 bg-neutral-900 rounded-full p-1 border border-neutral-800">
               {LANGUAGES.map((l) => (
@@ -218,6 +221,14 @@ export default function App() {
               >
                 {t.navSimulateur}
               </button>
+              <button
+                onClick={() => setView("media")}
+                className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
+                  view === "media" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
+                }`}
+              >
+                {t.navMedia}
+              </button>
             </nav>
           </div>
         </div>
@@ -225,6 +236,8 @@ export default function App() {
 
       {view === "simulateur" ? (
         <Simulator lang={lang} />
+      ) : view === "media" ? (
+        <Media />
       ) : (
         <>
           <main className="max-w-5xl mx-auto px-5 py-8">
