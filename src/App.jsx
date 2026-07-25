@@ -1,7 +1,37 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords } from "lucide-react";
+import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords, Instagram } from "lucide-react";
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
+import { LANGUAGES, T, translateDivision, formatHeight, getInitialLang, setStoredLang } from "./i18n.js";
+
+// Comptes Instagram officiels vérifiés manuellement — recherche par nom (pas exhaustif,
+// à compléter au fur et à mesure). Un fighter absent de cette liste n'affiche pas la bulle.
+const INSTAGRAM = {
+  "islam makhachev": "islam_makhachev",
+  "alex pereira": "alexpoatanpereira",
+  "justin gaethje": "justin_gaethje",
+  "ilia topuria": "iliatopuria",
+  "alexander volkanovski": "alexvolkanovski",
+  "petr yan": "petr_yan",
+  "merab dvalishvili": "merab.dvalishvili",
+  "alexandre pantoja": "pantoja_oficial",
+  "khamzat chimaev": "khamzat_chimaev",
+  "sean strickland": "stricklandmma",
+  "tom aspinall": "tomaspinallofficial",
+  "ciryl gane": "ciryl_gane",
+  "jack della maddalena": "jackdellamaddalena",
+  "magomed ankalaev": "ankalaev_magomed",
+  "kayla harrison": "kaylaharrisonofficial",
+  "valentina shevchenko": "bulletvalentina",
+  "mackenzie dern": "mackenziedern",
+  "julianna pena": "venezuelanvixen",
+  "virna jandiroba": "virnajandiroba",
+  "khabib nurmagomedov": "khabib_nurmagomedov",
+  "conor mcgregor": "thenotoriousmma",
+  "georges st-pierre": "georgesstpierre",
+};
+
+const getInstagram = (name) => INSTAGRAM[name?.toLowerCase()];
 
 const DIVISIONS = [
   "flyweight", "bantamweight", "featherweight", "lightweight",
@@ -41,6 +71,18 @@ const METHOD_COLOR = {
 
 export default function App() {
   const [view, setView] = useState("landing");
+  const [lang, setLangState] = useState("fr");
+  const t = T[lang];
+
+  useEffect(() => {
+    setLangState(getInitialLang());
+  }, []);
+
+  const setLang = (l) => {
+    setLangState(l);
+    setStoredLang(l);
+  };
+
   const [rankings, setRankings] = useState(null);
   const [division, setDivision] = useState("lightweight");
   const [query, setQuery] = useState("");
@@ -48,6 +90,7 @@ export default function App() {
   const [closing, setClosing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     if (view !== "combattants") return;
@@ -65,13 +108,45 @@ export default function App() {
     return rankings.fighters.filter((f) => f.name?.toLowerCase().includes(query.toLowerCase()));
   }, [rankings, query]);
 
+  useEffect(() => {
+    if (view !== "combattants") return;
+    if (loading) return;
+    if (!query || query.trim().length < 3) return;
+    if (fighters.length > 0) return;
+
+    let cancelled = false;
+    const searchOtherDivisions = async () => {
+      setRedirecting(true);
+      for (const d of DIVISIONS) {
+        if (d === division || cancelled) continue;
+        try {
+          const r = await fetch(`/api/division/${d}`);
+          if (!r.ok) continue;
+          const data = await r.json();
+          const match = data.fighters?.find((f) =>
+            f.name?.toLowerCase().includes(query.toLowerCase())
+          );
+          if (match && !cancelled) {
+            setDivision(d);
+            break;
+          }
+        } catch (e) {
+          // on ignore et on passe à la catégorie suivante
+        }
+      }
+      if (!cancelled) setRedirecting(false);
+    };
+    searchOtherDivisions();
+    return () => { cancelled = true; };
+  }, [query, fighters.length, division, loading, view]);
+
   const closePanel = () => {
     setClosing(true);
     setTimeout(() => { setSelected(null); setClosing(false); }, 260);
   };
 
   if (view === "landing") {
-    return <Landing onEnter={() => setView("combattants")} />;
+    return <Landing onEnter={() => setView("combattants")} lang={lang} setLang={setLang} />;
   }
 
   return (
@@ -106,34 +181,50 @@ export default function App() {
       `}</style>
 
       <header className="sticky top-0 z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800">
-        <div className="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+        <div className="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
           </div>
-          <nav className="flex items-center gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800">
-            <button
-              onClick={() => setView("combattants")}
-              className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
-                view === "combattants" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
-              }`}
-            >
-              Combattants
-            </button>
-            <button
-              onClick={() => setView("simulateur")}
-              className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
-                view === "simulateur" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
-              }`}
-            >
-              Simulateur
-            </button>
-          </nav>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5 bg-neutral-900 rounded-full p-1 border border-neutral-800">
+              {LANGUAGES.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => setLang(l.code)}
+                  aria-label={l.label}
+                  className={`tap w-7 h-7 rounded-full flex items-center justify-center text-sm ${
+                    lang === l.code ? "bg-amber-400/20 ring-1 ring-amber-400/50" : "opacity-50 hover:opacity-90"
+                  }`}
+                >
+                  {l.flag}
+                </button>
+              ))}
+            </div>
+            <nav className="flex items-center gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800">
+              <button
+                onClick={() => setView("combattants")}
+                className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
+                  view === "combattants" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
+                }`}
+              >
+                {t.navCombattants}
+              </button>
+              <button
+                onClick={() => setView("simulateur")}
+                className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
+                  view === "simulateur" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
+                }`}
+              >
+                {t.navSimulateur}
+              </button>
+            </nav>
+          </div>
         </div>
       </header>
 
       {view === "simulateur" ? (
-        <Simulator />
+        <Simulator lang={lang} />
       ) : (
         <>
           <main className="max-w-5xl mx-auto px-5 py-8">
@@ -148,7 +239,7 @@ export default function App() {
                       : "bg-transparent text-neutral-400 border-neutral-800 hover:border-amber-400/50 hover:text-neutral-50"
                   }`}
                 >
-                  {label(d)}
+                  {translateDivision(d, lang)}
                 </button>
               ))}
             </div>
@@ -159,7 +250,7 @@ export default function App() {
                   <Trophy className="w-5 h-5 text-amber-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">Champion — {label(division)}</div>
+                  <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{t.champion} — {translateDivision(division, lang)}</div>
                   <div className="disp text-xl truncate">{rankings.champion.championName}</div>
                 </div>
               </div>
@@ -170,7 +261,7 @@ export default function App() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Rechercher un combattant"
+                placeholder={t.searchPlaceholder}
                 className="bg-transparent outline-none w-full text-sm placeholder:text-neutral-500"
               />
             </div>
@@ -180,7 +271,7 @@ export default function App() {
                 {[...Array(5)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-neutral-900 animate-pulse" />)}
               </div>
             )}
-            {error && <p className="text-sm text-amber-400">Cette catégorie est indisponible pour le moment.</p>}
+            {error && <p className="text-sm text-amber-400">{t.categoryUnavailable}</p>}
 
             <div key={division + query} className="space-y-2">
               {fighters.map((f, i) => (
@@ -197,23 +288,30 @@ export default function App() {
               ))}
             </div>
 
-            {!loading && !error && fighters.length === 0 && (
-              <p className="text-sm text-neutral-400">Aucun résultat pour « {query} ».</p>
+            {redirecting && (
+              <p className="text-sm text-amber-400 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                {t.searchingOtherCategories}
+              </p>
+            )}
+
+            {!loading && !error && !redirecting && fighters.length === 0 && (
+              <p className="text-sm text-neutral-400">{t.noResults(query)}</p>
             )}
           </main>
 
-          {selected && <FighterPanel fighter={selected} closing={closing} onClose={closePanel} />}
+          {selected && <FighterPanel fighter={selected} closing={closing} onClose={closePanel} lang={lang} t={t} />}
         </>
       )}
 
       <footer className="max-w-5xl mx-auto px-5 py-10 text-[11px] text-neutral-500">
-        Octogone — données UFC via Octagon API. Simulateur basé sur une base de combattants vérifiée manuellement.
+        {t.footer}
       </footer>
     </div>
   );
 }
 
-function FighterPanel({ fighter, onClose, closing }) {
+function FighterPanel({ fighter, onClose, closing, lang, t }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -244,8 +342,20 @@ function FighterPanel({ fighter, onClose, closing }) {
           </button>
         </div>
 
-        <div className="px-5 pt-4">
+        <div className="px-5 pt-4 flex items-center gap-2">
           <span className="disp text-xl">{fighter.name}</span>
+          {getInstagram(fighter.name) && (
+            <a
+              href={`https://instagram.com/${getInstagram(fighter.name)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="tap w-7 h-7 rounded-full bg-neutral-800 hover:bg-amber-400/20 flex items-center justify-center shrink-0"
+              aria-label={`Instagram de ${fighter.name}`}
+            >
+              <Instagram className="w-3.5 h-3.5 text-neutral-300" />
+            </a>
+          )}
         </div>
 
         <div className="p-5 space-y-4">
@@ -255,21 +365,21 @@ function FighterPanel({ fighter, onClose, closing }) {
               {(data.wins || data.losses) && (
                 <div className="row-rise text-center py-4 rounded-xl bg-neutral-950 border border-neutral-800">
                   <div className="mono text-2xl text-amber-400 tracking-tight">{data.wins}-{data.losses}-{data.draws}</div>
-                  <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">Bilan V-D-N</div>
+                  <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.record}</div>
                 </div>
               )}
-              <Stat icon={Users} label="Division" value={data.category} delay={40} />
-              <Stat icon={Ruler} label="Taille / Allonge (in)" value={[data.height, data.reach].filter(Boolean).join(" / ")} delay={80} />
-              <Stat icon={MapPin} label="Lieu de naissance" value={data.placeOfBirth} delay={120} />
-              <Stat label="S'entraîne à" value={data.trainsAt} delay={160} />
-              <Stat label="Style" value={data.fightingStyle} delay={200} />
-              <Stat label="Âge" value={data.age} delay={240} />
+              <Stat icon={Users} label={t.division} value={data.category} delay={40} />
+              <Stat icon={Ruler} label={`${t.heightReach} (in)`} value={[data.height, data.reach].filter(Boolean).join(" / ")} delay={80} />
+              <Stat icon={MapPin} label={t.birthplace} value={data.placeOfBirth} delay={120} />
+              <Stat label={t.trainsAt} value={data.trainsAt} delay={160} />
+              <Stat label={t.style} value={data.fightingStyle} delay={200} />
+              <Stat label={t.age} value={data.age} delay={240} />
 
               {recent && (
                 <div className="row-rise pt-2" style={{ animationDelay: "280ms" }}>
                   <div className="flex items-center gap-2 mb-3">
                     <Swords className="w-3.5 h-3.5 text-neutral-400" />
-                    <span className="text-xs uppercase tracking-widest text-neutral-400">5 derniers combats</span>
+                    <span className="text-xs uppercase tracking-widest text-neutral-400">{t.recentFights}</span>
                   </div>
                   <div className="space-y-2">
                     {recent.map((fight, i) => (
