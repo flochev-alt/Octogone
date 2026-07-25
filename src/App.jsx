@@ -153,7 +153,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-50" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-neutral-950 text-neutral-50 overflow-x-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
@@ -183,18 +183,22 @@ export default function App() {
         .tap:active { transform: scale(0.97); }
       `}</style>
 
-      <header className="sticky top-0 z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800">
-        <div className="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-3">
-          <button onClick={() => setView("landing")} className="tap flex items-center gap-2.5 shrink-0">
+      <header className="sticky top-0 z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 overflow-x-hidden">
+        <div className="max-w-5xl mx-auto px-3 sm:px-5 h-16 flex items-center justify-between gap-1.5 sm:gap-3">
+          <button onClick={() => setView("landing")} className="tap flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
-            <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
+            <span className="disp text-lg tracking-tight">
+              <span className="sm:hidden">O</span>
+              <span className="hidden sm:inline">OCTOGONE</span>
+              <span className="text-amber-400">.</span>
+            </span>
           </button>
 
-          <nav className="flex-1 flex items-center justify-center">
-            <div className="flex items-center gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800">
+          <nav className="flex-1 flex items-center justify-center min-w-0">
+            <div className="flex items-center gap-0.5 sm:gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800 max-w-full">
               <button
                 onClick={() => setView("combattants")}
-                className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
+                className={`tap text-[10px] sm:text-xs font-semibold px-2 sm:px-3.5 py-1.5 rounded-full whitespace-nowrap ${
                   view === "combattants" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
                 }`}
               >
@@ -202,7 +206,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setView("simulateur")}
-                className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
+                className={`tap text-[10px] sm:text-xs font-semibold px-2 sm:px-3.5 py-1.5 rounded-full whitespace-nowrap ${
                   view === "simulateur" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
                 }`}
               >
@@ -210,7 +214,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => setView("media")}
-                className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
+                className={`tap text-[10px] sm:text-xs font-semibold px-2 sm:px-3.5 py-1.5 rounded-full whitespace-nowrap ${
                   view === "media" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
                 }`}
               >
@@ -219,19 +223,32 @@ export default function App() {
             </div>
           </nav>
 
-          <div className="flex items-center gap-0.5 bg-neutral-900 rounded-full p-1 border border-neutral-800 shrink-0">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                onClick={() => setLang(l.code)}
-                aria-label={l.label}
-                className={`tap w-7 h-7 rounded-full flex items-center justify-center text-sm ${
-                  lang === l.code ? "bg-amber-400/20 ring-1 ring-amber-400/50" : "opacity-50 hover:opacity-90"
-                }`}
-              >
-                {l.flag}
-              </button>
-            ))}
+          {/* Drapeaux : menu déroulant sur mobile, rangée de boutons à partir de sm */}
+          <div className="shrink-0">
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              aria-label="Langue"
+              className="sm:hidden bg-neutral-900 border border-neutral-800 rounded-full text-sm px-2 py-1.5 text-neutral-200 outline-none appearance-none text-center"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>{l.flag}</option>
+              ))}
+            </select>
+            <div className="hidden sm:flex items-center gap-0.5 bg-neutral-900 rounded-full p-1 border border-neutral-800">
+              {LANGUAGES.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => setLang(l.code)}
+                  aria-label={l.label}
+                  className={`tap w-7 h-7 rounded-full flex items-center justify-center text-sm ${
+                    lang === l.code ? "bg-amber-400/20 ring-1 ring-amber-400/50" : "opacity-50 hover:opacity-90"
+                  }`}
+                >
+                  {l.flag}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </header>
