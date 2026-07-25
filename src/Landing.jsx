@@ -16,7 +16,7 @@ const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   delay: i * 0.18,
 }));
 
-export default function Landing({ onEnter = () => {}, lang = "fr", setLang = () => {} }) {
+export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
 
@@ -46,6 +46,7 @@ export default function Landing({ onEnter = () => {}, lang = "fr", setLang = () 
         }
         @keyframes shine { 0% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(220%) skewX(-20deg); } }
 
+        /* Les deux anneaux restent fixes après leur entrée, pour garder un alignement parfait comme sur la photo de référence */
         .octo-outer { }
         .octo-inner { }
         .octo-in { animation: octoFade 1.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
@@ -179,7 +180,7 @@ export default function Landing({ onEnter = () => {}, lang = "fr", setLang = () 
       <section className="max-w-4xl mx-auto px-5 pb-20 grid sm:grid-cols-3 gap-3">
         <NavCard icon={Trophy} title={t.navCombattants} desc={t.navCardCombattantsDesc} onClick={onEnter} />
         <NavCard icon={Swords} title={t.navSimulateur} desc={t.navCardSimulateurDesc} onClick={onEnter} />
-        <NavCard icon={Newspaper} title="Média" desc={t.navCardMediaDesc} onClick={onEnter} disabled comingSoon={t.comingSoon} />
+        <NavCard icon={Newspaper} title={t.navMedia} desc={t.navCardMediaDesc} onClick={onEnterMedia} />
       </section>
     </div>
   );
