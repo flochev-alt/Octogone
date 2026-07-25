@@ -189,22 +189,9 @@ export default function App() {
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
           </button>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-0.5 bg-neutral-900 rounded-full p-1 border border-neutral-800">
-              {LANGUAGES.map((l) => (
-                <button
-                  key={l.code}
-                  onClick={() => setLang(l.code)}
-                  aria-label={l.label}
-                  className={`tap w-7 h-7 rounded-full flex items-center justify-center text-sm ${
-                    lang === l.code ? "bg-amber-400/20 ring-1 ring-amber-400/50" : "opacity-50 hover:opacity-90"
-                  }`}
-                >
-                  {l.flag}
-                </button>
-              ))}
-            </div>
-            <nav className="flex items-center gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800">
+
+          <nav className="flex-1 flex items-center justify-center">
+            <div className="flex items-center gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800">
               <button
                 onClick={() => setView("combattants")}
                 className={`tap text-xs font-semibold px-3.5 py-1.5 rounded-full ${
@@ -229,7 +216,22 @@ export default function App() {
               >
                 {t.navMedia}
               </button>
-            </nav>
+            </div>
+          </nav>
+
+          <div className="flex items-center gap-0.5 bg-neutral-900 rounded-full p-1 border border-neutral-800 shrink-0">
+            {LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                aria-label={l.label}
+                className={`tap w-7 h-7 rounded-full flex items-center justify-center text-sm ${
+                  lang === l.code ? "bg-amber-400/20 ring-1 ring-amber-400/50" : "opacity-50 hover:opacity-90"
+                }`}
+              >
+                {l.flag}
+              </button>
+            ))}
           </div>
         </div>
       </header>
