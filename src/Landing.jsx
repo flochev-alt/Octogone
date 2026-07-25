@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ArrowRight, Swords, Trophy, Newspaper } from "lucide-react";
+import { LANGUAGES, T } from "./i18n.js";
 
 const TICKER_FIGHTERS = [
   { nom: "Islam Makhachev", record: "28-1-0" },
@@ -15,7 +16,8 @@ const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   delay: i * 0.18,
 }));
 
-export default function Landing({ onEnter = () => {} }) {
+export default function Landing({ onEnter = () => {}, lang = "fr", setLang = () => {} }) {
+  const t = T[lang];
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -89,7 +91,7 @@ export default function Landing({ onEnter = () => {} }) {
           </div>
         )}
 
-        {/* Octogone : anneau extérieur épais fixe + anneau intérieur fin */}
+        {/* Octogone : anneau extérieur épais fixe + anneau intérieur fin qui tourne */}
         {mounted && (
           <svg
             className="octo-in absolute w-[420px] h-[420px] sm:w-[620px] sm:h-[620px]"
@@ -117,20 +119,36 @@ export default function Landing({ onEnter = () => {} }) {
           </svg>
         )}
 
+        {/* Sélecteur de langue */}
+        <div className="rise absolute top-5 right-5 z-20 flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
+          {LANGUAGES.map((l) => (
+            <button
+              key={l.code}
+              onClick={() => setLang(l.code)}
+              aria-label={l.label}
+              className={`tap w-8 h-8 rounded-full flex items-center justify-center text-base ${
+                lang === l.code ? "bg-amber-400/20 ring-1 ring-amber-400/50" : "opacity-50 hover:opacity-90"
+              }`}
+            >
+              {l.flag}
+            </button>
+          ))}
+        </div>
+
         <div className="blur-in relative z-10" style={{ animationDelay: "150ms" }}>
           <div className="flex items-center justify-center gap-2 mb-5">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
-            <span className="mono text-xs uppercase tracking-[0.2em] text-neutral-400">Stats MMA</span>
+            <span className="mono text-xs uppercase tracking-[0.2em] text-neutral-400">{t.landingKicker}</span>
           </div>
 
           <h1 className="disp text-5xl sm:text-7xl leading-[0.95] mb-5">
-            ENTREZ DANS
+            {t.landingTitle1}
             <br />
-            <span className="shimmer-text">L'OCTOGONE.</span>
+            <span className="shimmer-text">{t.landingTitle2}</span>
           </h1>
 
           <p className="text-neutral-400 text-sm sm:text-base max-w-md mx-auto mb-8">
-            Les stats, les duels, les probabilités — tout l'univers UFC passé au crible, sans détour.
+            {t.landingSubtitle}
           </p>
 
           <button
@@ -139,7 +157,7 @@ export default function Landing({ onEnter = () => {} }) {
           >
             <span className="shine-sweep" aria-hidden />
             <span className="relative z-10 flex items-center gap-2">
-              Explorer le site
+              {t.landingCta}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </span>
           </button>
@@ -159,15 +177,15 @@ export default function Landing({ onEnter = () => {} }) {
 
       {/* Navigation vers les sections */}
       <section className="max-w-4xl mx-auto px-5 pb-20 grid sm:grid-cols-3 gap-3">
-        <NavCard icon={Trophy} title="Combattants" desc="Classements et fiches détaillées" onClick={onEnter} />
-        <NavCard icon={Swords} title="Simulateur" desc="Probabilités de duels par catégorie" onClick={onEnter} />
-        <NavCard icon={Newspaper} title="Média" desc="Cartes à venir et actualités" onClick={onEnter} disabled />
+        <NavCard icon={Trophy} title={t.navCombattants} desc={t.navCardCombattantsDesc} onClick={onEnter} />
+        <NavCard icon={Swords} title={t.navSimulateur} desc={t.navCardSimulateurDesc} onClick={onEnter} />
+        <NavCard icon={Newspaper} title="Média" desc={t.navCardMediaDesc} onClick={onEnter} disabled comingSoon={t.comingSoon} />
       </section>
     </div>
   );
 }
 
-function NavCard({ icon: Icon, title, desc, onClick, disabled }) {
+function NavCard({ icon: Icon, title, desc, onClick, disabled, comingSoon }) {
   return (
     <button
       onClick={onClick}
@@ -176,7 +194,7 @@ function NavCard({ icon: Icon, title, desc, onClick, disabled }) {
     >
       <Icon className="w-5 h-5 text-amber-400 mb-3" />
       <div className="disp text-base mb-1">{title}</div>
-      <div className="text-xs text-neutral-500">{disabled ? "Bientôt disponible" : desc}</div>
+      <div className="text-xs text-neutral-500">{disabled ? comingSoon : desc}</div>
     </button>
   );
 }
