@@ -22,4 +22,8 @@ export const FIGHTERS = [
   { id: "f018", nom: "Mackenzie Dern", categorie: "Poids paille feminin", taille: 163, allonge: 161, victoires: 16, defaites: 5, nuls: 0, ko: 6, sub: 41, dec: 53, striking: null, tdAcc: null, tdDef: null },
   { id: "f019", nom: "Julianna Pena", categorie: "Poids coq feminin", taille: 170, allonge: 175, victoires: 12, defaites: 5, nuls: 0, ko: 25, sub: 42, dec: 33, striking: null, tdAcc: null, tdDef: null },
   { id: "f020", nom: "Virna Jandiroba", categorie: "Poids paille feminin", taille: 160, allonge: 163, victoires: 23, defaites: 4, nuls: 0, ko: 4, sub: 61, dec: 35, striking: null, tdAcc: null, tdDef: null },
+  { id: "f021", nom: "Khabib Nurmagomedov", categorie: "Legendes", taille: null, allonge: null, victoires: 29, defaites: 0, nuls: 0, ko: null, sub: null, dec: null, striking: null, tdAcc: null, tdDef: null },
+  { id: "f022", nom: "Georges St-Pierre", categorie: "Legendes", taille: 178, allonge: 193, victoires: 26, defaites: 2, nuls: 0, ko: 31, sub: 23, dec: 46, striking: null, tdAcc: 74, tdDef: null },
+  { id: "f023", nom: "Conor McGregor", categorie: "Legendes", taille: 175, allonge: 188, victoires: 22, defaites: 7, nuls: 0, ko: 86, sub: 5, dec: 9, striking: null, tdAcc: null, tdDef: null },
+  { id: "f024", nom: "Salahdine Parnasse", categorie: "Poids leger", taille: 178, allonge: 186, victoires: 23, defaites: 2, nuls: 0, ko: 35, sub: 30, dec: 35, striking: null, tdAcc: null, tdDef: null },
 ];
