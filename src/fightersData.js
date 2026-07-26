@@ -5,7 +5,7 @@ export const FIGHTERS = [
   { id: "f001", nom: "Islam Makhachev", categorie: "Poids welter", taille: 178, allonge: 178, victoires: 28, defaites: 1, nuls: 0, ko: 25, sub: 46, dec: 29, striking: 58, tdAcc: 56, tdDef: 91 },
   { id: "f002", nom: "Alex Pereira", categorie: "Poids lourd", taille: 193, allonge: 201, victoires: 13, defaites: 4, nuls: 0, ko: 85, sub: 0, dec: 15, striking: 61, tdAcc: 100, tdDef: 70 },
   { id: "f003", nom: "Justin Gaethje", categorie: "Poids leger", taille: 180, allonge: 178, victoires: 28, defaites: 5, nuls: 0, ko: 75, sub: 4, dec: 21, striking: 58, tdAcc: 26, tdDef: 74 },
-  { id: "f004", nom: "Ilia Topuria", categorie: "Poids leger", taille: 170, allonge: 175, victoires: 17, defaites: 1, nuls: 0, ko: 41, sub: 47, dec: 12, striking: 46, tdAcc: 56, tdDef: 92 },
+  { id: "f004", nom: "Ilia Topuria", categorie: "Poids leger", taille: 170, allonge: 175, victoires: 17, defaites: 2, nuls: 0, ko: 41, sub: 47, dec: 12, striking: 46, tdAcc: 56, tdDef: 92 },
   { id: "f005", nom: "Alexander Volkanovski", categorie: "Poids plume", taille: 168, allonge: 182, victoires: 28, defaites: 4, nuls: 0, ko: 46, sub: 11, dec: 43, striking: 57, tdAcc: 37, tdDef: 70 },
   { id: "f006", nom: "Petr Yan", categorie: "Poids coq", taille: 171, allonge: 170, victoires: 20, defaites: 5, nuls: 0, ko: 35, sub: 5, dec: 60, striking: null, tdAcc: 19, tdDef: 82 },
   { id: "f007", nom: "Merab Dvalishvili", categorie: "Poids coq", taille: 168, allonge: 173, victoires: 21, defaites: 5, nuls: 0, ko: 5, sub: 5, dec: 90, striking: 41, tdAcc: 37, tdDef: 77 },
