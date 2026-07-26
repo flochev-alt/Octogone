@@ -33,4 +33,6 @@ export const FIGHTERS = [
   { id: "f029", nom: "Benoit Saint-Denis", categorie: "Poids leger", taille: 180, allonge: 185, victoires: 9, defaites: 4, nuls: 0, ko: 56, sub: 44, dec: 0, striking: null, tdAcc: null, tdDef: null },
   { id: "f030", nom: "Mateusz Gamrot", categorie: "Poids leger", taille: 177, allonge: 178, victoires: 9, defaites: 4, nuls: 0, ko: 33, sub: 22, dec: 44, striking: null, tdAcc: null, tdDef: null },
   { id: "f031", nom: "Dan Hooker", categorie: "Poids leger", taille: 183, allonge: 191, victoires: 14, defaites: 10, nuls: 0, ko: 50, sub: 14, dec: 36, striking: null, tdAcc: null, tdDef: null },
+  { id: "f032", nom: "Renato Moicano", categorie: "Poids leger", taille: 181, allonge: 183, victoires: 13, defaites: 7, nuls: 0, ko: 15, sub: 54, dec: 31, striking: null, tdAcc: null, tdDef: null },
+  { id: "f033", nom: "Rafael Fiziev", categorie: "Poids leger", taille: 173, allonge: 182, victoires: 8, defaites: 5, nuls: 0, ko: 50, sub: 0, dec: 50, striking: null, tdAcc: null, tdDef: null },
 ];
