@@ -1,4 +1,5 @@
-import { Newspaper, Calendar, MapPin, CheckCircle2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Newspaper, Calendar, MapPin, CheckCircle2, Search } from "lucide-react";
 
 // Données vérifiées manuellement (recherches web) — à mettre à jour au fil des events.
 // Chaque élément a une vraie date ISO : le tri chronologique est automatique (plus de risque d'erreur manuelle).
@@ -123,7 +124,7 @@ const TONIGHT_POSTER = {
   date: "25 JUILLET · SAMEDI",
   mainCard: [
     { a: "Magomed Ankalaev", flagA: "🇷🇺", b: "Bogdan Guskov", flagB: "🇺🇿", weight: "Poids mi-lourd" },
-    { a: "Robert Erceg", flagA: "🇦", b: "Shamil Temirov", flagB: "🇺🇿", weight: "Poids mouche" },
+    { a: "Robert Erceg", flagA: "🇦🇺", b: "Shamil Temirov", flagB: "🇺🇿", weight: "Poids mouche" },
     { a: "Ruslan Dulatov", flagA: "🇹🇷", b: "Chris Turman", flagB: "🇧🇷", weight: "Poids welter" },
     { a: "Said Zaynukov", flagA: "🇷🇺", b: "Filip Rzepecki", flagB: "🇵🇱", weight: "Poids léger" },
     { a: "Rustam Kuniev", flagA: "🇷🇺", b: "Chris Fortune", flagB: "🇺🇸", weight: "Poids lourd" },
@@ -311,7 +312,42 @@ function ReactionPost({ r }) {
   );
 }
 
+// Fonction de recherche : concatène tous les champs texte pertinents d'un item pour le filtrage.
+function searchTextFor(item) {
+  if (item.type === "upcoming") {
+    const c = item.data;
+    return [c.name, c.main, c.note, c.location, ...(c.fighters || [])].filter(Boolean).join(" ").toLowerCase();
+  }
+  if (item.type === "recap") {
+    const c = item.data;
+    return [c.name, c.location, ...c.results.map((r) => `${r.fight} ${r.method} ${r.note}`)].filter(Boolean).join(" ").toLowerCase();
+  }
+  if (item.type === "reaction") {
+    const r = item.data;
+    return [r.author, r.text, r.summary, r.context].filter(Boolean).join(" ").toLowerCase();
+  }
+  return "";
+}
+
 export default function Media() {
+  const [query, setQuery] = useState("");
+
+  const filteredFeed = useMemo(() => {
+    if (!query.trim()) return FEED;
+    const q = query.toLowerCase();
+    return FEED.filter((item) => searchTextFor(item).includes(q));
+  }, [query]);
+
+  const filteredTrashTalk = useMemo(() => {
+    if (!query.trim()) return TRASH_TALK;
+    const q = query.toLowerCase();
+    return TRASH_TALK.filter((tt) =>
+      [tt.a, tt.b, tt.summary].filter(Boolean).join(" ").toLowerCase().includes(q)
+    );
+  }, [query]);
+
+  const noResults = filteredFeed.length === 0 && filteredTrashTalk.length === 0;
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="row-rise flex items-center gap-2 px-5 py-6">
@@ -319,8 +355,20 @@ export default function Media() {
         <span className="text-xs uppercase tracking-widest text-neutral-400">Média — fil d'actualité</span>
       </div>
 
+      <div className="px-5 pb-5">
+        <div className="flex items-center gap-2.5 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 transition-colors focus-within:border-amber-400/50">
+          <Search className="w-4 h-4 text-neutral-400" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Rechercher par mot-clé (combattant, événement, ville...)"
+            className="bg-transparent outline-none w-full text-sm placeholder:text-neutral-500"
+          />
+        </div>
+      </div>
+
       <div className="border-t border-neutral-800">
-        {FEED.map((item, i) => (
+        {filteredFeed.map((item, i) => (
           <Post key={`${item.type}-${i}`}>
             {item.type === "upcoming" && <UpcomingPost c={item.data} />}
             {item.type === "recap" && <RecapPost card={item.data} />}
@@ -329,7 +377,7 @@ export default function Media() {
         ))}
 
         {/* Trash talk — non daté, toujours en fin de fil */}
-        {TRASH_TALK.map((tt, i) => (
+        {filteredTrashTalk.map((tt, i) => (
           <Post key={`tt-${i}`}>
             <div className="flex gap-3">
               <Avatar label={tt.a.split(" ").map((w) => w[0]).join("").slice(0, 2)} />
@@ -344,6 +392,10 @@ export default function Media() {
             </div>
           </Post>
         ))}
+
+        {noResults && (
+          <p className="text-sm text-neutral-400 px-5 py-6">Aucun résultat pour « {query} ».</p>
+        )}
       </div>
 
       <p className="text-[11px] text-neutral-600 px-5 py-6">
