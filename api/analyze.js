@@ -12,13 +12,19 @@ export default async function handler(req, res) {
 
   const { fighterA, fighterB, probA, probB } = req.body;
 
-  const prompt = `Tu es un analyste MMA expert. Analyse ce duel hypothétique en 3-4 phrases percutantes, en français, sans inventer de détails que je ne te donne pas.
+  const prompt = `Tu es un analyste MMA expert. Rédige une analyse détaillée et approfondie de ce duel hypothétique, en français, en 7-9 phrases, sans inventer de détails que je ne te donne pas.
 
 ${fighterA.nom} (${fighterA.victoires}-${fighterA.defaites}, striking ${fighterA.striking ?? "?"}%, TD accuracy ${fighterA.tdAcc ?? "?"}%, TD defense ${fighterA.tdDef ?? "?"}%) vs ${fighterB.nom} (${fighterB.victoires}-${fighterB.defaites}, striking ${fighterB.striking ?? "?"}%, TD accuracy ${fighterB.tdAcc ?? "?"}%, TD defense ${fighterB.tdDef ?? "?"}%).
 
 Probabilité calculée : ${fighterA.nom} ${probA}% / ${fighterB.nom} ${probB}%.
 
-Explique ce qui pourrait faire pencher la balance stylistiquement (striking vs grappling, allonge, etc.), sans donner de pronostic de méthode ou de round précis.`;
+Structure ton analyse ainsi :
+1. Le style de chaque combattant et ce qu'il cherche à imposer dans ce duel précis (2-3 phrases)
+2. Où se situe l'avantage stylistique clé (striking vs grappling, gestion de la distance, allonge, prise de risque) et pourquoi (2-3 phrases)
+3. Le scénario qui donnerait le plus de fil à retordre à chacun des deux combattants (1-2 phrases)
+4. Une conclusion nuancée sur ce qui pourrait faire basculer ce duel dans un sens ou dans l'autre (1-2 phrases)
+
+Ne donne aucun pronostic de méthode de victoire ou de round précis, et ne mentionne jamais de cotes, de paris, ou de conseil de mise — reste uniquement sur l'analyse stylistique et technique.`;
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -30,7 +36,7 @@ Explique ce qui pourrait faire pencher la balance stylistiquement (striking vs g
       },
       body: JSON.stringify({
         model: "claude-sonnet-5",
-        max_tokens: 500,
+        max_tokens: 800,
         messages: [{ role: "user", content: prompt }],
       }),
     });
