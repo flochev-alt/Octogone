@@ -9,6 +9,22 @@ const CATEGORIES = [...new Set(FIGHTERS.map((f) => f.categorie))];
 
 const DAILY_LIMIT = 5;
 
+// Accès illimité pour toi : visite une seule fois octogone.space/?vip=flo-illimite-2026
+// sur un appareil, et cet appareil garde l'accès illimité en permanence (stocké localement).
+const VIP_CODE = "flo-illimite-2026";
+const VIP_KEY = "octogone-vip";
+
+function isVip() {
+  return localStorage.getItem(VIP_KEY) === "true";
+}
+
+function checkVipUnlock() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("vip") === VIP_CODE) {
+    localStorage.setItem(VIP_KEY, "true");
+  }
+}
+
 function getDailyUsage() {
   const today = new Date().toISOString().slice(0, 10);
   const stored = JSON.parse(localStorage.getItem("octogone-ai-usage") || "{}");
@@ -46,8 +62,11 @@ export default function Simulator({ lang = "fr" }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
   const [dailyUsage, setDailyUsage] = useState(0);
+  const [vip, setVip] = useState(false);
 
   useEffect(() => {
+    checkVipUnlock();
+    setVip(isVip());
     setDailyUsage(getDailyUsage());
   }, []);
 
@@ -79,7 +98,7 @@ export default function Simulator({ lang = "fr" }) {
   };
 
   const genererAnalyseIA = async () => {
-    if (dailyUsage >= DAILY_LIMIT) return;
+    if (!vip && dailyUsage >= DAILY_LIMIT) return;
     setAiLoading(true);
     setAiError(null);
     try {
@@ -174,7 +193,7 @@ export default function Simulator({ lang = "fr" }) {
             <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-3">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {t.expertAnalysis}
             </div>
-            {!aiText && !aiError && dailyUsage < DAILY_LIMIT && (
+            {!aiText && !aiError && (vip || dailyUsage < DAILY_LIMIT) && (
               <>
                 <button
                   onClick={genererAnalyseIA}
@@ -184,11 +203,11 @@ export default function Simulator({ lang = "fr" }) {
                   {aiLoading ? t.generating : t.generateAI}
                 </button>
                 <p className="text-[11px] text-neutral-500 mt-2">
-                  {t.freeLeft(DAILY_LIMIT - dailyUsage)}
+                  {vip ? "Accès illimité activé" : t.freeLeft(DAILY_LIMIT - dailyUsage)}
                 </p>
               </>
             )}
-            {!aiText && !aiError && dailyUsage >= DAILY_LIMIT && (
+            {!aiText && !aiError && !vip && dailyUsage >= DAILY_LIMIT && (
               <p className="text-sm text-neutral-400">{t.limitReached(DAILY_LIMIT)}</p>
             )}
             {aiText && <p className="text-sm text-neutral-200 leading-relaxed">{aiText}</p>}
