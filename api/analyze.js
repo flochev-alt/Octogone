@@ -30,7 +30,7 @@ Explique ce qui pourrait faire pencher la balance stylistiquement (striking vs g
       },
       body: JSON.stringify({
         model: "claude-sonnet-5",
-        max_tokens: 300,
+        max_tokens: 500,
         messages: [{ role: "user", content: prompt }],
       }),
     });
