@@ -28,4 +28,5 @@ export const FIGHTERS = [
   { id: "f024", nom: "Salahdine Parnasse", categorie: "Poids leger", taille: 178, allonge: 186, victoires: 23, defaites: 2, nuls: 0, ko: 35, sub: 30, dec: 35, striking: null, tdAcc: null, tdDef: null },
   { id: "f025", nom: "Arman Tsarukyan", categorie: "Poids leger", taille: 170, allonge: 183, victoires: 10, defaites: 2, nuls: 0, ko: 40, sub: 10, dec: 50, striking: null, tdAcc: null, tdDef: null },
   { id: "f026", nom: "Charles Oliveira", categorie: "Poids leger", taille: 178, allonge: 188, victoires: 25, defaites: 11, nuls: 0, ko: 16, sub: 68, dec: 16, striking: null, tdAcc: null, tdDef: null },
+  { id: "f027", nom: "Max Holloway", categorie: "Poids leger", taille: 180, allonge: 175, victoires: 24, defaites: 9, nuls: 0, ko: 50, sub: 8, dec: 42, striking: null, tdAcc: null, tdDef: null },
 ];
