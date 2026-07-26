@@ -25,10 +25,12 @@ export const FIGHTERS = [
   { id: "f021", nom: "Khabib Nurmagomedov", categorie: "Legendes", taille: null, allonge: null, victoires: 29, defaites: 0, nuls: 0, ko: null, sub: null, dec: null, striking: null, tdAcc: null, tdDef: null },
   { id: "f022", nom: "Georges St-Pierre", categorie: "Legendes", taille: 178, allonge: 193, victoires: 26, defaites: 2, nuls: 0, ko: 31, sub: 23, dec: 46, striking: null, tdAcc: 74, tdDef: null },
   { id: "f023", nom: "Conor McGregor", categorie: "Legendes", taille: 175, allonge: 188, victoires: 22, defaites: 7, nuls: 0, ko: 86, sub: 5, dec: 9, striking: null, tdAcc: null, tdDef: null },
-  { id: "f024", nom: "Salahdine Parnasse", categorie: "Poids leger", taille: 178, allonge: 186, victoires: 23, defaites: 2, nuls: 0, ko: 35, sub: 30, dec: 35, striking: null, tdAcc: null, tdDef: null },
+  { id: "f024", nom: "Salahdine Parnasse", categorie: "Poids leger", taille: 178, allonge: 186, victoires: 23, defaites: 2, nuls: 1, ko: 35, sub: 30, dec: 35, striking: null, tdAcc: null, tdDef: null },
   { id: "f025", nom: "Arman Tsarukyan", categorie: "Poids leger", taille: 170, allonge: 183, victoires: 10, defaites: 2, nuls: 0, ko: 40, sub: 10, dec: 50, striking: null, tdAcc: null, tdDef: null },
   { id: "f026", nom: "Charles Oliveira", categorie: "Poids leger", taille: 178, allonge: 188, victoires: 25, defaites: 11, nuls: 0, ko: 16, sub: 68, dec: 16, striking: null, tdAcc: null, tdDef: null },
   { id: "f027", nom: "Max Holloway", categorie: "Poids leger", taille: 180, allonge: 175, victoires: 24, defaites: 9, nuls: 0, ko: 50, sub: 8, dec: 42, striking: null, tdAcc: null, tdDef: null },
   { id: "f028", nom: "Paddy Pimblett", categorie: "Poids leger", taille: 178, allonge: 185, victoires: 8, defaites: 1, nuls: 0, ko: 25, sub: 50, dec: 25, striking: null, tdAcc: null, tdDef: null },
   { id: "f029", nom: "Benoit Saint-Denis", categorie: "Poids leger", taille: 180, allonge: 185, victoires: 9, defaites: 4, nuls: 0, ko: 56, sub: 44, dec: 0, striking: null, tdAcc: null, tdDef: null },
+  { id: "f030", nom: "Mateusz Gamrot", categorie: "Poids leger", taille: 177, allonge: 178, victoires: 9, defaites: 4, nuls: 0, ko: 33, sub: 22, dec: 44, striking: null, tdAcc: null, tdDef: null },
+  { id: "f031", nom: "Dan Hooker", categorie: "Poids leger", taille: 183, allonge: 191, victoires: 14, defaites: 10, nuls: 0, ko: 50, sub: 14, dec: 36, striking: null, tdAcc: null, tdDef: null },
 ];
