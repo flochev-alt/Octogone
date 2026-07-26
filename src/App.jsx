@@ -41,6 +41,21 @@ const DIVISIONS = [
   "women-strawweight", "women-flyweight", "women-bantamweight", "women-featherweight",
 ];
 
+// Champions actuels — vérifiés manuellement (recherches croisées), à mettre à jour à chaque changement de titre.
+const CHAMPIONS = [
+  { division: "Poids lourd", name: "Tom Aspinall", since: "21 juin 2025", note: "A hérité du titre après la retraite de Jon Jones." },
+  { division: "Poids mi-lourd", name: "Carlos Ulberg", since: "11 avril 2026", note: "KO au 1er round face à Jiří Procházka (UFC 327)." },
+  { division: "Poids moyen", name: "Sean Strickland", since: "9 mai 2026", note: "Décision partagée face à Khamzat Chimaev (UFC 328)." },
+  { division: "Poids welter", name: "Islam Makhachev", since: "15 nov. 2025", note: "Décision unanime face à Jack Della Maddalena (UFC 322). Première défense prévue le 15 août 2026." },
+  { division: "Poids léger", name: "Justin Gaethje", since: "14 juin 2026", note: "TKO au 4e round face à Ilia Topuria (UFC Freedom 250)." },
+  { division: "Poids plume", name: "Alexander Volkanovski", since: "12 avril 2025", note: "Décision unanime face à Diego Lopes (UFC 314)." },
+  { division: "Poids coq", name: "Petr Yan", since: "6 déc. 2025", note: "Décision unanime face à Merab Dvalishvili (UFC 323)." },
+  { division: "Poids mouche", name: "Joshua Van", since: "6 déc. 2025", note: "TKO au 1er round face à Alexandre Pantoja (UFC 323)." },
+  { division: "F. Poids coq", name: "Kayla Harrison", since: "7 juin 2025", note: "A défendu son titre face à Amanda Nunes (UFC 324)." },
+  { division: "F. Poids mouche", name: "Valentina Shevchenko", since: "15 nov. 2025", note: "Victoire face à Zhang Weili (UFC 322)." },
+  { division: "F. Poids paille", name: "Mackenzie Dern", since: "25 oct. 2025", note: "Titre vacant remporté face à Virna Jandiroba (UFC 321). Première défense prévue le 15 août 2026." },
+];
+
 const label = (slug) =>
   slug.replace("women-", "F. ").replace("-", " ").replace(/^\w/, (c) => c.toUpperCase());
 
@@ -96,6 +111,7 @@ export default function App() {
 
   useEffect(() => {
     if (view !== "combattants") return;
+    if (division === "champions") return;
     setLoading(true);
     setError(null);
     fetch(`/api/division/${division}`)
@@ -264,6 +280,16 @@ export default function App() {
         <>
           <main className="max-w-5xl mx-auto px-5 py-8">
             <div className="flex gap-1.5 overflow-x-auto pb-4 mb-6 -mx-1 px-1">
+              <button
+                onClick={() => { setDivision("champions"); setQuery(""); }}
+                className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border flex items-center gap-1.5 ${
+                  division === "champions"
+                    ? "bg-amber-400 text-neutral-950 border-amber-400"
+                    : "bg-transparent text-amber-400 border-amber-400/40 hover:border-amber-400"
+                }`}
+              >
+                <Trophy className="w-3.5 h-3.5" /> Champions
+              </button>
               {DIVISIONS.map((d) => (
                 <button
                   key={d}
@@ -279,6 +305,30 @@ export default function App() {
               ))}
             </div>
 
+            {division === "champions" ? (
+              <div className="space-y-2">
+                {CHAMPIONS.map((c, i) => (
+                  <div
+                    key={i}
+                    style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
+                    className="row-rise rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-5 flex items-center gap-4"
+                  >
+                    <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
+                      <Trophy className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{c.division}</div>
+                      <div className="disp text-lg truncate">{c.name}</div>
+                      <div className="text-xs text-neutral-500 mt-0.5">
+                        Champion depuis le {c.since}
+                      </div>
+                      <div className="text-xs text-neutral-400 mt-1">{c.note}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
             {rankings?.champion && (
               <div key={division + "-champ"} className="row-rise mb-6 rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-5 flex items-center gap-4">
                 <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
@@ -332,6 +382,8 @@ export default function App() {
 
             {!loading && !error && !redirecting && fighters.length === 0 && (
               <p className="text-sm text-neutral-400">{t.noResults(query)}</p>
+            )}
+              </>
             )}
           </main>
 
