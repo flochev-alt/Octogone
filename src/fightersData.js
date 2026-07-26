@@ -26,4 +26,6 @@ export const FIGHTERS = [
   { id: "f022", nom: "Georges St-Pierre", categorie: "Legendes", taille: 178, allonge: 193, victoires: 26, defaites: 2, nuls: 0, ko: 31, sub: 23, dec: 46, striking: null, tdAcc: 74, tdDef: null },
   { id: "f023", nom: "Conor McGregor", categorie: "Legendes", taille: 175, allonge: 188, victoires: 22, defaites: 7, nuls: 0, ko: 86, sub: 5, dec: 9, striking: null, tdAcc: null, tdDef: null },
   { id: "f024", nom: "Salahdine Parnasse", categorie: "Poids leger", taille: 178, allonge: 186, victoires: 23, defaites: 2, nuls: 0, ko: 35, sub: 30, dec: 35, striking: null, tdAcc: null, tdDef: null },
+  { id: "f025", nom: "Arman Tsarukyan", categorie: "Poids leger", taille: 170, allonge: 183, victoires: 10, defaites: 2, nuls: 0, ko: 40, sub: 10, dec: 50, striking: null, tdAcc: null, tdDef: null },
+  { id: "f026", nom: "Charles Oliveira", categorie: "Poids leger", taille: 178, allonge: 188, victoires: 25, defaites: 11, nuls: 0, ko: 16, sub: 68, dec: 16, striking: null, tdAcc: null, tdDef: null },
 ];
