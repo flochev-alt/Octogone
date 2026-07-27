@@ -91,6 +91,11 @@ export default function Simulator({ lang = "fr" }) {
     };
   }, [fighterA, fighterB]);
 
+  const advantages = useMemo(() => {
+    if (!fighterA || !fighterB) return null;
+    return computeAdvantages(fighterA, fighterB);
+  }, [fighterA, fighterB]);
+
   const analyser = () => {
     setShowResult(true);
     setAiText(null);
@@ -182,11 +187,19 @@ export default function Simulator({ lang = "fr" }) {
             <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-1">
               <TrendingUp className="w-3.5 h-3.5" /> {t.comparatif}
             </div>
-            <StatRow label={t.record2} a={`${fighterA.victoires}-${fighterA.defaites}`} b={`${fighterB.victoires}-${fighterB.defaites}`} />
-            <StatRow label={t.strikingAcc} a={pct(fighterA.striking)} b={pct(fighterB.striking)} />
-            <StatRow label={t.tdAcc} a={pct(fighterA.tdAcc)} b={pct(fighterB.tdAcc)} />
-            <StatRow label={t.tdDef} a={pct(fighterA.tdDef)} b={pct(fighterB.tdDef)} />
-            <StatRow label={t.reach} a={formatHeight(fighterA.allonge, lang) ?? "—"} b={formatHeight(fighterB.allonge, lang) ?? "—"} icon={Ruler} />
+            <StatRow label={t.record2} a={`${fighterA.victoires}-${fighterA.defaites}`} b={`${fighterB.victoires}-${fighterB.defaites}`} winner={advantages?.winners.winRate} />
+            <StatRow label={t.strikingAcc} a={pct(fighterA.striking)} b={pct(fighterB.striking)} winner={advantages?.winners.striking} />
+            <StatRow label={t.tdAcc} a={pct(fighterA.tdAcc)} b={pct(fighterB.tdAcc)} winner={advantages?.winners.tdAcc} />
+            <StatRow label={t.tdDef} a={pct(fighterA.tdDef)} b={pct(fighterB.tdDef)} winner={advantages?.winners.tdDef} />
+            <StatRow label={t.reach} a={formatHeight(fighterA.allonge, lang) ?? "—"} b={formatHeight(fighterB.allonge, lang) ?? "—"} winner={advantages?.winners.reach} />
+
+            {advantages && (
+              <div className="flex items-center justify-center gap-3 pt-2 mt-1 border-t border-neutral-800">
+                <span className="mono text-lg text-amber-400">{advantages.scoreA}</span>
+                <span className="text-[10px] uppercase tracking-widest text-neutral-500">Avantages</span>
+                <span className="mono text-lg text-neutral-300">{advantages.scoreB}</span>
+              </div>
+            )}
           </div>
 
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
@@ -219,16 +232,46 @@ export default function Simulator({ lang = "fr" }) {
   );
 }
 
+function winRate(f) {
+  const total = f.victoires + f.defaites;
+  return total > 0 ? (f.victoires / total) * 100 : 0;
+}
+
+// Compare chaque statistique dispo et attribue un point au combattant qui a l'avantage (égalité = pas de point).
+function computeAdvantages(fighterA, fighterB) {
+  const categories = [
+    { key: "winRate", a: winRate(fighterA), b: winRate(fighterB) },
+    { key: "striking", a: fighterA.striking, b: fighterB.striking },
+    { key: "tdAcc", a: fighterA.tdAcc, b: fighterB.tdAcc },
+    { key: "tdDef", a: fighterA.tdDef, b: fighterB.tdDef },
+    { key: "reach", a: fighterA.allonge, b: fighterB.allonge },
+  ];
+  let scoreA = 0;
+  let scoreB = 0;
+  const winners = {};
+  categories.forEach((c) => {
+    if (c.a == null || c.b == null) { winners[c.key] = null; return; }
+    if (c.a > c.b) { winners[c.key] = "a"; scoreA++; }
+    else if (c.b > c.a) { winners[c.key] = "b"; scoreB++; }
+    else { winners[c.key] = null; }
+  });
+  return { winners, scoreA, scoreB };
+}
+
 function pct(v) {
   return v == null ? "—" : `${v}%`;
 }
 
-function StatRow({ label, a, b }) {
+function StatRow({ label, a, b, winner }) {
   return (
     <div className="flex items-center justify-between text-sm">
-      <span className="mono text-neutral-200 w-20 text-left">{a}</span>
+      <span className={`mono w-20 text-left ${winner === "a" ? "text-amber-400 font-semibold" : "text-neutral-200"}`}>
+        {a}{winner === "a" && <span className="ml-1">▲</span>}
+      </span>
       <span className="text-neutral-500 text-xs flex-1 text-center">{label}</span>
-      <span className="mono text-neutral-200 w-20 text-right">{b}</span>
+      <span className={`mono w-20 text-right ${winner === "b" ? "text-amber-400 font-semibold" : "text-neutral-200"}`}>
+        {winner === "b" && <span className="mr-1">▲</span>}{b}
+      </span>
     </div>
   );
 }
