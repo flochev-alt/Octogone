@@ -58,30 +58,35 @@ const UPCOMING = [
     note: "Premier événement UFC de l'histoire organisé en Serbie.",
     fighters: ["Uroš Medić", "Danny Rodriguez"],
   },
-  {
-    iso: "2026-07-25",
-    date: "25 juillet 2026 — aujourd'hui",
-    name: "UFC Fight Night : Ankalaev vs. Guskov",
-    location: "Etihad Arena, Abu Dhabi",
-    main: "Magomed Ankalaev vs. Bogdan Guskov (poids mi-lourd)",
-    note: "Co-main event : Erceg vs. Temirov (poids mouche).",
-    fighters: ["Magomed Ankalaev", "Bogdan Guskov"],
-    showPoster: true,
-  },
 ];
 
-const LAST_CARD = {
-  iso: "2026-07-18",
-  date: "18 juillet 2026",
-  name: "UFC Fight Night 281 : Du Plessis vs. Usman",
-  location: "Paycom Center, Oklahoma City",
-  results: [
-    { fight: "Dricus Du Plessis def. Kamaru Usman", method: "Décision unanime", note: "Main event" },
-    { fight: "Christian Leroy Duncan def. Jared Cannonier", method: "Décision unanime", note: "Co-main event" },
-    { fight: "Chase Hooper def. Mitch Ramirez", method: "Soumission", note: "R1, 2:15" },
-    { fight: "RJ Harris def. Alvin Hines", method: "TKO", note: "R1, 1:40" },
-  ],
-};
+const RECENT_CARDS = [
+  {
+    iso: "2026-07-25",
+    date: "25 juillet 2026",
+    name: "UFC Fight Night : Ankalaev vs. Guskov",
+    location: "Etihad Arena, Abu Dhabi",
+    results: [
+      { fight: "Magomed Ankalaev def. Bogdan Guskov", method: "TKO", note: "Main event · R5, 2:41" },
+      { fight: "Ramazan Temirov def. Steve Erceg", method: "KO", note: "Co-main event · R1, 4:21" },
+      { fight: "Valter Walker def. Thomas Petersen", method: "Soumission", note: "R1, 1:32 — calf slicer" },
+      { fight: "Muhammad Saidov def. Dustin Jacoby", method: "TKO", note: "R2, 4:49" },
+    ],
+    note: "Main event jugé très terne par la critique (4 rounds peu actifs avant la finition) — Ankalaev en a depuis rejeté la responsabilité sur le manque d'engagement de Guskov.",
+  },
+  {
+    iso: "2026-07-18",
+    date: "18 juillet 2026",
+    name: "UFC Fight Night 281 : Du Plessis vs. Usman",
+    location: "Paycom Center, Oklahoma City",
+    results: [
+      { fight: "Dricus Du Plessis def. Kamaru Usman", method: "Décision unanime", note: "Main event" },
+      { fight: "Christian Leroy Duncan def. Jared Cannonier", method: "Décision unanime", note: "Co-main event" },
+      { fight: "Chase Hooper def. Mitch Ramirez", method: "Soumission", note: "R1, 2:15" },
+      { fight: "RJ Harris def. Alvin Hines", method: "TKO", note: "R1, 1:40" },
+    ],
+  },
+];
 
 const REACTIONS = [
   {
@@ -99,6 +104,15 @@ const REACTIONS = [
     date: "19 juil. 2026",
     text: null,
     summary: "De nombreux fans et combattants ont salué la démonstration de Du Plessis, certains y voyant déjà un argument pour un troisième affrontement face au champion Sean Strickland, qu'il a déjà battu deux fois.",
+  },
+  {
+    iso: "2026-07-27",
+    author: "Dan Hooker",
+    handle: "@thehangmanmma",
+    date: "27 juil. 2026",
+    text: null,
+    summary: "Hooker affirme avoir reçu une vague de menaces de mort de la part de fans de Parnasse depuis l'annonce du combat, qu'il juge disproportionnée par rapport à ce qu'il avait connu face à d'autres adversaires français. Il assume pleinement son rôle de trouble-fête pour cette affiche, expliquant vouloir gâcher les débuts UFC très attendus de Parnasse devant son public.",
+    context: "Interview accordée à Submission Radio, à l'approche de leur combat du 5 septembre à l'UFC Paris.",
   },
 ];
 
@@ -144,7 +158,7 @@ const TONIGHT_POSTER = {
 // Fil unique, trié automatiquement par date décroissante (le plus lointain/récent en haut).
 const FEED = [
   ...UPCOMING.map((c) => ({ type: "upcoming", iso: c.iso, data: c })),
-  { type: "recap", iso: LAST_CARD.iso, data: LAST_CARD },
+  ...RECENT_CARDS.map((c) => ({ type: "recap", iso: c.iso, data: c })),
   ...REACTIONS.map((r) => ({ type: "reaction", iso: r.iso, data: r })),
 ].sort((a, b) => (a.iso < b.iso ? 1 : -1));
 
@@ -289,6 +303,7 @@ function RecapPost({ card }) {
             </div>
           ))}
         </div>
+        {card.note && <div className="text-xs text-neutral-500 mt-2">{card.note}</div>}
       </div>
     </div>
   );
