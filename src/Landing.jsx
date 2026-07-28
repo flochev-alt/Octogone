@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Swords, Trophy, Newspaper } from "lucide-react";
+import { ArrowRight, Swords, Trophy, Newspaper, Radio } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
+import { UPCOMING } from "./Media.jsx";
 
 const TICKER_FIGHTERS = [
   { nom: "Islam Makhachev", record: "28-1-0" },
@@ -16,9 +17,20 @@ const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   delay: i * 0.18,
 }));
 
+// Mode "carte du jour" : si un événement UPCOMING tombe aujourd'hui ou demain, on le met en avant.
+function getTodayHighlight() {
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const tomorrow = new Date(now.getTime() + 86400000).toISOString().slice(0, 10);
+  const event = UPCOMING.find((e) => e.iso === today || e.iso === tomorrow);
+  if (!event) return null;
+  return { ...event, isToday: event.iso === today };
+}
+
 export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
+  const todayHighlight = getTodayHighlight();
   const [particles, setParticles] = useState([]);
   const lastSpawn = useRef(0);
 
@@ -67,6 +79,8 @@ export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, l
           100% { opacity: 0; transform: translate(-50%, -140%) scale(0.3); }
         }
         .particle-dot { animation: particleFloat 0.9s ease-out forwards; }
+        @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .live-dot { animation: livePulse 1.2s ease-in-out infinite; }
 
         /* Les deux anneaux restent fixes après leur entrée, pour garder un alignement parfait comme sur la photo de référence */
         .octo-outer { }
@@ -178,6 +192,21 @@ export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, l
         </div>
 
         <div className="blur-in relative z-10" style={{ animationDelay: "150ms" }}>
+          {todayHighlight && (
+            <button
+              onClick={onEnterMedia}
+              className="tap mx-auto mb-5 flex items-center gap-2 bg-amber-400/10 border border-amber-400/40 rounded-full px-4 py-2 hover:bg-amber-400/20"
+            >
+              {todayHighlight.isToday ? (
+                <span className="live-dot w-2 h-2 rounded-full bg-red-500 shrink-0" />
+              ) : (
+                <Radio className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              )}
+              <span className="text-xs font-semibold text-amber-300">
+                {todayHighlight.isToday ? "AUJOURD'HUI" : "DEMAIN"} · {todayHighlight.name}
+              </span>
+            </button>
+          )}
           <div className="flex items-center justify-center gap-2 mb-5">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="mono text-xs uppercase tracking-[0.2em] text-neutral-400">{t.landingKicker}</span>
