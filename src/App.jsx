@@ -88,14 +88,7 @@ const METHOD_COLOR = {
 
 export default function App() {
   const [view, setView] = useState("landing");
-  const [cutting, setCutting] = useState(false);
-
-  const changeView = (v) => {
-    if (v === view) return;
-    setCutting(true);
-    setTimeout(() => setView(v), 160);
-    setTimeout(() => setCutting(false), 420);
-  };
+  const changeView = (v) => setView(v);
   const [lang, setLangState] = useState("fr");
   const t = T[lang];
 
@@ -179,12 +172,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-50 overflow-x-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {cutting && (
-        <div className="fixed inset-0 z-[100] pointer-events-none">
-          <div className="view-cut-bg absolute inset-0 bg-neutral-950" />
-          <div className="view-cut-slash absolute top-1/2 left-0 right-0 h-0.5 bg-amber-400 -translate-y-1/2" />
-        </div>
-      )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
@@ -219,14 +206,6 @@ export default function App() {
         .glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
         .ring-spin { animation: ringSpin 12s linear infinite; }
         .panel-flash { animation: panelFlash 0.45s ease-out forwards; }
-        @keyframes cutFade { 0% { opacity: 0; } 20% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
-        @keyframes cutSlash {
-          0%, 15% { transform: scaleX(0); opacity: 0; }
-          30% { transform: scaleX(1); opacity: 1; }
-          55%, 100% { opacity: 0; }
-        }
-        .view-cut-bg { animation: cutFade 0.42s ease-in-out forwards; }
-        .view-cut-slash { animation: cutSlash 0.42s ease-in-out forwards; }
         .tap { transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, border-color 0.2s; }
         .tap:active { transform: scale(0.97); }
       `}</style>
