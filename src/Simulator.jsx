@@ -136,16 +136,14 @@ export default function Simulator({ lang = "fr" }) {
     <div className="max-w-5xl mx-auto px-5 py-8">
       <style>{`
         @keyframes clashInLeft {
-          0% { transform: translateX(0); opacity: 0; }
-          15% { opacity: 1; }
-          55% { transform: translateX(calc(50vw - 100%)); }
-          100% { transform: translateX(calc(50vw - 100%)); }
+          0% { transform: translateX(-36px) scale(0.8); opacity: 0; }
+          40% { opacity: 1; }
+          100% { transform: translateX(0) scale(1); opacity: 1; }
         }
         @keyframes clashInRight {
-          0% { transform: translateX(0); opacity: 0; }
-          15% { opacity: 1; }
-          55% { transform: translateX(calc(-50vw + 100%)); }
-          100% { transform: translateX(calc(-50vw + 100%)); }
+          0% { transform: translateX(36px) scale(0.8); opacity: 0; }
+          40% { opacity: 1; }
+          100% { transform: translateX(0) scale(1); opacity: 1; }
         }
         @keyframes clashFlashBurst {
           0%, 50% { opacity: 0; transform: scale(0.2); }
@@ -202,18 +200,20 @@ export default function Simulator({ lang = "fr" }) {
       )}
 
       {clashing && fighterA && fighterB && (
-        <div className="clash-shake relative h-32 flex items-center justify-center mb-5 overflow-hidden">
+        <div className="clash-shake relative h-36 flex items-center justify-center mb-5 px-2 overflow-hidden">
           <div className="clash-flash absolute w-24 h-24 rounded-full bg-amber-300" />
-          <div className="clash-in-left absolute left-1/2 -translate-x-full flex flex-col items-center gap-1">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+          <div className="clash-in-left flex flex-col items-center gap-1.5 min-w-0 flex-1 max-w-[40%]">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0">
               <span className="disp text-xl text-neutral-950">{initials(fighterA.nom)}</span>
             </div>
+            <span className="text-xs text-neutral-300 font-medium text-center truncate w-full px-1">{fighterA.nom}</span>
           </div>
-          <span className="disp text-2xl text-neutral-700 z-10">VS</span>
-          <div className="clash-in-right absolute left-1/2 flex flex-col items-center gap-1">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-800 flex items-center justify-center">
+          <span className="disp text-2xl text-neutral-700 z-10 shrink-0 px-2">VS</span>
+          <div className="clash-in-right flex flex-col items-center gap-1.5 min-w-0 flex-1 max-w-[40%]">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-800 flex items-center justify-center shrink-0">
               <span className="disp text-xl text-neutral-100">{initials(fighterB.nom)}</span>
             </div>
+            <span className="text-xs text-neutral-300 font-medium text-center truncate w-full px-1">{fighterB.nom}</span>
           </div>
         </div>
       )}
