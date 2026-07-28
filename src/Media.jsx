@@ -3,7 +3,7 @@ import { Newspaper, Calendar, MapPin, CheckCircle2, Search } from "lucide-react"
 
 // Données vérifiées manuellement (recherches web) — à mettre à jour au fil des events.
 // Chaque élément a une vraie date ISO : le tri chronologique est automatique (plus de risque d'erreur manuelle).
-const UPCOMING = [
+export const UPCOMING = [
   {
     iso: "2026-09-05",
     date: "5 septembre 2026",
@@ -73,6 +73,7 @@ const RECENT_CARDS = [
       { fight: "Muhammad Saidov def. Dustin Jacoby", method: "TKO", note: "R2, 4:49" },
     ],
     note: "Main event jugé très terne par la critique (4 rounds peu actifs avant la finition) — Ankalaev en a depuis rejeté la responsabilité sur le manque d'engagement de Guskov.",
+    youtubeId: "MuzKpJzL_TY",
   },
   {
     iso: "2026-07-18",
@@ -304,6 +305,18 @@ function RecapPost({ card }) {
           ))}
         </div>
         {card.note && <div className="text-xs text-neutral-500 mt-2">{card.note}</div>}
+        {card.youtubeId && (
+          <div className="mt-3 rounded-xl overflow-hidden border border-neutral-800 aspect-video">
+            <iframe
+              className="w-full h-full"
+              src={`https://www.youtube-nocookie.com/embed/${card.youtubeId}`}
+              title={`${card.name} — highlights`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
