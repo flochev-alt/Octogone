@@ -162,6 +162,11 @@ export default function Simulator({ lang = "fr" }) {
         .clash-in-right { animation: clashInRight 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
         .clash-flash { animation: clashFlashBurst 0.9s ease-out forwards; filter: blur(6px); }
         .clash-shake { animation: clashShakeKf 0.9s ease-out both; }
+        @keyframes confidencePulse {
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.35); }
+        }
+        .confidence-pulse { animation: confidencePulse 1.6s ease-in-out infinite; }
       `}</style>
       <div className="row-rise flex items-center gap-2 mb-6">
         <Swords className="w-4 h-4 text-amber-400" />
@@ -228,8 +233,8 @@ export default function Simulator({ lang = "fr" }) {
             <div className="flex items-center gap-2 mb-2">
               <span className="mono text-2xl text-amber-400"><CountUp value={probA} suffix="%" /></span>
               <div className="flex-1 h-2.5 rounded-full bg-neutral-800 overflow-hidden flex">
-                <div className="h-full bg-amber-400" style={{ width: `${probA}%` }} />
-                <div className="h-full bg-neutral-600" style={{ width: `${probB}%` }} />
+                <div className={`h-full bg-amber-400 ${probA > probB ? "confidence-pulse" : ""}`} style={{ width: `${probA}%` }} />
+                <div className={`h-full bg-neutral-600 ${probB > probA ? "confidence-pulse" : ""}`} style={{ width: `${probB}%` }} />
               </div>
               <span className="mono text-2xl text-neutral-300"><CountUp value={probB} suffix="%" /></span>
             </div>
