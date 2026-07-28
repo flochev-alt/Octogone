@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Newspaper, Calendar, MapPin, CheckCircle2, Search } from "lucide-react";
 
 // Données vérifiées manuellement (recherches web) — à mettre à jour au fil des events.
@@ -305,19 +305,50 @@ function RecapPost({ card }) {
           ))}
         </div>
         {card.note && <div className="text-xs text-neutral-500 mt-2">{card.note}</div>}
-        {card.youtubeId && (
-          <div className="mt-3 rounded-xl overflow-hidden border border-neutral-800 aspect-video">
-            <iframe
-              className="w-full h-full"
-              src={`https://www.youtube-nocookie.com/embed/${card.youtubeId}`}
-              title={`${card.name} — highlights`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              loading="lazy"
-            />
-          </div>
-        )}
+        {card.youtubeId && <InlineVideo youtubeId={card.youtubeId} title={`${card.name} — highlights`} />}
       </div>
+    </div>
+  );
+}
+
+// Charge et joue la vidéo (en muet) uniquement quand elle apparaît à l'écran en scrollant,
+// façon fil X/TikTok — tant qu'elle n'est pas visible, on n'affiche qu'une vignette statique.
+function InlineVideo({ youtubeId, title }) {
+  const [inView, setInView] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setInView(true);
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="mt-3 rounded-xl overflow-hidden border border-neutral-800 aspect-video bg-neutral-950">
+      {inView ? (
+        <iframe
+          className="w-full h-full"
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=1&playsinline=1&controls=1`}
+          title={title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+        />
+      ) : (
+        <img
+          src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+          alt={title}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+      )}
     </div>
   );
 }
