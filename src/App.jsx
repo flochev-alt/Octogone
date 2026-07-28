@@ -188,14 +188,23 @@ export default function App() {
         }
         @keyframes glowPulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.75; transform: scale(1.15); } }
         @keyframes ringSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes panelFlash { 0% { opacity: 0.9; } 100% { opacity: 0; } }
+        @keyframes panelShake {
+          0%, 40% { transform: translateX(0); }
+          48% { transform: translateX(-4px); }
+          56% { transform: translateX(4px); }
+          64% { transform: translateX(-2px); }
+          72%, 100% { transform: translateX(0); }
+        }
         .row-rise { animation: riseIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
         .sheet-enter { animation: sheetIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .sheet-exit { animation: sheetOut 0.26s cubic-bezier(0.4, 0, 1, 1) forwards; }
         .backdrop-enter { animation: backdropIn 0.3s ease forwards; }
         .backdrop-exit { animation: backdropOut 0.26s ease forwards; }
-        .walkout { animation: walkoutIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .walkout { animation: walkoutIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both, panelShake 0.7s ease-out both; }
         .glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
         .ring-spin { animation: ringSpin 12s linear infinite; }
+        .panel-flash { animation: panelFlash 0.45s ease-out forwards; }
         .tap { transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, border-color 0.2s; }
         .tap:active { transform: scale(0.97); }
       `}</style>
@@ -422,6 +431,7 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative h-56 overflow-hidden bg-neutral-950 flex items-center justify-center">
+          <div className="panel-flash absolute inset-0 bg-white z-10 pointer-events-none" />
           <div className="glow-pulse absolute w-56 h-56 rounded-full bg-amber-400/30 blur-2xl" />
           <div className="ring-spin absolute w-40 h-40 rounded-full border-2 border-dashed border-amber-400/25" />
           <div className="walkout relative w-28 h-28 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl">
