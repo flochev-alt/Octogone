@@ -73,7 +73,7 @@ const RECENT_CARDS = [
       { fight: "Muhammad Saidov def. Dustin Jacoby", method: "TKO", note: "R2, 4:49" },
     ],
     note: "Main event jugé très terne par la critique (4 rounds peu actifs avant la finition) — Ankalaev en a depuis rejeté la responsabilité sur le manque d'engagement de Guskov.",
-    youtubeId: "MuzKpJzL_TY",
+    tweetUrl: "https://x.com/ufc/status/2081091312640766023",
   },
   {
     iso: "2026-07-18",
@@ -138,7 +138,7 @@ const TONIGHT_POSTER = {
   title: "UFC FIGHT NIGHT",
   date: "25 JUILLET · SAMEDI",
   mainCard: [
-    { a: "Magomed Ankalaev", flagA: "🇷🇺", b: "Bogdan Guskov", flagB: "🇺🇿", weight: "Poids mi-lourd" },
+    { a: "Magomed Ankalaev", flagA: "🇷🇺", b: "Bogdan Guskov", flagB: "🇺", weight: "Poids mi-lourd" },
     { a: "Robert Erceg", flagA: "🇦🇺", b: "Shamil Temirov", flagB: "🇺🇿", weight: "Poids mouche" },
     { a: "Ruslan Dulatov", flagA: "🇹🇷", b: "Chris Turman", flagB: "🇧🇷", weight: "Poids welter" },
     { a: "Said Zaynukov", flagA: "🇷🇺", b: "Filip Rzepecki", flagB: "🇵🇱", weight: "Poids léger" },
@@ -305,15 +305,15 @@ function RecapPost({ card }) {
           ))}
         </div>
         {card.note && <div className="text-xs text-neutral-500 mt-2">{card.note}</div>}
-        {card.youtubeId && <InlineVideo youtubeId={card.youtubeId} title={`${card.name} — highlights`} />}
+        {card.tweetUrl && <TweetEmbed url={card.tweetUrl} />}
       </div>
     </div>
   );
 }
 
-// Charge et joue la vidéo (en muet) uniquement quand elle apparaît à l'écran en scrollant,
-// façon fil X/TikTok — tant qu'elle n'est pas visible, on n'affiche qu'une vignette statique.
-function InlineVideo({ youtubeId, title }) {
+// Charge le widget officiel X (Twitter) uniquement quand le post apparaît à l'écran en scrollant.
+// X n'est pas soumis aux mêmes restrictions de diffusion par pays que les vidéos YouTube de l'UFC.
+function TweetEmbed({ url }) {
   const [inView, setInView] = useState(false);
   const ref = useRef(null);
 
@@ -324,30 +324,32 @@ function InlineVideo({ youtubeId, title }) {
       ([entry]) => {
         if (entry.isIntersecting) setInView(true);
       },
-      { threshold: 0.5 }
+      { threshold: 0.3 }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!inView) return;
+    if (window.twttr?.widgets) {
+      window.twttr.widgets.load(ref.current);
+      return;
+    }
+    if (document.getElementById("twitter-wjs")) return;
+    const script = document.createElement("script");
+    script.id = "twitter-wjs";
+    script.src = "https://platform.twitter.com/widgets.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, [inView]);
+
   return (
-    <div ref={ref} className="mt-3 rounded-xl overflow-hidden border border-neutral-800 aspect-video bg-neutral-950">
-      {inView ? (
-        <iframe
-          className="w-full h-full"
-          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=1&playsinline=1&controls=1`}
-          title={title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          loading="lazy"
-        />
-      ) : (
-        <img
-          src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
-          alt={title}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
+    <div ref={ref} className="mt-3 flex justify-center">
+      {inView && (
+        <blockquote className="twitter-tweet" data-theme="dark">
+          <a href={url}>Voir le post</a>
+        </blockquote>
       )}
     </div>
   );
