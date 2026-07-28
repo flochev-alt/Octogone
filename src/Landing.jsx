@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Swords, Trophy, Newspaper } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
@@ -19,6 +19,23 @@ const SPARKS = Array.from({ length: 12 }, (_, i) => ({
 export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
+  const [particles, setParticles] = useState([]);
+  const lastSpawn = useRef(0);
+
+  const spawnParticle = (e) => {
+    const now = Date.now();
+    if (now - lastSpawn.current < 70) return;
+    lastSpawn.current = now;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const point = e.touches ? e.touches[0] : e;
+    const x = point.clientX - rect.left;
+    const y = point.clientY - rect.top;
+    const id = `${now}-${Math.random().toString(36).slice(2, 7)}`;
+    setParticles((p) => [...p.slice(-20), { id, x, y }]);
+    setTimeout(() => {
+      setParticles((p) => p.filter((pt) => pt.id !== id));
+    }, 900);
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 30);
@@ -45,6 +62,11 @@ export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, l
           100% { opacity: 0; transform: rotate(var(--a)) translateX(260px) scale(1); }
         }
         @keyframes shine { 0% { transform: translateX(-120%) skewX(-20deg); } 100% { transform: translateX(220%) skewX(-20deg); } }
+        @keyframes particleFloat {
+          0% { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+          100% { opacity: 0; transform: translate(-50%, -140%) scale(0.3); }
+        }
+        .particle-dot { animation: particleFloat 0.9s ease-out forwards; }
 
         /* Les deux anneaux restent fixes après leur entrée, pour garder un alignement parfait comme sur la photo de référence */
         .octo-outer { }
@@ -75,7 +97,18 @@ export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, l
       `}</style>
 
       {/* Hero */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-5 text-center">
+      <section
+        className="relative min-h-screen flex flex-col items-center justify-center px-5 text-center"
+        onMouseMove={spawnParticle}
+        onTouchMove={spawnParticle}
+      >
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="particle-dot absolute w-1.5 h-1.5 rounded-full bg-amber-300 pointer-events-none z-30"
+            style={{ left: p.x, top: p.y, boxShadow: "0 0 8px 2px rgba(251,191,36,0.6)" }}
+          />
+        ))}
         {/* Fondu chaud discret, contenu dans le petit octogone */}
         <div className="absolute inset-0 m-auto w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-amber-400/40 blur-2xl pointer-events-none" />
 
