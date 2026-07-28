@@ -88,6 +88,14 @@ const METHOD_COLOR = {
 
 export default function App() {
   const [view, setView] = useState("landing");
+  const [cutting, setCutting] = useState(false);
+
+  const changeView = (v) => {
+    if (v === view) return;
+    setCutting(true);
+    setTimeout(() => setView(v), 160);
+    setTimeout(() => setCutting(false), 420);
+  };
   const [lang, setLangState] = useState("fr");
   const t = T[lang];
 
@@ -171,6 +179,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-50 overflow-x-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {cutting && (
+        <div className="fixed inset-0 z-[100] pointer-events-none">
+          <div className="view-cut-bg absolute inset-0 bg-neutral-950" />
+          <div className="view-cut-slash absolute top-1/2 left-0 right-0 h-0.5 bg-amber-400 -translate-y-1/2" />
+        </div>
+      )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
@@ -205,13 +219,21 @@ export default function App() {
         .glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
         .ring-spin { animation: ringSpin 12s linear infinite; }
         .panel-flash { animation: panelFlash 0.45s ease-out forwards; }
+        @keyframes cutFade { 0% { opacity: 0; } 20% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes cutSlash {
+          0%, 15% { transform: scaleX(0); opacity: 0; }
+          30% { transform: scaleX(1); opacity: 1; }
+          55%, 100% { opacity: 0; }
+        }
+        .view-cut-bg { animation: cutFade 0.42s ease-in-out forwards; }
+        .view-cut-slash { animation: cutSlash 0.42s ease-in-out forwards; }
         .tap { transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, border-color 0.2s; }
         .tap:active { transform: scale(0.97); }
       `}</style>
 
       <header className="sticky top-0 z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 overflow-x-hidden">
         <div className="max-w-5xl mx-auto px-3 sm:px-5 h-16 flex items-center justify-between gap-1.5 sm:gap-3">
-          <button onClick={() => setView("landing")} className="tap flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <button onClick={() => changeView("landing")} className="tap flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="disp text-lg tracking-tight">
               <span className="sm:hidden">O</span>
@@ -223,7 +245,7 @@ export default function App() {
           <nav className="flex-1 flex items-center justify-center min-w-0">
             <div className="flex items-center gap-0.5 sm:gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800 max-w-full">
               <button
-                onClick={() => setView("combattants")}
+                onClick={() => changeView("combattants")}
                 className={`tap text-[10px] sm:text-xs font-semibold px-2 sm:px-3.5 py-1.5 rounded-full whitespace-nowrap ${
                   view === "combattants" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
                 }`}
@@ -231,7 +253,7 @@ export default function App() {
                 {t.navCombattants}
               </button>
               <button
-                onClick={() => setView("simulateur")}
+                onClick={() => changeView("simulateur")}
                 className={`tap text-[10px] sm:text-xs font-semibold px-2 sm:px-3.5 py-1.5 rounded-full whitespace-nowrap ${
                   view === "simulateur" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
                 }`}
@@ -239,7 +261,7 @@ export default function App() {
                 {t.navSimulateur}
               </button>
               <button
-                onClick={() => setView("media")}
+                onClick={() => changeView("media")}
                 className={`tap text-[10px] sm:text-xs font-semibold px-2 sm:px-3.5 py-1.5 rounded-full whitespace-nowrap ${
                   view === "media" ? "bg-amber-400 text-neutral-950" : "text-neutral-400"
                 }`}
@@ -402,7 +424,7 @@ export default function App() {
 
       <footer className="max-w-5xl mx-auto px-5 py-10 text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span>{t.footer}</span>
-        <button onClick={() => setView("mentions")} className="tap underline hover:text-neutral-300">
+        <button onClick={() => changeView("mentions")} className="tap underline hover:text-neutral-300">
           Mentions légales
         </button>
       </footer>
