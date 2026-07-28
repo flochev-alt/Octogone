@@ -96,10 +96,17 @@ export default function Simulator({ lang = "fr" }) {
     return computeAdvantages(fighterA, fighterB);
   }, [fighterA, fighterB]);
 
+  const [clashing, setClashing] = useState(false);
+
   const analyser = () => {
-    setShowResult(true);
+    setShowResult(false);
     setAiText(null);
     setAiError(null);
+    setClashing(true);
+    setTimeout(() => {
+      setClashing(false);
+      setShowResult(true);
+    }, 900);
   };
 
   const genererAnalyseIA = async () => {
@@ -127,6 +134,37 @@ export default function Simulator({ lang = "fr" }) {
 
   return (
     <div className="max-w-5xl mx-auto px-5 py-8">
+      <style>{`
+        @keyframes clashInLeft {
+          0% { transform: translateX(0); opacity: 0; }
+          15% { opacity: 1; }
+          55% { transform: translateX(calc(50vw - 100%)); }
+          100% { transform: translateX(calc(50vw - 100%)); }
+        }
+        @keyframes clashInRight {
+          0% { transform: translateX(0); opacity: 0; }
+          15% { opacity: 1; }
+          55% { transform: translateX(calc(-50vw + 100%)); }
+          100% { transform: translateX(calc(-50vw + 100%)); }
+        }
+        @keyframes clashFlashBurst {
+          0%, 50% { opacity: 0; transform: scale(0.2); }
+          62% { opacity: 0.9; transform: scale(1.6); }
+          100% { opacity: 0; transform: scale(2.6); }
+        }
+        @keyframes clashShakeKf {
+          0%, 58% { transform: translateX(0); }
+          62% { transform: translateX(-5px); }
+          68% { transform: translateX(5px); }
+          74% { transform: translateX(-3px); }
+          80% { transform: translateX(3px); }
+          86%, 100% { transform: translateX(0); }
+        }
+        .clash-in-left { animation: clashInLeft 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .clash-in-right { animation: clashInRight 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .clash-flash { animation: clashFlashBurst 0.9s ease-out forwards; filter: blur(6px); }
+        .clash-shake { animation: clashShakeKf 0.9s ease-out both; }
+      `}</style>
       <div className="row-rise flex items-center gap-2 mb-6">
         <Swords className="w-4 h-4 text-amber-400" />
         <span className="text-xs uppercase tracking-widest text-neutral-400">{t.simTitle}</span>
@@ -163,6 +201,23 @@ export default function Simulator({ lang = "fr" }) {
         </>
       )}
 
+      {clashing && fighterA && fighterB && (
+        <div className="clash-shake relative h-32 flex items-center justify-center mb-5 overflow-hidden">
+          <div className="clash-flash absolute w-24 h-24 rounded-full bg-amber-300" />
+          <div className="clash-in-left absolute left-1/2 -translate-x-full flex flex-col items-center gap-1">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+              <span className="disp text-xl text-neutral-950">{initials(fighterA.nom)}</span>
+            </div>
+          </div>
+          <span className="disp text-2xl text-neutral-700 z-10">VS</span>
+          <div className="clash-in-right absolute left-1/2 flex flex-col items-center gap-1">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-800 flex items-center justify-center">
+              <span className="disp text-xl text-neutral-100">{initials(fighterB.nom)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showResult && fighterA && fighterB && (
         <div key={idA + idB} className="row-rise space-y-5">
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
@@ -171,12 +226,12 @@ export default function Simulator({ lang = "fr" }) {
               <span className="disp text-lg truncate text-right">{fighterB.nom}</span>
             </div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="mono text-2xl text-amber-400">{probA}%</span>
+              <span className="mono text-2xl text-amber-400"><CountUp value={probA} suffix="%" /></span>
               <div className="flex-1 h-2.5 rounded-full bg-neutral-800 overflow-hidden flex">
                 <div className="h-full bg-amber-400" style={{ width: `${probA}%` }} />
                 <div className="h-full bg-neutral-600" style={{ width: `${probB}%` }} />
               </div>
-              <span className="mono text-2xl text-neutral-300">{probB}%</span>
+              <span className="mono text-2xl text-neutral-300"><CountUp value={probB} suffix="%" /></span>
             </div>
             <div className="text-center text-xs text-neutral-500 mt-2">
               {t.probLabel(translateCategory(categorie, lang))}
@@ -230,6 +285,24 @@ export default function Simulator({ lang = "fr" }) {
       )}
     </div>
   );
+}
+
+function CountUp({ value, suffix = "", duration = 700 }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    let start = null;
+    let frame;
+    const step = (ts) => {
+      if (start === null) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * value));
+      if (progress < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [value, duration]);
+  return <>{display}{suffix}</>;
 }
 
 function winRate(f) {
