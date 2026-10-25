@@ -4,6 +4,7 @@ import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
+import { FIGHTERS } from "./fightersData.js";
 import { LANGUAGES, T, translateDivision, formatHeight, getInitialLang, setStoredLang } from "./i18n.js";
 
 // Comptes Instagram officiels vérifiés manuellement — recherche par nom (pas exhaustif,
@@ -35,6 +36,11 @@ const INSTAGRAM = {
 
 const getInstagram = (name) => INSTAGRAM[name?.toLowerCase()];
 
+// Bilans vérifiés manuellement (fightersData.js) : prioritaires sur ceux de l'API Octagon, parfois en retard.
+const normName = (n) => n?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/-/g, " ").toLowerCase().trim();
+const getLocalFighter = (name) => FIGHTERS.find((f) => normName(f.nom) === normName(name));
+const formatRecord = (v, d, n, nc) => `${v}-${d}-${n}${nc ? ` (${nc} NC)` : ""}`;
+
 const DIVISIONS = [
   "flyweight", "bantamweight", "featherweight", "lightweight",
   "welterweight", "middleweight", "light-heavyweight", "heavyweight",
@@ -43,17 +49,17 @@ const DIVISIONS = [
 
 // Champions actuels — vérifiés manuellement (recherches croisées), à mettre à jour à chaque changement de titre.
 const CHAMPIONS = [
-  { division: "Poids lourd", name: "Tom Aspinall", since: "21 juin 2025", note: "A hérité du titre après la retraite de Jon Jones." },
+  { division: "Poids lourd", name: "Ciryl Gane", since: "20 sept. 2026", note: "Champion intérimaire (KO face à Alex Pereira, UFC Freedom 250), promu champion incontesté après l'abandon du titre par Tom Aspinall, blessé à l'œil. Première défense face à Josh Hokit le 14 nov. 2026 (UFC 334)." },
   { division: "Poids mi-lourd", name: "Carlos Ulberg", since: "11 avril 2026", note: "KO au 1er round face à Jiří Procházka (UFC 327)." },
   { division: "Poids moyen", name: "Sean Strickland", since: "9 mai 2026", note: "Décision partagée face à Khamzat Chimaev (UFC 328)." },
-  { division: "Poids welter", name: "Islam Makhachev", since: "15 nov. 2025", note: "Décision unanime face à Jack Della Maddalena (UFC 322). Première défense prévue le 15 août 2026." },
+  { division: "Poids welter", name: "Islam Makhachev", since: "15 nov. 2025", note: "Décision unanime face à Jack Della Maddalena (UFC 322). A défendu son titre face à Ian Machado Garry (UFC 330)." },
   { division: "Poids léger", name: "Justin Gaethje", since: "14 juin 2026", note: "TKO au 4e round face à Ilia Topuria (UFC Freedom 250)." },
-  { division: "Poids plume", name: "Alexander Volkanovski", since: "12 avril 2025", note: "Décision unanime face à Diego Lopes (UFC 314)." },
-  { division: "Poids coq", name: "Petr Yan", since: "6 déc. 2025", note: "Décision unanime face à Merab Dvalishvili (UFC 323)." },
-  { division: "Poids mouche", name: "Joshua Van", since: "6 déc. 2025", note: "TKO au 1er round face à Alexandre Pantoja (UFC 323)." },
-  { division: "F. Poids coq", name: "Kayla Harrison", since: "7 juin 2025", note: "A défendu son titre face à Amanda Nunes (UFC 324)." },
-  { division: "F. Poids mouche", name: "Valentina Shevchenko", since: "15 nov. 2025", note: "Victoire face à Zhang Weili (UFC 322)." },
-  { division: "F. Poids paille", name: "Mackenzie Dern", since: "25 oct. 2025", note: "Titre vacant remporté face à Virna Jandiroba (UFC 321). Première défense prévue le 15 août 2026." },
+  { division: "Poids plume", name: "Alexander Volkanovski", since: "12 avril 2025", note: "Décision unanime face à Diego Lopes (UFC 314). A défendu son titre face à Movsar Evloev par TKO au 2e round (UFC 333)." },
+  { division: "Poids coq", name: "Petr Yan", since: "6 déc. 2025", note: "Décision unanime face à Merab Dvalishvili (UFC 323). L'a de nouveau battu par décision unanime (UFC 333)." },
+  { division: "Poids mouche", name: "Joshua Van", since: "6 déc. 2025", note: "TKO au 1er round face à Alexandre Pantoja (UFC 323). L'a de nouveau battu par décision unanime (UFC 331)." },
+  { division: "F. Poids coq", name: "Kayla Harrison", since: "7 juin 2025", note: "Soumission face à Julianna Peña (UFC 316). Son combat face à Amanda Nunes, prévu à l'UFC 324, a été reporté (blessure au cou) : il aura lieu le 14 nov. 2026 (UFC 334)." },
+  { division: "F. Poids mouche", name: "Natália Silva", since: "3 oct. 2026", note: "Titre vacant (Valentina Shevchenko blessée) remporté par décision unanime face à Wang Cong (UFC 332)." },
+  { division: "F. Poids paille", name: "Mackenzie Dern", since: "25 oct. 2025", note: "Titre vacant remporté face à Virna Jandiroba (UFC 321). A défendu son titre face à Gillian Robertson (UFC 330)." },
 ];
 
 const label = (slug) =>
@@ -63,11 +69,11 @@ const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2)
 
 const RECENT_FIGHTS = {
   "islam-makhachev": [
+    { opponent: "Ian Machado Garry", result: "V", method: "Décision unanime", event: "UFC 330" },
     { opponent: "Jack Della Maddalena", result: "V", method: "Décision unanime", event: "UFC 322" },
     { opponent: "Renato Moicano", result: "V", method: "Soumission", event: "UFC 311" },
     { opponent: "Dustin Poirier", result: "V", method: "Soumission", event: "UFC 302" },
     { opponent: "Alexander Volkanovski", result: "V", method: "KO", event: "UFC 294" },
-    { opponent: "Alexander Volkanovski", result: "V", method: "Décision unanime", event: "UFC 284" },
   ],
   "jon-jones": [
     { opponent: "Stipe Miocic", result: "V", method: "TKO", event: "UFC 309" },
@@ -424,6 +430,7 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
   }, [fighter.id]);
 
   const recent = RECENT_FIGHTS[fighter.id];
+  const local = getLocalFighter(fighter.name);
 
   return (
     <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 ${closing ? "backdrop-exit" : "backdrop-enter"}`} onClick={onClose}>
@@ -463,10 +470,18 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
           {loading && <p className="text-sm text-neutral-400">Chargement…</p>}
           {data && (
             <>
-              {(data.wins || data.losses) && (
+              {(local || data.wins || data.losses) && (
                 <div className="row-rise text-center py-4 rounded-xl bg-neutral-950 border border-neutral-800">
-                  <div className="mono text-2xl text-amber-400 tracking-tight">{data.wins}-{data.losses}-{data.draws}</div>
+                  <div className="mono text-2xl text-amber-400 tracking-tight">
+                    {local ? formatRecord(local.victoires, local.defaites, local.nuls, local.nc) : `${data.wins}-${data.losses}-${data.draws}`}
+                  </div>
                   <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.record}</div>
+                  {local?.ufcV != null && (
+                    <div className="mt-3 pt-3 border-t border-neutral-800 mx-6">
+                      <div className="mono text-base text-neutral-200 tracking-tight">{formatRecord(local.ufcV, local.ufcD, local.ufcN, local.ufcNc)}</div>
+                      <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.ufcRecord}</div>
+                    </div>
+                  )}
                 </div>
               )}
               <Stat icon={Users} label={t.division} value={data.category} delay={40} />
