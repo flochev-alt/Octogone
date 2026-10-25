@@ -6,7 +6,7 @@ import { UPCOMING } from "./Media.jsx";
 const TICKER_FIGHTERS = [
   { nom: "Islam Makhachev", record: "29-1-0" },
   { nom: "Alex Pereira", record: "13-4-0" },
-  { nom: "Tom Aspinall", record: "15-3-0" },
+  { nom: "Ciryl Gane", record: "14-2-0" },
   { nom: "Alexandre Pantoja", record: "30-7-0" },
   { nom: "Justin Gaethje", record: "28-5-0" },
   { nom: "Khamzat Chimaev", record: "15-1-0" },

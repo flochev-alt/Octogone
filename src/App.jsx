@@ -4,6 +4,7 @@ import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
+import { FIGHTERS } from "./fightersData.js";
 import { LANGUAGES, T, translateDivision, formatHeight, getInitialLang, setStoredLang } from "./i18n.js";
 
 // Comptes Instagram officiels vérifiés manuellement — recherche par nom (pas exhaustif,
@@ -35,6 +36,11 @@ const INSTAGRAM = {
 
 const getInstagram = (name) => INSTAGRAM[name?.toLowerCase()];
 
+// Bilans vérifiés manuellement (fightersData.js) : prioritaires sur ceux de l'API Octagon, parfois en retard.
+const normName = (n) => n?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/-/g, " ").toLowerCase().trim();
+const getLocalFighter = (name) => FIGHTERS.find((f) => normName(f.nom) === normName(name));
+const formatRecord = (v, d, n, nc) => `${v}-${d}-${n}${nc ? ` (${nc} NC)` : ""}`;
+
 const DIVISIONS = [
   "flyweight", "bantamweight", "featherweight", "lightweight",
   "welterweight", "middleweight", "light-heavyweight", "heavyweight",
@@ -63,11 +69,11 @@ const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2)
 
 const RECENT_FIGHTS = {
   "islam-makhachev": [
+    { opponent: "Ian Machado Garry", result: "V", method: "Décision unanime", event: "UFC 330" },
     { opponent: "Jack Della Maddalena", result: "V", method: "Décision unanime", event: "UFC 322" },
     { opponent: "Renato Moicano", result: "V", method: "Soumission", event: "UFC 311" },
     { opponent: "Dustin Poirier", result: "V", method: "Soumission", event: "UFC 302" },
     { opponent: "Alexander Volkanovski", result: "V", method: "KO", event: "UFC 294" },
-    { opponent: "Alexander Volkanovski", result: "V", method: "Décision unanime", event: "UFC 284" },
   ],
   "jon-jones": [
     { opponent: "Stipe Miocic", result: "V", method: "TKO", event: "UFC 309" },
@@ -424,6 +430,7 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
   }, [fighter.id]);
 
   const recent = RECENT_FIGHTS[fighter.id];
+  const local = getLocalFighter(fighter.name);
 
   return (
     <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 ${closing ? "backdrop-exit" : "backdrop-enter"}`} onClick={onClose}>
@@ -463,10 +470,18 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
           {loading && <p className="text-sm text-neutral-400">Chargement…</p>}
           {data && (
             <>
-              {(data.wins || data.losses) && (
+              {(local || data.wins || data.losses) && (
                 <div className="row-rise text-center py-4 rounded-xl bg-neutral-950 border border-neutral-800">
-                  <div className="mono text-2xl text-amber-400 tracking-tight">{data.wins}-{data.losses}-{data.draws}</div>
+                  <div className="mono text-2xl text-amber-400 tracking-tight">
+                    {local ? formatRecord(local.victoires, local.defaites, local.nuls, local.nc) : `${data.wins}-${data.losses}-${data.draws}`}
+                  </div>
                   <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.record}</div>
+                  {local?.ufcV != null && (
+                    <div className="mt-3 pt-3 border-t border-neutral-800 mx-6">
+                      <div className="mono text-base text-neutral-200 tracking-tight">{formatRecord(local.ufcV, local.ufcD, local.ufcN, local.ufcNc)}</div>
+                      <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.ufcRecord}</div>
+                    </div>
+                  )}
                 </div>
               )}
               <Stat icon={Users} label={t.division} value={data.category} delay={40} />
