@@ -1,13 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, Swords, Sparkles, Ruler, TrendingUp } from "lucide-react";
-import { FIGHTERS } from "./fightersData.js";
+import { useFighters } from "./useFighters.js";
 import { T, translateCategory, formatHeight, CATEGORY_ORDER } from "./i18n.js";
 import { initVip, getVipCode } from "./vip.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-
-// Toutes les catégories de la base, dans l'ordre du plus léger au plus lourd (puis femmes et légendes).
-const CATEGORIES = CATEGORY_ORDER.filter((c) => FIGHTERS.some((f) => f.categorie === c));
 
 // Champion en premier, puis classés 1 à 15, puis non-classés.
 const byRank = (a, b) => (a.rang ?? 99) - (b.rang ?? 99);
@@ -38,10 +35,19 @@ function computeScore(f) {
 
 export default function Simulator({ lang = "fr" }) {
   const t = T[lang];
+  const fighters = useFighters();
+  // Toutes les catégories de la base, dans l'ordre du plus léger au plus lourd (puis femmes et légendes).
+  const CATEGORIES = useMemo(
+    () => CATEGORY_ORDER.filter((c) => fighters.some((f) => f.categorie === c)),
+    [fighters]
+  );
   const [categorie, setCategorie] = useState(CATEGORIES[0]);
+  useEffect(() => {
+    if (!CATEGORIES.includes(categorie)) setCategorie(CATEGORIES[0]);
+  }, [CATEGORIES]);
   const fightersInCategorie = useMemo(
-    () => FIGHTERS.filter((f) => f.categorie === categorie).sort(byRank),
-    [categorie]
+    () => fighters.filter((f) => f.categorie === categorie).sort(byRank),
+    [fighters, categorie]
   );
 
   const [idA, setIdA] = useState(fightersInCategorie[0]?.id);
@@ -63,7 +69,7 @@ export default function Simulator({ lang = "fr" }) {
     setIdB(fightersInCategorie[1]?.id ?? fightersInCategorie[0]?.id);
     setShowResult(false);
     setAiText(null);
-  }, [categorie]);
+  }, [fightersInCategorie]);
 
   const fighterA = fightersInCategorie.find((f) => f.id === idA);
   const fighterB = fightersInCategorie.find((f) => f.id === idB);
