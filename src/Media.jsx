@@ -73,6 +73,7 @@ const RECENT_CARDS = [
       { fight: "Lone'er Kavanagh def. Ramazan Temirov", method: "TKO", note: "R1, 4:28" },
       { fight: "Alexander Volkov def. Rizvan Kuniev", method: "Décision unanime", note: "Poids lourd" },
     ],
+    tweetUrl: "https://x.com/ufc/status/2114103145987195203",
     note: "Volkanovski inflige à Evloev (20-1) sa première défaite. Yan bat Dvalishvili pour la deuxième fois d'affilée et conserve sa ceinture.",
   },
   {
@@ -85,6 +86,7 @@ const RECENT_CARDS = [
       { fight: "Jasmine Jasudavicius def. Erin Blanchfield", method: "Décision unanime", note: "Co-main event" },
       { fight: "Marc-André Barriault def. Kyle Daukaus", method: "TKO", note: "R1, 4:28" },
     ],
+    tweetUrl: "https://x.com/ufc/status/2111651746376548602",
   },
   {
     iso: "2026-10-10",
@@ -144,6 +146,7 @@ const RECENT_CARDS = [
       { fight: "Alexa Grasso def. Manon Fiorot", method: "Décision unanime", note: "Poids mouche féminin" },
       { fight: "Curtis Blaydes def. Waldo Cortes-Acosta", method: "Décision unanime", note: "Poids lourd" },
     ],
+    tweetUrl: "https://x.com/ufc/status/2098932901190754654",
   },
   {
     iso: "2026-09-05",
@@ -155,6 +158,7 @@ const RECENT_CARDS = [
       { fight: "Axel Sola def. Farès Ziam", method: "KO", note: "Co-main event · R1, 1:40" },
       { fight: "Michael \"Venom\" Page def. Nursulton Ruziboev", method: "Décision unanime", note: "Poids moyen" },
     ],
+    tweetUrl: "https://x.com/RMCSportCombat/status/2096975967541411870",
     note: "Débuts UFC réussis pour Salahdine Parnasse, vainqueur au premier round devant son public.",
   },
   {
@@ -167,6 +171,7 @@ const RECENT_CARDS = [
       { fight: "Denise Gomes def. Yan Xiaonan", method: "KO", note: "Co-main event · R1" },
       { fight: "Kai Asakura def. Aoriqileng", method: "TKO", note: "R2" },
     ],
+    tweetUrl: "https://x.com/ufc/status/2093683061325996460",
   },
   {
     iso: "2026-08-22",
@@ -202,6 +207,7 @@ const RECENT_CARDS = [
       { fight: "Diego Ferreira def. Billy Quarantillo", method: "Décision unanime", note: "Co-main event" },
       { fight: "Yadier del Valle def. Darren Elkins", method: "TKO", note: "R1, 0:35" },
     ],
+    tweetUrl: "https://x.com/ufc/status/2086280399034990790",
   },
   {
     iso: "2026-08-01",
@@ -213,6 +219,7 @@ const RECENT_CARDS = [
       { fight: "Navajo Stirling def. Jan Błachowicz", method: "TKO", note: "Co-main event · R1, 2:56" },
       { fight: "Aleksandar Rakić def. Marcin Tybura", method: "Décision unanime", note: "30-27 x3" },
     ],
+    tweetUrl: "https://x.com/ufc/status/2083636012039672042",
     note: "Premier événement UFC de l'histoire organisé en Serbie.",
   },
   {
@@ -271,6 +278,35 @@ const REACTIONS = [
   },
 ];
 
+// Posts X intégrés tels quels (face-à-face, moments sympas), uniquement depuis les comptes suivis :
+// @ufc, @UFCEurope, @RMCSportCombat, @LaSueur_off, @MMAOnLine_, @MMArena_, @acdmma_.
+const TWEETS = [
+  {
+    iso: "2026-10-16",
+    author: "UFC",
+    handle: "@ufc",
+    date: "16 oct. 2026",
+    context: "Dernier face-à-face entre Joaquin Buckley et Mike Malott, la veille du main event d'Edmonton.",
+    url: "https://x.com/ufc/status/2111237953712541748",
+  },
+  {
+    iso: "2026-09-27",
+    author: "RMC Sport Combat",
+    handle: "@RMCSportCombat",
+    date: "27 sept. 2026",
+    context: "La décision Ailín Pérez – Norma Dumont qui a laissé les consultants de RMC sans voix.",
+    url: "https://x.com/RMCSportCombat/status/2104027684607254868",
+  },
+  {
+    iso: "2026-09-01",
+    author: "RMC Sport Combat",
+    handle: "@RMCSportCombat",
+    date: "1er sept. 2026",
+    context: "Premier face-à-face entre Dan Hooker et Salahdine Parnasse avant l'UFC Paris.",
+    url: "https://x.com/RMCSportCombat/status/2094773226719060141",
+  },
+];
+
 // Non daté par nature (échanges repris sans date précise assignée) — toujours affiché en fin de fil.
 const TRASH_TALK = [
   {
@@ -315,6 +351,7 @@ const FEED = [
   ...UPCOMING.map((c) => ({ type: "upcoming", iso: c.iso, data: c })),
   ...RECENT_CARDS.map((c) => ({ type: "recap", iso: c.iso, data: c })),
   ...REACTIONS.map((r) => ({ type: "reaction", iso: r.iso, data: r })),
+  ...TWEETS.map((t) => ({ type: "tweet", iso: t.iso, data: t })),
 ].sort((a, b) => (a.iso < b.iso ? 1 : -1));
 
 function FighterSlot({ name, flag, align }) {
@@ -459,7 +496,12 @@ function RecapPost({ card }) {
           ))}
         </div>
         {card.note && <div className="text-xs text-neutral-500 mt-2">{card.note}</div>}
-        {card.tweetUrl && <TweetEmbed url={card.tweetUrl} />}
+        {card.tweetUrl && (
+          <>
+            <div className="text-[11px] uppercase tracking-widest text-amber-400 mt-3">Le finish du main event</div>
+            <TweetEmbed url={card.tweetUrl} />
+          </>
+        )}
       </div>
     </div>
   );
@@ -527,6 +569,23 @@ function ReactionPost({ r }) {
   );
 }
 
+function TweetPost({ t }) {
+  return (
+    <div className="flex gap-3">
+      <Avatar label={t.author.split(" ").map((w) => w[0]).join("").slice(0, 2)} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="font-semibold text-sm text-neutral-100">{t.author}</span>
+          <span className="text-neutral-500 text-xs">{t.handle}</span>
+          <span className="text-neutral-600 text-xs">· {t.date}</span>
+        </div>
+        <p className="text-sm text-neutral-300 mt-1">{t.context}</p>
+        <TweetEmbed url={t.url} />
+      </div>
+    </div>
+  );
+}
+
 // Fonction de recherche : concatène tous les champs texte pertinents d'un item pour le filtrage.
 function searchTextFor(item) {
   if (item.type === "upcoming") {
@@ -540,6 +599,10 @@ function searchTextFor(item) {
   if (item.type === "reaction") {
     const r = item.data;
     return [r.author, r.text, r.summary, r.context].filter(Boolean).join(" ").toLowerCase();
+  }
+  if (item.type === "tweet") {
+    const t = item.data;
+    return [t.author, t.handle, t.context].join(" ").toLowerCase();
   }
   return "";
 }
@@ -588,6 +651,7 @@ export default function Media() {
             {item.type === "upcoming" && <UpcomingPost c={item.data} />}
             {item.type === "recap" && <RecapPost card={item.data} />}
             {item.type === "reaction" && <ReactionPost r={item.data} />}
+            {item.type === "tweet" && <TweetPost t={item.data} />}
           </Post>
         ))}
 
@@ -614,7 +678,7 @@ export default function Media() {
       </div>
 
       <p className="text-[11px] text-neutral-600 px-5 py-6">
-        Contenu reformulé à partir de sources publiques (UFC.com, réseaux sociaux des combattants) — pas de citation intégrale de tweets.
+        Résumés rédigés à partir de sources publiques (UFC.com, réseaux sociaux des combattants). Les vidéos et posts X sont intégrés via le lecteur officiel de X, avec un lien vers le compte d'origine.
       </p>
     </div>
   );
