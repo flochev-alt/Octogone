@@ -207,7 +207,7 @@ const RECENT_CARDS = [
       { fight: "Diego Ferreira def. Billy Quarantillo", method: "Décision unanime", note: "Co-main event" },
       { fight: "Yadier del Valle def. Darren Elkins", method: "TKO", note: "R1, 0:35" },
     ],
-    tweetUrl: "https://x.com/ufc/status/2086280399034990790",
+    tweetUrl: "https://x.com/RMCSportCombat/status/2086280463971180691",
   },
   {
     iso: "2026-08-01",
