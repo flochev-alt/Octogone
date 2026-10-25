@@ -43,17 +43,17 @@ const DIVISIONS = [
 
 // Champions actuels — vérifiés manuellement (recherches croisées), à mettre à jour à chaque changement de titre.
 const CHAMPIONS = [
-  { division: "Poids lourd", name: "Tom Aspinall", since: "21 juin 2025", note: "A hérité du titre après la retraite de Jon Jones." },
+  { division: "Poids lourd", name: "Ciryl Gane", since: "20 sept. 2026", note: "Champion intérimaire (KO face à Alex Pereira, UFC Freedom 250), promu champion incontesté après l'abandon du titre par Tom Aspinall, blessé à l'œil. Première défense face à Josh Hokit le 14 nov. 2026 (UFC 334)." },
   { division: "Poids mi-lourd", name: "Carlos Ulberg", since: "11 avril 2026", note: "KO au 1er round face à Jiří Procházka (UFC 327)." },
   { division: "Poids moyen", name: "Sean Strickland", since: "9 mai 2026", note: "Décision partagée face à Khamzat Chimaev (UFC 328)." },
-  { division: "Poids welter", name: "Islam Makhachev", since: "15 nov. 2025", note: "Décision unanime face à Jack Della Maddalena (UFC 322). Première défense prévue le 15 août 2026." },
+  { division: "Poids welter", name: "Islam Makhachev", since: "15 nov. 2025", note: "Décision unanime face à Jack Della Maddalena (UFC 322). A défendu son titre face à Ian Machado Garry (UFC 330)." },
   { division: "Poids léger", name: "Justin Gaethje", since: "14 juin 2026", note: "TKO au 4e round face à Ilia Topuria (UFC Freedom 250)." },
-  { division: "Poids plume", name: "Alexander Volkanovski", since: "12 avril 2025", note: "Décision unanime face à Diego Lopes (UFC 314)." },
-  { division: "Poids coq", name: "Petr Yan", since: "6 déc. 2025", note: "Décision unanime face à Merab Dvalishvili (UFC 323)." },
-  { division: "Poids mouche", name: "Joshua Van", since: "6 déc. 2025", note: "TKO au 1er round face à Alexandre Pantoja (UFC 323)." },
-  { division: "F. Poids coq", name: "Kayla Harrison", since: "7 juin 2025", note: "A défendu son titre face à Amanda Nunes (UFC 324)." },
-  { division: "F. Poids mouche", name: "Valentina Shevchenko", since: "15 nov. 2025", note: "Victoire face à Zhang Weili (UFC 322)." },
-  { division: "F. Poids paille", name: "Mackenzie Dern", since: "25 oct. 2025", note: "Titre vacant remporté face à Virna Jandiroba (UFC 321). Première défense prévue le 15 août 2026." },
+  { division: "Poids plume", name: "Alexander Volkanovski", since: "12 avril 2025", note: "Décision unanime face à Diego Lopes (UFC 314). A défendu son titre face à Movsar Evloev par TKO au 2e round (UFC 333)." },
+  { division: "Poids coq", name: "Petr Yan", since: "6 déc. 2025", note: "Décision unanime face à Merab Dvalishvili (UFC 323). L'a de nouveau battu par décision unanime (UFC 333)." },
+  { division: "Poids mouche", name: "Joshua Van", since: "6 déc. 2025", note: "TKO au 1er round face à Alexandre Pantoja (UFC 323). L'a de nouveau battu par décision unanime (UFC 331)." },
+  { division: "F. Poids coq", name: "Kayla Harrison", since: "7 juin 2025", note: "Soumission face à Julianna Peña (UFC 316). Son combat face à Amanda Nunes, prévu à l'UFC 324, a été reporté (blessure au cou) : il aura lieu le 14 nov. 2026 (UFC 334)." },
+  { division: "F. Poids mouche", name: "Natália Silva", since: "3 oct. 2026", note: "Titre vacant (Valentina Shevchenko blessée) remporté par décision unanime face à Wang Cong (UFC 332)." },
+  { division: "F. Poids paille", name: "Mackenzie Dern", since: "25 oct. 2025", note: "Titre vacant remporté face à Virna Jandiroba (UFC 321). A défendu son titre face à Gillian Robertson (UFC 330)." },
 ];
 
 const label = (slug) =>
