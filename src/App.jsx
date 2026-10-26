@@ -232,7 +232,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-50 overflow-x-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen min-h-[100dvh] flex flex-col bg-neutral-950 text-neutral-50 overflow-x-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
@@ -349,7 +349,7 @@ export default function App() {
         <MentionsLegales lang={lang} />
       ) : (
         <>
-          <main className="max-w-5xl mx-auto px-5 py-8">
+          <main className="w-full max-w-5xl mx-auto px-5 py-8">
             <div className="flex gap-1.5 overflow-x-auto pb-4 mb-6 -mx-1 px-1">
               <button
                 onClick={() => { setCategorie("champions"); setQuery(""); }}
@@ -459,7 +459,7 @@ export default function App() {
         </>
       )}
 
-      <footer className="max-w-5xl mx-auto px-5 py-10 text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <footer className="mt-auto w-full max-w-5xl mx-auto px-5 pt-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span>{t.footer}</span>
         <button onClick={() => changeView("mentions")} className="tap underline hover:text-neutral-300">
           {t.legal}

@@ -622,7 +622,7 @@ export default function Media({ lang = "fr" }) {
   const noResults = filteredFeed.length === 0 && filteredTrashTalk.length === 0;
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <div className="row-rise flex items-center gap-2 px-5 py-6">
         <Newspaper className="w-4 h-4 text-amber-400" />
         <span className="text-xs uppercase tracking-widest text-neutral-400">{t.mediaTitle}</span>
