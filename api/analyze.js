@@ -1,6 +1,27 @@
+import { isVipCode } from "./_vip.js";
+
+const DAILY_LIMIT = 5;
+// Compteur par adresse IP et par jour, en mémoire du serveur. Vercel peut redémarrer ou multiplier
+// ses instances : c'est un garde-fou en plus du compteur du navigateur, pas une garantie absolue
+// (il faudra une base de données, Supabase, pour un compteur exact).
+const usage = new Map();
+
+function overDailyLimit(req) {
+  const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
+  const key = `${new Date().toISOString().slice(0, 10)}|${ip}`;
+  const count = (usage.get(key) || 0) + 1;
+  if (usage.size > 5000) usage.clear();
+  usage.set(key, count);
+  return count > DAILY_LIMIT;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  if (!isVipCode(req.headers["x-vip-code"]) && overDailyLimit(req)) {
+    return res.status(429).json({ error: "daily_limit" });
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

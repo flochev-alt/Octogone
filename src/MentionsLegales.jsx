@@ -13,7 +13,9 @@ const CONTENT = {
     ipTitle: "Propriété intellectuelle",
     ip: "L'ensemble des éléments du site (design, textes, structure, logo) est la propriété de son éditeur, sauf mention contraire. Les données statistiques relatives aux combattants proviennent de sources publiques (ufc-fr.com, UFC.com, Wikipédia, Octagon API) et de recherches manuelles vérifiées. Les noms, images et marques appartenant à des tiers (UFC, combattants, organisations) restent la propriété de leurs détenteurs respectifs.",
     dataTitle: "Données personnelles",
-    data: "Le site ne propose ni compte utilisateur, ni formulaire de collecte de données personnelles. Seules des informations techniques non identifiantes sont conservées localement dans le navigateur du visiteur (préférence de langue, compteur d'utilisation quotidienne du simulateur IA), sans transmission à un serveur tiers à des fins de suivi.",
+    data: "Le site ne propose ni compte utilisateur, ni formulaire de collecte de données personnelles. Des informations techniques sont conservées localement dans le navigateur du visiteur (préférence de langue, choix concernant les cookies, compteur d'utilisation quotidienne du simulateur IA).",
+    cookies: "Uniquement si le visiteur l'accepte via le bandeau affiché à sa première visite, le site utilise Google Analytics (Google Ireland Ltd) pour mesurer son audience : des cookies « _ga » sont alors déposés pour une durée maximale de 13 mois, et des données de navigation (pages vues, appareil, pays approximatif) sont transmises à Google. Sans accord, aucun cookie de mesure n'est déposé. Le choix est conservé 13 mois et peut être modifié à tout moment via le lien « Cookies » en bas de page.",
+    cookiesTitle: "Cookies et mesure d'audience",
     contactTitle: "Contact",
     contact: "Pour toute question relative au site ou à son contenu :",
   },
@@ -30,7 +32,9 @@ const CONTENT = {
     ipTitle: "Intellectual property",
     ip: "All elements of the site (design, text, structure, logo) belong to its publisher unless stated otherwise. Fighter statistics come from public sources (ufc-fr.com, UFC.com, Wikipedia, Octagon API) and verified manual research. Names, images and trademarks belonging to third parties (UFC, fighters, organizations) remain the property of their respective owners.",
     dataTitle: "Personal data",
-    data: "The site offers no user account and no form collecting personal data. Only non-identifying technical information is stored locally in the visitor's browser (language preference, daily usage counter for the AI simulator), with no transfer to a third-party server for tracking purposes.",
+    data: "The site offers no user account and no form collecting personal data. Technical information is stored locally in the visitor's browser (language preference, cookie choice, daily usage counter for the AI simulator).",
+    cookies: "Only if the visitor accepts it through the banner shown on their first visit, the site uses Google Analytics (Google Ireland Ltd) to measure its audience: \"_ga\" cookies are then set for up to 13 months, and browsing data (pages viewed, device, approximate country) is sent to Google. Without consent, no measurement cookie is set. The choice is kept for 13 months and can be changed at any time via the \"Cookies\" link at the bottom of the page.",
+    cookiesTitle: "Cookies and audience measurement",
     contactTitle: "Contact",
     contact: "For any question about the site or its content:",
   },
@@ -47,7 +51,9 @@ const CONTENT = {
     ipTitle: "Propiedad intelectual",
     ip: "Todos los elementos del sitio (diseño, textos, estructura, logotipo) pertenecen a su editor, salvo indicación contraria. Las estadísticas de los combatientes proceden de fuentes públicas (ufc-fr.com, UFC.com, Wikipedia, Octagon API) y de investigaciones manuales verificadas. Los nombres, imágenes y marcas de terceros (UFC, combatientes, organizaciones) siguen siendo propiedad de sus respectivos titulares.",
     dataTitle: "Datos personales",
-    data: "El sitio no ofrece cuentas de usuario ni formularios de recogida de datos personales. Solo se guarda en el navegador del visitante información técnica no identificativa (preferencia de idioma, contador de uso diario del simulador IA), sin transmisión a un servidor de terceros con fines de seguimiento.",
+    data: "El sitio no ofrece cuentas de usuario ni formularios de recogida de datos personales. Se guarda en el navegador del visitante información técnica (preferencia de idioma, elección sobre las cookies, contador de uso diario del simulador IA).",
+    cookies: "Solo si el visitante lo acepta en el banner mostrado en su primera visita, el sitio usa Google Analytics (Google Ireland Ltd) para medir su audiencia: se instalan entonces cookies «_ga» durante un máximo de 13 meses y se envían a Google datos de navegación (páginas vistas, dispositivo, país aproximado). Sin consentimiento, no se instala ninguna cookie de medición. La elección se conserva 13 meses y puede cambiarse en cualquier momento con el enlace «Cookies» al pie de página.",
+    cookiesTitle: "Cookies y medición de audiencia",
     contactTitle: "Contacto",
     contact: "Para cualquier pregunta sobre el sitio o su contenido:",
   },
@@ -94,6 +100,11 @@ export default function MentionsLegales({ lang = "fr" }) {
       <section className="mb-8">
         <h2 className="disp text-base text-amber-400 mb-2">{c.dataTitle}</h2>
         <p>{c.data}</p>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="disp text-base text-amber-400 mb-2">{c.cookiesTitle}</h2>
+        <p>{c.cookies}</p>
       </section>
 
       <section>
