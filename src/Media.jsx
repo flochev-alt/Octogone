@@ -1,84 +1,122 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Newspaper, Calendar, MapPin, CheckCircle2, Search } from "lucide-react";
+import { Newspaper, MapPin, CheckCircle2, Search } from "lucide-react";
+import { T, L, formatDate, translateMethod } from "./i18n.js";
 
 // Données vérifiées manuellement (recherches web) — à mettre à jour au fil des events.
-// Chaque élément a une vraie date ISO : le tri chronologique est automatique (plus de risque d'erreur manuelle).
+// Chaque élément a une vraie date ISO : le tri chronologique et l'affichage de la date dans
+// chaque langue sont automatiques. Les textes sont soit une chaîne (identique dans les 3 langues),
+// soit un objet { fr, en, es } lu avec L().
 export const UPCOMING = [
   {
     iso: "2027-01-30",
-    date: "30 janvier 2027",
     name: "UFC 336",
     location: "Scotiabank Arena, Toronto, Canada",
-    main: "Carlos Prates vs. Michael Morales — titre intérimaire des poids welters",
-    note: "Joshua Van défendra aussi son titre des poids mouches face à Manel Kape. Islam Makhachev, indisponible avant mi-2027, devrait affronter le vainqueur de Prates vs. Morales.",
+    main: {
+      fr: "Carlos Prates vs. Michael Morales — titre intérimaire des poids welters",
+      en: "Carlos Prates vs. Michael Morales — interim welterweight title",
+      es: "Carlos Prates vs. Michael Morales — título interino del peso wélter",
+    },
+    note: {
+      fr: "Joshua Van défendra aussi son titre des poids mouches face à Manel Kape. Islam Makhachev, indisponible avant mi-2027, devrait affronter le vainqueur de Prates vs. Morales.",
+      en: "Joshua Van will also defend his flyweight title against Manel Kape. Islam Makhachev, out until mid-2027, is expected to face the winner of Prates vs. Morales.",
+      es: "Joshua Van también defenderá su título del peso mosca ante Manel Kape. Islam Makhachev, baja hasta mediados de 2027, debería enfrentarse al ganador del Prates vs. Morales.",
+    },
     fighters: ["Carlos Prates", "Michael Morales"],
     highlight: true,
   },
   {
     iso: "2026-12-12",
-    date: "12 décembre 2026",
     name: "UFC 335",
     location: "T-Mobile Arena, Las Vegas",
-    main: "Charles Oliveira vs. Diego Lopes (poids léger) — titre BMF",
-    note: "Également au programme : Alex Pereira vs. Sergei Pavlovich (poids lourd). Une revanche Sean Strickland vs. Nassourdine Imavov pour le titre des poids moyens est évoquée, sans officialisation à ce jour.",
+    main: {
+      fr: "Charles Oliveira vs. Diego Lopes (poids léger) — titre BMF",
+      en: "Charles Oliveira vs. Diego Lopes (lightweight) — BMF title",
+      es: "Charles Oliveira vs. Diego Lopes (peso ligero) — título BMF",
+    },
+    note: {
+      fr: "Également au programme : Alex Pereira vs. Sergei Pavlovich (poids lourd). Une revanche Sean Strickland vs. Nassourdine Imavov pour le titre des poids moyens est évoquée, sans officialisation à ce jour.",
+      en: "Also on the card: Alex Pereira vs. Sergei Pavlovich (heavyweight). A Sean Strickland vs. Nassourdine Imavov rematch for the middleweight title has been discussed but is not official yet.",
+      es: "También en la cartelera: Alex Pereira vs. Sergei Pavlovich (peso pesado). Se habla de una revancha Sean Strickland vs. Nassourdine Imavov por el título del peso medio, aún sin oficializar.",
+    },
     fighters: ["Charles Oliveira", "Diego Lopes"],
     highlight: true,
-    badge: "Titre BMF",
+    badge: { fr: "Titre BMF", en: "BMF title", es: "Título BMF" },
   },
   {
     iso: "2026-11-21",
-    date: "21 novembre 2026",
     name: "UFC Fight Night : Procházka vs. Stirling",
-    location: "Ali Bin Hamad al-Attiyah Arena, Doha, Qatar",
-    main: "Jiří Procházka vs. Navajo Stirling (poids mi-lourd)",
+    location: { fr: "Ali Bin Hamad al-Attiyah Arena, Doha, Qatar", en: "Ali Bin Hamad al-Attiyah Arena, Doha, Qatar", es: "Ali Bin Hamad al-Attiyah Arena, Doha, Catar" },
+    main: {
+      fr: "Jiří Procházka vs. Navajo Stirling (poids mi-lourd)",
+      en: "Jiří Procházka vs. Navajo Stirling (light heavyweight)",
+      es: "Jiří Procházka vs. Navajo Stirling (semipesado)",
+    },
     fighters: ["Jiří Procházka", "Navajo Stirling"],
   },
   {
     iso: "2026-11-14",
-    date: "14 novembre 2026",
     name: "UFC 334",
     location: "Madison Square Garden, New York",
-    main: "Ciryl Gane vs. Josh Hokit — titre des poids lourds",
-    note: "Première défense de Ciryl Gane comme champion incontesté. Co-main event : Kayla Harrison vs. Amanda Nunes, titre des poids coq féminins.",
+    main: {
+      fr: "Ciryl Gane vs. Josh Hokit — titre des poids lourds",
+      en: "Ciryl Gane vs. Josh Hokit — heavyweight title",
+      es: "Ciryl Gane vs. Josh Hokit — título del peso pesado",
+    },
+    note: {
+      fr: "Première défense de Ciryl Gane comme champion incontesté. Co-main event : Kayla Harrison vs. Amanda Nunes, titre des poids coq féminins.",
+      en: "Ciryl Gane's first defense as undisputed champion. Co-main event: Kayla Harrison vs. Amanda Nunes, women's bantamweight title.",
+      es: "Primera defensa de Ciryl Gane como campeón indiscutible. Co-main event: Kayla Harrison vs. Amanda Nunes, título del peso gallo femenino.",
+    },
     fighters: ["Ciryl Gane", "Josh Hokit"],
     highlight: true,
   },
   {
     iso: "2026-11-07",
-    date: "7 novembre 2026",
     name: "UFC Fight Night : Bonfim vs. Brady",
     location: "Meta Apex, Las Vegas",
-    main: "Gabriel Bonfim vs. Sean Brady (poids welter)",
+    main: {
+      fr: "Gabriel Bonfim vs. Sean Brady (poids welter)",
+      en: "Gabriel Bonfim vs. Sean Brady (welterweight)",
+      es: "Gabriel Bonfim vs. Sean Brady (peso wélter)",
+    },
     fighters: ["Gabriel Bonfim", "Sean Brady"],
   },
   {
     iso: "2026-10-31",
-    date: "31 octobre 2026",
     name: "UFC Fight Night : Moicano vs. Nolan",
     location: "Las Vegas",
-    main: "Renato Moicano vs. Tom Nolan (poids léger)",
+    main: {
+      fr: "Renato Moicano vs. Tom Nolan (poids léger)",
+      en: "Renato Moicano vs. Tom Nolan (lightweight)",
+      es: "Renato Moicano vs. Tom Nolan (peso ligero)",
+    },
     fighters: ["Renato Moicano", "Tom Nolan"],
   },
 ];
 
+// "UFC Fight Night : X" garde l'espace avant les deux-points en français uniquement.
+export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" : ", ": "));
+
 const RECENT_CARDS = [
   {
     iso: "2026-10-24",
-    date: "24 octobre 2026",
     name: "UFC 333 : Volkanovski vs. Evloev",
     location: "Etihad Arena, Abu Dhabi",
     results: [
-      { fight: "Alexander Volkanovski def. Movsar Evloev", method: "TKO", note: "Main event · titre des poids plumes · R2, 4:54" },
-      { fight: "Petr Yan def. Merab Dvalishvili", method: "Décision unanime", note: "Co-main event · titre des poids coq (48-47 x3)" },
+      { fight: "Alexander Volkanovski def. Movsar Evloev", method: "TKO", note: { fr: "Main event · titre des poids plumes · R2, 4:54", en: "Main event · featherweight title · R2, 4:54", es: "Main event · título del peso pluma · R2, 4:54" } },
+      { fight: "Petr Yan def. Merab Dvalishvili", method: "Décision unanime", note: { fr: "Co-main event · titre des poids coq (48-47 x3)", en: "Co-main event · bantamweight title (48-47 x3)", es: "Co-main event · título del peso gallo (48-47 x3)" } },
       { fight: "Lone'er Kavanagh def. Ramazan Temirov", method: "TKO", note: "R1, 4:28" },
-      { fight: "Alexander Volkov def. Rizvan Kuniev", method: "Décision unanime", note: "Poids lourd" },
+      { fight: "Alexander Volkov def. Rizvan Kuniev", method: "Décision unanime", note: { fr: "Poids lourd", en: "Heavyweight", es: "Peso pesado" } },
     ],
     tweetUrl: "https://x.com/ufc/status/2114103145987195203",
-    note: "Volkanovski inflige à Evloev (20-1) sa première défaite. Yan bat Dvalishvili pour la deuxième fois d'affilée et conserve sa ceinture.",
+    note: {
+      fr: "Volkanovski inflige à Evloev (20-1) sa première défaite. Yan bat Dvalishvili pour la deuxième fois d'affilée et conserve sa ceinture.",
+      en: "Volkanovski hands Evloev (20-1) his first loss. Yan beats Dvalishvili for the second time in a row and keeps his belt.",
+      es: "Volkanovski le inflige a Evloev (20-1) su primera derrota. Yan vence a Dvalishvili por segunda vez consecutiva y conserva su cinturón.",
+    },
   },
   {
     iso: "2026-10-17",
-    date: "17 octobre 2026",
     name: "UFC Fight Night : Buckley vs. Malott",
     location: "Rogers Place, Edmonton, Canada",
     results: [
@@ -90,7 +128,6 @@ const RECENT_CARDS = [
   },
   {
     iso: "2026-10-10",
-    date: "10 octobre 2026",
     name: "UFC Fight Night : Allen vs. Duncan",
     location: "Meta Apex, Las Vegas",
     results: [
@@ -101,71 +138,77 @@ const RECENT_CARDS = [
   },
   {
     iso: "2026-10-03",
-    date: "3 octobre 2026",
     name: "UFC 332 : Silva vs. Wang",
     location: "Delta Center, Salt Lake City",
     results: [
-      { fight: "Natália Silva def. Wang Cong", method: "Décision unanime", note: "Main event · titre vacant des poids mouches féminins (48-47, 48-47, 49-46)" },
+      { fight: "Natália Silva def. Wang Cong", method: "Décision unanime", note: { fr: "Main event · titre vacant des poids mouches féminins (48-47, 48-47, 49-46)", en: "Main event · vacant women's flyweight title (48-47, 48-47, 49-46)", es: "Main event · título vacante del peso mosca femenino (48-47, 48-47, 49-46)" } },
       { fight: "Payton Talbott def. Deiveson Figueiredo", method: "TKO", note: "Co-main event · R1, 2:09" },
       { fight: "Esteban Ribovics def. King Green", method: "TKO", note: "R1, 4:08" },
       { fight: "Roman Kopylov def. Ateba Gautier", method: "TKO", note: "R1, 3:12" },
     ],
-    note: "Natália Silva devient championne après le retrait sur blessure de Valentina Shevchenko. Soirée record : 11 KO/TKO sur la carte, du jamais vu à l'UFC.",
+    note: {
+      fr: "Natália Silva devient championne après le retrait sur blessure de Valentina Shevchenko. Soirée record : 11 KO/TKO sur la carte, du jamais vu à l'UFC.",
+      en: "Natália Silva becomes champion after Valentina Shevchenko withdrew injured. A record night: 11 KO/TKOs on the card, a first in UFC history.",
+      es: "Natália Silva se convierte en campeona tras la baja por lesión de Valentina Shevchenko. Noche récord: 11 KO/TKO en la cartelera, algo nunca visto en la UFC.",
+    },
   },
   {
     iso: "2026-09-26",
-    date: "26 septembre 2026",
     name: "UFC Fight Night : Rosas Jr. vs. Barcelos",
     location: "Meta Apex, Las Vegas",
     results: [
       { fight: "Raul Rosas Jr. def. Raoni Barcelos", method: "TKO", note: "Main event · R5, 1:38" },
       { fight: "Ailín Pérez def. Norma Dumont", method: "Décision unanime", note: "Co-main event" },
     ],
-    note: "Barcelos s'est effondré pendant le combat et a été évacué sur civière ; l'UFC a indiqué qu'il était stable et conscient.",
+    note: {
+      fr: "Barcelos s'est effondré pendant le combat et a été évacué sur civière ; l'UFC a indiqué qu'il était stable et conscient.",
+      en: "Barcelos collapsed during the fight and was taken out on a stretcher; the UFC said he was stable and conscious.",
+      es: "Barcelos se desplomó durante el combate y fue evacuado en camilla; la UFC indicó que estaba estable y consciente.",
+    },
   },
   {
     iso: "2026-09-19",
-    date: "19 septembre 2026",
     name: "UFC 331 : Van vs. Pantoja 2",
     location: "Crypto.com Arena, Los Angeles",
     results: [
-      { fight: "Joshua Van def. Alexandre Pantoja", method: "Décision unanime", note: "Main event · titre des poids mouches (49-46, 48-47, 50-45)" },
-      { fight: "Arman Tsarukyan def. Mauricio Ruffy", method: "KO", note: "Co-main event · R1 — coude" },
+      { fight: "Joshua Van def. Alexandre Pantoja", method: "Décision unanime", note: { fr: "Main event · titre des poids mouches (49-46, 48-47, 50-45)", en: "Main event · flyweight title (49-46, 48-47, 50-45)", es: "Main event · título del peso mosca (49-46, 48-47, 50-45)" } },
+      { fight: "Arman Tsarukyan def. Mauricio Ruffy", method: "KO", note: { fr: "Co-main event · R1 — coude", en: "Co-main event · R1 — elbow", es: "Co-main event · R1 — codo" } },
       { fight: "Patricio Pitbull def. Dooho Choi", method: "TKO", note: "R1" },
       { fight: "Sean Sharaf def. Gable Steveson", method: "KO", note: "R1" },
     ],
   },
   {
     iso: "2026-09-12",
-    date: "12 septembre 2026",
     name: "Noche UFC : Silva vs. Delgado",
     location: "Desert Diamond Arena, Glendale",
     results: [
       { fight: "Jean Silva def. José Delgado", method: "Soumission", note: "Main event · R3, 2:57" },
       { fight: "Brandon Moreno def. Joseph Morales", method: "Décision", note: "Co-main event" },
-      { fight: "Alexa Grasso def. Manon Fiorot", method: "Décision unanime", note: "Poids mouche féminin" },
-      { fight: "Curtis Blaydes def. Waldo Cortes-Acosta", method: "Décision unanime", note: "Poids lourd" },
+      { fight: "Alexa Grasso def. Manon Fiorot", method: "Décision unanime", note: { fr: "Poids mouche féminin", en: "Women's flyweight", es: "Peso mosca femenino" } },
+      { fight: "Curtis Blaydes def. Waldo Cortes-Acosta", method: "Décision unanime", note: { fr: "Poids lourd", en: "Heavyweight", es: "Peso pesado" } },
     ],
     tweetUrl: "https://x.com/ufc/status/2098932901190754654",
   },
   {
     iso: "2026-09-05",
-    date: "5 septembre 2026",
     name: "UFC Paris : Hooker vs. Parnasse",
-    location: "Accor Arena, Paris",
+    location: { fr: "Accor Arena, Paris", en: "Accor Arena, Paris", es: "Accor Arena, París" },
     results: [
       { fight: "Salahdine Parnasse def. Dan Hooker", method: "TKO", note: "Main event · R1, 2:25" },
       { fight: "Axel Sola def. Farès Ziam", method: "KO", note: "Co-main event · R1, 1:40" },
-      { fight: "Michael \"Venom\" Page def. Nursulton Ruziboev", method: "Décision unanime", note: "Poids moyen" },
+      { fight: "Michael \"Venom\" Page def. Nursulton Ruziboev", method: "Décision unanime", note: { fr: "Poids moyen", en: "Middleweight", es: "Peso medio" } },
     ],
     tweetUrl: "https://x.com/RMCSportCombat/status/2096975967541411870",
-    note: "Débuts UFC réussis pour Salahdine Parnasse, vainqueur au premier round devant son public.",
+    note: {
+      fr: "Débuts UFC réussis pour Salahdine Parnasse, vainqueur au premier round devant son public.",
+      en: "A winning UFC debut for Salahdine Parnasse, who finished it in the first round in front of his home crowd.",
+      es: "Debut exitoso en la UFC para Salahdine Parnasse, vencedor en el primer asalto ante su público.",
+    },
   },
   {
     iso: "2026-08-29",
-    date: "29 août 2026",
     name: "UFC Fight Night : Nurmagomedov vs. Song",
-    location: "Oriental Sports Center, Shanghai, Chine",
+    location: { fr: "Oriental Sports Center, Shanghai, Chine", en: "Oriental Sports Center, Shanghai, China", es: "Oriental Sports Center, Shanghái, China" },
     results: [
       { fight: "Song Yadong def. Umar Nurmagomedov", method: "KO", note: "Main event · R2, 1:48" },
       { fight: "Denise Gomes def. Yan Xiaonan", method: "KO", note: "Co-main event · R1" },
@@ -175,31 +218,28 @@ const RECENT_CARDS = [
   },
   {
     iso: "2026-08-22",
-    date: "22 août 2026",
     name: "UFC Fight Night : Hernandez vs. Rodrigues",
     location: "Golden 1 Center, Sacramento",
     results: [
-      { fight: "Gregory Rodrigues def. Anthony Hernandez", method: "Décision unanime", note: "Main event · 5 rounds" },
+      { fight: "Gregory Rodrigues def. Anthony Hernandez", method: "Décision unanime", note: { fr: "Main event · 5 rounds", en: "Main event · 5 rounds", es: "Main event · 5 asaltos" } },
       { fight: "Vitor Petrino def. Serghei Spivac", method: "Décision unanime", note: "Co-main event" },
       { fight: "Reinier de Ridder def. Roman Dolidze", method: "TKO", note: "R1, 4:01" },
     ],
   },
   {
     iso: "2026-08-15",
-    date: "15 août 2026",
     name: "UFC 330 : Makhachev vs. Machado Garry",
-    location: "Xfinity Mobile Arena, Philadelphie",
+    location: { fr: "Xfinity Mobile Arena, Philadelphie", en: "Xfinity Mobile Arena, Philadelphia", es: "Xfinity Mobile Arena, Filadelfia" },
     results: [
-      { fight: "Islam Makhachev def. Ian Machado Garry", method: "Décision unanime", note: "Main event · titre des poids welters (49-46, 49-46, 48-47)" },
-      { fight: "Mackenzie Dern def. Gillian Robertson", method: "Décision unanime", note: "Co-main event · titre des poids paille féminins" },
-      { fight: "Esteban Ribovics def. Edson Barboza", method: "TKO", note: "R2 — Barboza annonce sa retraite" },
+      { fight: "Islam Makhachev def. Ian Machado Garry", method: "Décision unanime", note: { fr: "Main event · titre des poids welters (49-46, 49-46, 48-47)", en: "Main event · welterweight title (49-46, 49-46, 48-47)", es: "Main event · título del peso wélter (49-46, 49-46, 48-47)" } },
+      { fight: "Mackenzie Dern def. Gillian Robertson", method: "Décision unanime", note: { fr: "Co-main event · titre des poids paille féminins", en: "Co-main event · women's strawweight title", es: "Co-main event · título del peso paja femenino" } },
+      { fight: "Esteban Ribovics def. Edson Barboza", method: "TKO", note: { fr: "R2 — Barboza annonce sa retraite", en: "R2 — Barboza announces his retirement", es: "R2 — Barboza anuncia su retirada" } },
       { fight: "Dustin Stoltzfus def. Mansur Abdul-Malik", method: "Soumission", note: "R2" },
       { fight: "Jalin Turner def. Kauê Fernandes", method: "TKO", note: "R1" },
     ],
   },
   {
     iso: "2026-08-08",
-    date: "8 août 2026",
     name: "UFC Fight Night : Gamrot vs. Salkilld",
     location: "Meta Apex, Las Vegas",
     results: [
@@ -211,20 +251,22 @@ const RECENT_CARDS = [
   },
   {
     iso: "2026-08-01",
-    date: "1 août 2026",
     name: "UFC Fight Night : Medić vs. Rodriguez",
-    location: "Belgrade Arena, Serbie",
+    location: { fr: "Belgrade Arena, Serbie", en: "Belgrade Arena, Serbia", es: "Belgrade Arena, Serbia" },
     results: [
       { fight: "Uroš Medić def. Daniel Rodriguez", method: "TKO", note: "Main event · R1, 0:30" },
       { fight: "Navajo Stirling def. Jan Błachowicz", method: "TKO", note: "Co-main event · R1, 2:56" },
       { fight: "Aleksandar Rakić def. Marcin Tybura", method: "Décision unanime", note: "30-27 x3" },
     ],
     tweetUrl: "https://x.com/ufc/status/2083636012039672042",
-    note: "Premier événement UFC de l'histoire organisé en Serbie.",
+    note: {
+      fr: "Premier événement UFC de l'histoire organisé en Serbie.",
+      en: "The first UFC event ever held in Serbia.",
+      es: "Primer evento de la UFC celebrado en Serbia.",
+    },
   },
   {
     iso: "2026-07-25",
-    date: "25 juillet 2026",
     name: "UFC Fight Night : Ankalaev vs. Guskov",
     location: "Etihad Arena, Abu Dhabi",
     results: [
@@ -233,12 +275,15 @@ const RECENT_CARDS = [
       { fight: "Valter Walker def. Thomas Petersen", method: "Soumission", note: "R1, 1:32 — calf slicer" },
       { fight: "Muhammad Saidov def. Dustin Jacoby", method: "TKO", note: "R2, 4:49" },
     ],
-    note: "Main event jugé très terne par la critique (4 rounds peu actifs avant la finition) — Ankalaev en a depuis rejeté la responsabilité sur le manque d'engagement de Guskov.",
+    note: {
+      fr: "Main event jugé très terne par la critique (4 rounds peu actifs avant la finition) — Ankalaev en a depuis rejeté la responsabilité sur le manque d'engagement de Guskov.",
+      en: "Critics found the main event very dull (4 inactive rounds before the finish) — Ankalaev has since blamed Guskov's lack of engagement.",
+      es: "La crítica consideró muy gris el main event (4 asaltos poco activos antes del final) — Ankalaev culpó después a la falta de iniciativa de Guskov.",
+    },
     tweetUrl: "https://x.com/ufc/status/2081091312640766023",
   },
   {
     iso: "2026-07-18",
-    date: "18 juillet 2026",
     name: "UFC Fight Night 281 : Du Plessis vs. Usman",
     location: "Paycom Center, Oklahoma City",
     results: [
@@ -255,26 +300,39 @@ const REACTIONS = [
     iso: "2026-07-19",
     author: "Kelvin Gastelum",
     handle: "@KelvinGastelum",
-    date: "19 juil. 2026",
     text: "\"I got USMAN by tko in the 3rd rd.\"",
-    context: "Pronostic lancé avant le combat principal — qui ne s'est pas réalisé.",
+    context: {
+      fr: "Pronostic lancé avant le combat principal — qui ne s'est pas réalisé.",
+      en: "A prediction made before the main event — it didn't come true.",
+      es: "Pronóstico lanzado antes del combate estelar — que no se cumplió.",
+    },
   },
   {
     iso: "2026-07-19",
-    author: "Communauté MMA",
+    author: { fr: "Communauté MMA", en: "MMA community", es: "Comunidad MMA" },
     handle: null,
-    date: "19 juil. 2026",
     text: null,
-    summary: "De nombreux fans et combattants ont salué la démonstration de Du Plessis, certains y voyant déjà un argument pour un troisième affrontement face au champion Sean Strickland, qu'il a déjà battu deux fois.",
+    summary: {
+      fr: "De nombreux fans et combattants ont salué la démonstration de Du Plessis, certains y voyant déjà un argument pour un troisième affrontement face au champion Sean Strickland, qu'il a déjà battu deux fois.",
+      en: "Many fans and fighters praised Du Plessis's performance, some already seeing it as a case for a third fight with champion Sean Strickland, whom he has beaten twice.",
+      es: "Muchos aficionados y luchadores elogiaron la actuación de Du Plessis; algunos ya la ven como un argumento para un tercer combate ante el campeón Sean Strickland, a quien ya ha vencido dos veces.",
+    },
   },
   {
     iso: "2026-07-27",
     author: "Dan Hooker",
     handle: "@thehangmanmma",
-    date: "27 juil. 2026",
     text: null,
-    summary: "Hooker affirme avoir reçu une vague de menaces de mort de la part de fans de Parnasse depuis l'annonce du combat, qu'il juge disproportionnée par rapport à ce qu'il avait connu face à d'autres adversaires français. Il assume pleinement son rôle de trouble-fête pour cette affiche, expliquant vouloir gâcher les débuts UFC très attendus de Parnasse devant son public.",
-    context: "Interview accordée à Submission Radio, à l'approche de leur combat du 5 septembre à l'UFC Paris.",
+    summary: {
+      fr: "Hooker affirme avoir reçu une vague de menaces de mort de la part de fans de Parnasse depuis l'annonce du combat, qu'il juge disproportionnée par rapport à ce qu'il avait connu face à d'autres adversaires français. Il assume pleinement son rôle de trouble-fête pour cette affiche, expliquant vouloir gâcher les débuts UFC très attendus de Parnasse devant son public.",
+      en: "Hooker says he has received a wave of death threats from Parnasse fans since the fight was announced, far more than he had seen against other French opponents. He fully embraces his role as the spoiler, saying he wants to ruin Parnasse's much-awaited UFC debut in front of his home crowd.",
+      es: "Hooker afirma haber recibido una ola de amenazas de muerte de aficionados de Parnasse desde el anuncio del combate, desproporcionada respecto a lo que vivió ante otros rivales franceses. Asume plenamente su papel de aguafiestas y quiere arruinar el esperado debut de Parnasse en la UFC ante su público.",
+    },
+    context: {
+      fr: "Interview accordée à Submission Radio, à l'approche de leur combat du 5 septembre à l'UFC Paris.",
+      en: "Interview with Submission Radio ahead of their September 5 fight at UFC Paris.",
+      es: "Entrevista concedida a Submission Radio antes de su combate del 5 de septiembre en UFC París.",
+    },
   },
 ];
 
@@ -285,24 +343,33 @@ const TWEETS = [
     iso: "2026-10-16",
     author: "UFC",
     handle: "@ufc",
-    date: "16 oct. 2026",
-    context: "Dernier face-à-face entre Joaquin Buckley et Mike Malott, la veille du main event d'Edmonton.",
+    context: {
+      fr: "Dernier face-à-face entre Joaquin Buckley et Mike Malott, la veille du main event d'Edmonton.",
+      en: "The final face-off between Joaquin Buckley and Mike Malott, the day before the Edmonton main event.",
+      es: "Último cara a cara entre Joaquin Buckley y Mike Malott, la víspera del main event de Edmonton.",
+    },
     url: "https://x.com/ufc/status/2111237953712541748",
   },
   {
     iso: "2026-09-27",
     author: "RMC Sport Combat",
     handle: "@RMCSportCombat",
-    date: "27 sept. 2026",
-    context: "La décision Ailín Pérez – Norma Dumont qui a laissé les consultants de RMC sans voix.",
+    context: {
+      fr: "La décision Ailín Pérez – Norma Dumont qui a laissé les consultants de RMC sans voix.",
+      en: "The Ailín Pérez – Norma Dumont decision that left RMC's pundits speechless.",
+      es: "La decisión Ailín Pérez – Norma Dumont que dejó sin palabras a los comentaristas de RMC.",
+    },
     url: "https://x.com/RMCSportCombat/status/2104027684607254868",
   },
   {
     iso: "2026-09-01",
     author: "RMC Sport Combat",
     handle: "@RMCSportCombat",
-    date: "1er sept. 2026",
-    context: "Premier face-à-face entre Dan Hooker et Salahdine Parnasse avant l'UFC Paris.",
+    context: {
+      fr: "Premier face-à-face entre Dan Hooker et Salahdine Parnasse avant l'UFC Paris.",
+      en: "The first face-off between Dan Hooker and Salahdine Parnasse ahead of UFC Paris.",
+      es: "Primer cara a cara entre Dan Hooker y Salahdine Parnasse antes de UFC París.",
+    },
     url: "https://x.com/RMCSportCombat/status/2094773226719060141",
   },
 ];
@@ -312,39 +379,24 @@ const TRASH_TALK = [
   {
     a: "Khamzat Chimaev",
     b: "Sean Strickland",
-    date: "Avant UFC 312",
-    summary: "Chimaev a publiquement accusé Strickland d'\"avoir peur\" de lui, en réponse à des propos jugés méprisants de l'Américain à son sujet. Strickland avait qualifié la réaction d'un autre combattant de \"lâche\" sur le même sujet.",
+    date: { fr: "Avant UFC 312", en: "Before UFC 312", es: "Antes de UFC 312" },
+    summary: {
+      fr: "Chimaev a publiquement accusé Strickland d'\"avoir peur\" de lui, en réponse à des propos jugés méprisants de l'Américain à son sujet. Strickland avait qualifié la réaction d'un autre combattant de \"lâche\" sur le même sujet.",
+      en: "Chimaev publicly accused Strickland of being \"scared\" of him, in response to remarks from the American he found disrespectful. Strickland had called another fighter's reaction on the same topic \"cowardly\".",
+      es: "Chimaev acusó públicamente a Strickland de \"tenerle miedo\", en respuesta a comentarios despectivos del estadounidense sobre él. Strickland había calificado de \"cobarde\" la reacción de otro luchador sobre el mismo tema.",
+    },
   },
   {
     a: "Islam Makhachev",
     b: "Justin Gaethje",
-    date: "Sur X",
-    summary: "Gaethje avait publiquement défié Makhachev à coups de pied à la tête, comparant leurs styles. Le champion avait répondu avec calme qu'il savait faire \"bien plus que donner des coups de pied\", tout en conseillant à Gaethje de rester prudent.",
+    date: { fr: "Sur X", en: "On X", es: "En X" },
+    summary: {
+      fr: "Gaethje avait publiquement défié Makhachev à coups de pied à la tête, comparant leurs styles. Le champion avait répondu avec calme qu'il savait faire \"bien plus que donner des coups de pied\", tout en conseillant à Gaethje de rester prudent.",
+      en: "Gaethje had publicly challenged Makhachev with talk of head kicks, comparing their styles. The champion calmly replied that he could do \"much more than kick\", while advising Gaethje to be careful.",
+      es: "Gaethje había desafiado públicamente a Makhachev hablando de patadas a la cabeza y comparando sus estilos. El campeón respondió con calma que sabía hacer \"mucho más que dar patadas\" y le aconsejó prudencia.",
+    },
   },
 ];
-
-// Carte complète du jour (Ankalaev vs Guskov), pour recréer l'affiche façon UFC avec nos propres badges.
-const TONIGHT_POSTER = {
-  title: "UFC FIGHT NIGHT",
-  date: "25 JUILLET · SAMEDI",
-  mainCard: [
-    { a: "Magomed Ankalaev", flagA: "🇷🇺", b: "Bogdan Guskov", flagB: "🇺", weight: "Poids mi-lourd" },
-    { a: "Robert Erceg", flagA: "🇦🇺", b: "Shamil Temirov", flagB: "🇺🇿", weight: "Poids mouche" },
-    { a: "Ruslan Dulatov", flagA: "🇹🇷", b: "Chris Turman", flagB: "🇧🇷", weight: "Poids welter" },
-    { a: "Said Zaynukov", flagA: "🇷🇺", b: "Filip Rzepecki", flagB: "🇵🇱", weight: "Poids léger" },
-    { a: "Rustam Kuniev", flagA: "🇷🇺", b: "Chris Fortune", flagB: "🇺🇸", weight: "Poids lourd" },
-    { a: "Rizvan Vagaev", flagA: "🇷🇺", b: "Muslim Izagakhmaev", flagB: "🇷🇺", weight: "Poids welter" },
-  ],
-  prelims: [
-    { a: "Justin Walker", flagA: "🇧🇷", b: "Jamal Petersen", flagB: "🇺🇸", weight: "Poids lourd" },
-    { a: "Sedriques Jacoby", flagA: "🇺🇸", b: "Said Saidov", flagB: "🇷🇺", weight: "Poids mi-lourd" },
-    { a: "Santiago Ponzinibbio", flagA: "🇦🇷", b: "Nathaniel Patterson", flagB: "🏴", weight: "Poids welter" },
-    { a: "Elves Brener Bonfim", flagA: "🇧🇷", b: "Fares Sola", flagB: "🇫🇷", weight: "Poids léger" },
-    { a: "Ibragim Tuchalov", flagA: "🇷🇺", b: "Robert Ribeiro", flagB: "🇧🇷", weight: "Poids mi-lourd" },
-    { a: "Muhammadjon Aliev", flagA: "🇹🇯", b: "Trey Davis", flagB: "🇺🇸", weight: "Poids léger" },
-    { a: "Nathan Gibson", flagA: "🇺🇸", b: "Ali Hussein", flagB: "🇫🇮", weight: "Poids coq" },
-  ],
-};
 
 // Fil unique, trié automatiquement par date décroissante (le plus lointain/récent en haut).
 const FEED = [
@@ -354,58 +406,8 @@ const FEED = [
   ...TWEETS.map((t) => ({ type: "tweet", iso: t.iso, data: t })),
 ].sort((a, b) => (a.iso < b.iso ? 1 : -1));
 
-function FighterSlot({ name, flag, align }) {
-  const initials = name.split(" ").map((w) => w[0]).join("").slice(-2).toUpperCase();
-  return (
-    <div className={`flex items-center gap-2 ${align === "right" ? "flex-row-reverse text-right" : ""}`}>
-      <div className="w-8 h-8 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center shrink-0 font-bold text-[10px] text-neutral-300">
-        {initials}
-      </div>
-      <div className="min-w-0">
-        <div className="text-[11px] font-semibold text-neutral-200 truncate">{name}</div>
-      </div>
-      <span className="text-xs shrink-0">{flag}</span>
-    </div>
-  );
-}
-
-function FightRow({ f, n }) {
-  return (
-    <div className="flex items-center gap-2 py-1.5">
-      <span className="mono text-[9px] text-neutral-600 w-4 shrink-0">{n}</span>
-      <div className="flex-1 min-w-0"><FighterSlot name={f.a} flag={f.flagA} /></div>
-      <div className="text-center shrink-0 w-9">
-        <div className="text-amber-400 text-[9px] font-bold">VS</div>
-      </div>
-      <div className="flex-1 min-w-0"><FighterSlot name={f.b} flag={f.flagB} align="right" /></div>
-    </div>
-  );
-}
-
-function FightPoster({ data }) {
-  return (
-    <div className="mt-3 rounded-2xl border border-neutral-800 bg-gradient-to-b from-neutral-900 to-neutral-950 px-4 py-3">
-      <div className="text-center mb-2">
-        <div className="disp text-base">
-          {data.title.split(" ")[0]} <span className="text-amber-400">{data.title.split(" ").slice(1).join(" ")}</span>
-        </div>
-        <div className="text-[9px] uppercase tracking-widest text-neutral-500">Main Card</div>
-      </div>
-      <div className="divide-y divide-neutral-800/60">
-        {data.mainCard.map((f, i) => <FightRow key={i} f={f} n={i + 1} />)}
-      </div>
-      <div className="text-center text-[9px] font-bold tracking-widest bg-neutral-800 text-neutral-300 rounded-full py-1 my-3">
-        PRELIMS
-      </div>
-      <div className="divide-y divide-neutral-800/60">
-        {data.prelims.map((f, i) => <FightRow key={i} f={f} n={data.mainCard.length + i + 1} />)}
-      </div>
-      <div className="text-center text-xs font-bold tracking-widest bg-amber-400 text-neutral-950 rounded-full py-1.5 mt-3">
-        {data.date}
-      </div>
-    </div>
-  );
-}
+const shortDate = (iso, lang) => formatDate(iso, lang, { day: "numeric", month: "short", year: "numeric" });
+const initialsOf = (n) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
 function Avatar({ label, highlight }) {
   return (
@@ -419,18 +421,17 @@ function Avatar({ label, highlight }) {
 
 function FightersBadges({ fighters, highlight }) {
   if (!fighters || fighters.length < 2) return <Avatar label="UFC" highlight={highlight} />;
-  const initials = (n) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
   return (
     <div className="flex -space-x-2 shrink-0">
       <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[10px] border-2 border-neutral-950 ${
         highlight ? "bg-amber-400 text-neutral-950" : "bg-neutral-800 text-neutral-300"
       }`}>
-        {initials(fighters[0])}
+        {initialsOf(fighters[0])}
       </div>
       <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[10px] border-2 border-neutral-950 ${
         highlight ? "bg-amber-300 text-neutral-950" : "bg-neutral-700 text-neutral-300"
       }`}>
-        {initials(fighters[1])}
+        {initialsOf(fighters[1])}
       </div>
     </div>
   );
@@ -444,7 +445,7 @@ function Post({ children }) {
   );
 }
 
-function UpcomingPost({ c }) {
+function UpcomingPost({ c, lang, t }) {
   return (
     <div className="flex gap-3">
       <FightersBadges fighters={c.fighters} highlight={c.highlight} />
@@ -452,25 +453,24 @@ function UpcomingPost({ c }) {
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="font-semibold text-sm text-neutral-100">UFC</span>
           <span className="text-neutral-500 text-xs">@ufc</span>
-          <span className="text-neutral-600 text-xs">· {c.date}</span>
+          <span className="text-neutral-600 text-xs">· {formatDate(c.iso, lang)}</span>
           {c.highlight && (
-            <span className="ml-1 text-[10px] font-semibold text-amber-400 border border-amber-400/40 rounded-full px-2 py-0.5">{c.badge || "Combat pour le titre"}</span>
+            <span className="ml-1 text-[10px] font-semibold text-amber-400 border border-amber-400/40 rounded-full px-2 py-0.5">{L(c.badge, lang) || t.titleFight}</span>
           )}
         </div>
-        <div className="disp text-base mt-1">{c.name}</div>
-        <div className="text-sm text-neutral-200 mt-1">{c.main}</div>
-        {c.note && <div className="text-xs text-neutral-500 mt-1">{c.note}</div>}
+        <div className="disp text-base mt-1">{eventName(c.name, lang)}</div>
+        <div className="text-sm text-neutral-200 mt-1">{L(c.main, lang)}</div>
+        {c.note && <div className="text-xs text-neutral-500 mt-1">{L(c.note, lang)}</div>}
         <div className="flex items-center gap-1.5 text-xs text-neutral-500 mt-2">
-          <MapPin className="w-3 h-3" /> {c.location}
-          <CheckCircle2 className="w-3 h-3 text-amber-400 ml-2" /> Officiel
+          <MapPin className="w-3 h-3" /> {L(c.location, lang)}
+          <CheckCircle2 className="w-3 h-3 text-amber-400 ml-2" /> {t.official}
         </div>
-        {c.showPoster && <FightPoster data={TONIGHT_POSTER} />}
       </div>
     </div>
   );
 }
 
-function RecapPost({ card }) {
+function RecapPost({ card, lang, t }) {
   return (
     <div className="flex gap-3">
       <Avatar label="UFC" />
@@ -478,28 +478,28 @@ function RecapPost({ card }) {
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="font-semibold text-sm text-neutral-100">UFC</span>
           <span className="text-neutral-500 text-xs">@ufc</span>
-          <span className="text-neutral-600 text-xs">· {card.date}</span>
+          <span className="text-neutral-600 text-xs">· {formatDate(card.iso, lang)}</span>
         </div>
-        <div className="disp text-base mt-1">{card.name}</div>
+        <div className="disp text-base mt-1">{eventName(card.name, lang)}</div>
         <div className="flex items-center gap-1.5 text-xs text-neutral-500 mt-1 mb-3">
-          <MapPin className="w-3 h-3" /> {card.location}
+          <MapPin className="w-3 h-3" /> {L(card.location, lang)}
         </div>
         <div className="space-y-2 rounded-xl border border-neutral-800 bg-neutral-950 p-3">
           {card.results.map((r, i) => (
             <div key={i} className="flex items-start justify-between gap-3 text-xs border-t border-neutral-800 pt-2 first:border-0 first:pt-0">
               <div>
                 <div className="text-neutral-200">{r.fight}</div>
-                <div className="text-neutral-500">{r.note}</div>
+                <div className="text-neutral-500">{L(r.note, lang)}</div>
               </div>
-              <span className="font-semibold text-amber-400 shrink-0 whitespace-nowrap">{r.method}</span>
+              <span className="font-semibold text-amber-400 shrink-0 whitespace-nowrap">{translateMethod(r.method, lang)}</span>
             </div>
           ))}
         </div>
-        {card.note && <div className="text-xs text-neutral-500 mt-2">{card.note}</div>}
+        {card.note && <div className="text-xs text-neutral-500 mt-2">{L(card.note, lang)}</div>}
         {card.tweetUrl && (
           <>
-            <div className="text-[11px] uppercase tracking-widest text-amber-400 mt-3">Le finish du main event</div>
-            <TweetEmbed url={card.tweetUrl} />
+            <div className="text-[11px] uppercase tracking-widest text-amber-400 mt-3">{t.finishLabel}</div>
+            <TweetEmbed url={card.tweetUrl} lang={lang} t={t} />
           </>
         )}
       </div>
@@ -509,7 +509,7 @@ function RecapPost({ card }) {
 
 // Charge le widget officiel X (Twitter) uniquement quand le post apparaît à l'écran en scrollant.
 // X n'est pas soumis aux mêmes restrictions de diffusion par pays que les vidéos YouTube de l'UFC.
-function TweetEmbed({ url }) {
+function TweetEmbed({ url, lang, t }) {
   const [inView, setInView] = useState(false);
   const ref = useRef(null);
 
@@ -543,71 +543,66 @@ function TweetEmbed({ url }) {
   return (
     <div ref={ref} className="mt-3 flex justify-center">
       {inView && (
-        <blockquote className="twitter-tweet" data-theme="dark">
-          <a href={url}>Voir le post</a>
+        <blockquote className="twitter-tweet" data-theme="dark" data-lang={lang}>
+          <a href={url}>{t.viewPost}</a>
         </blockquote>
       )}
     </div>
   );
 }
 
-function ReactionPost({ r }) {
+function ReactionPost({ r, lang }) {
+  const author = L(r.author, lang);
   return (
     <div className="flex gap-3">
-      <Avatar label={r.author.split(" ").map((w) => w[0]).join("").slice(0, 2)} />
+      <Avatar label={author.split(" ").map((w) => w[0]).join("").slice(0, 2)} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-semibold text-sm text-neutral-100">{r.author}</span>
+          <span className="font-semibold text-sm text-neutral-100">{author}</span>
           {r.handle && <span className="text-neutral-500 text-xs">{r.handle}</span>}
-          <span className="text-neutral-600 text-xs">· {r.date}</span>
+          <span className="text-neutral-600 text-xs">· {shortDate(r.iso, lang)}</span>
         </div>
         {r.text && <p className="text-sm text-neutral-200 mt-1">{r.text}</p>}
-        {r.summary && <p className="text-sm text-neutral-300 mt-1">{r.summary}</p>}
-        <div className="text-xs text-neutral-500 mt-1.5">{r.context}</div>
+        {r.summary && <p className="text-sm text-neutral-300 mt-1">{L(r.summary, lang)}</p>}
+        {r.context && <div className="text-xs text-neutral-500 mt-1.5">{L(r.context, lang)}</div>}
       </div>
     </div>
   );
 }
 
-function TweetPost({ t }) {
+function TweetPost({ tw, lang, t }) {
   return (
     <div className="flex gap-3">
-      <Avatar label={t.author.split(" ").map((w) => w[0]).join("").slice(0, 2)} />
+      <Avatar label={tw.author.split(" ").map((w) => w[0]).join("").slice(0, 2)} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-semibold text-sm text-neutral-100">{t.author}</span>
-          <span className="text-neutral-500 text-xs">{t.handle}</span>
-          <span className="text-neutral-600 text-xs">· {t.date}</span>
+          <span className="font-semibold text-sm text-neutral-100">{tw.author}</span>
+          <span className="text-neutral-500 text-xs">{tw.handle}</span>
+          <span className="text-neutral-600 text-xs">· {shortDate(tw.iso, lang)}</span>
         </div>
-        <p className="text-sm text-neutral-300 mt-1">{t.context}</p>
-        <TweetEmbed url={t.url} />
+        <p className="text-sm text-neutral-300 mt-1">{L(tw.context, lang)}</p>
+        <TweetEmbed url={tw.url} lang={lang} t={t} />
       </div>
     </div>
   );
 }
+
+// Toutes les versions d'un texte multilingue, pour que la recherche marche quelle que soit la langue tapée.
+const allLangs = (v) => (v && typeof v === "object" ? Object.values(v) : [v]);
 
 // Fonction de recherche : concatène tous les champs texte pertinents d'un item pour le filtrage.
 function searchTextFor(item) {
-  if (item.type === "upcoming") {
-    const c = item.data;
-    return [c.name, c.main, c.note, c.location, ...(c.fighters || [])].filter(Boolean).join(" ").toLowerCase();
-  }
-  if (item.type === "recap") {
-    const c = item.data;
-    return [c.name, c.location, ...c.results.map((r) => `${r.fight} ${r.method} ${r.note}`)].filter(Boolean).join(" ").toLowerCase();
-  }
-  if (item.type === "reaction") {
-    const r = item.data;
-    return [r.author, r.text, r.summary, r.context].filter(Boolean).join(" ").toLowerCase();
-  }
-  if (item.type === "tweet") {
-    const t = item.data;
-    return [t.author, t.handle, t.context].join(" ").toLowerCase();
-  }
-  return "";
+  const d = item.data;
+  let fields = [];
+  if (item.type === "upcoming") fields = [d.name, d.main, d.note, d.location, ...(d.fighters || [])];
+  if (item.type === "recap") fields = [d.name, d.location, d.note, ...d.results.flatMap((r) => [r.fight, r.method, r.note])];
+  if (item.type === "reaction") fields = [d.author, d.text, d.summary, d.context];
+  if (item.type === "tweet") fields = [d.author, d.handle, d.context];
+  return fields.flatMap(allLangs).filter(Boolean).join(" ").toLowerCase();
 }
 
-export default function Media() {
+export default function Media({ lang = "fr" }) {
+  const t = T[lang];
   const [query, setQuery] = useState("");
 
   const filteredFeed = useMemo(() => {
@@ -620,7 +615,7 @@ export default function Media() {
     if (!query.trim()) return TRASH_TALK;
     const q = query.toLowerCase();
     return TRASH_TALK.filter((tt) =>
-      [tt.a, tt.b, tt.summary].filter(Boolean).join(" ").toLowerCase().includes(q)
+      [tt.a, tt.b, ...allLangs(tt.summary)].filter(Boolean).join(" ").toLowerCase().includes(q)
     );
   }, [query]);
 
@@ -630,7 +625,7 @@ export default function Media() {
     <div className="max-w-2xl mx-auto">
       <div className="row-rise flex items-center gap-2 px-5 py-6">
         <Newspaper className="w-4 h-4 text-amber-400" />
-        <span className="text-xs uppercase tracking-widest text-neutral-400">Média — fil d'actualité</span>
+        <span className="text-xs uppercase tracking-widest text-neutral-400">{t.mediaTitle}</span>
       </div>
 
       <div className="px-5 pb-5">
@@ -639,7 +634,7 @@ export default function Media() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Rechercher par mot-clé (combattant, événement, ville...)"
+            placeholder={t.mediaSearch}
             className="bg-transparent outline-none w-full text-sm placeholder:text-neutral-500"
           />
         </div>
@@ -648,10 +643,10 @@ export default function Media() {
       <div className="border-t border-neutral-800">
         {filteredFeed.map((item, i) => (
           <Post key={`${item.type}-${i}`}>
-            {item.type === "upcoming" && <UpcomingPost c={item.data} />}
-            {item.type === "recap" && <RecapPost card={item.data} />}
-            {item.type === "reaction" && <ReactionPost r={item.data} />}
-            {item.type === "tweet" && <TweetPost t={item.data} />}
+            {item.type === "upcoming" && <UpcomingPost c={item.data} lang={lang} t={t} />}
+            {item.type === "recap" && <RecapPost card={item.data} lang={lang} t={t} />}
+            {item.type === "reaction" && <ReactionPost r={item.data} lang={lang} />}
+            {item.type === "tweet" && <TweetPost tw={item.data} lang={lang} t={t} />}
           </Post>
         ))}
 
@@ -664,22 +659,20 @@ export default function Media() {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-semibold text-sm text-neutral-100">{tt.a}</span>
                   <span className="text-amber-400 text-xs">vs {tt.b}</span>
-                  <span className="text-neutral-600 text-xs">· {tt.date}</span>
+                  <span className="text-neutral-600 text-xs">· {L(tt.date, lang)}</span>
                 </div>
-                <p className="text-sm text-neutral-300 mt-1.5 leading-relaxed">{tt.summary}</p>
+                <p className="text-sm text-neutral-300 mt-1.5 leading-relaxed">{L(tt.summary, lang)}</p>
               </div>
             </div>
           </Post>
         ))}
 
         {noResults && (
-          <p className="text-sm text-neutral-400 px-5 py-6">Aucun résultat pour « {query} ».</p>
+          <p className="text-sm text-neutral-400 px-5 py-6">{t.noResults(query)}</p>
         )}
       </div>
 
-      <p className="text-[11px] text-neutral-600 px-5 py-6">
-        Résumés rédigés à partir de sources publiques (UFC.com, réseaux sociaux des combattants). Les vidéos et posts X sont intégrés via le lecteur officiel de X, avec un lien vers le compte d'origine.
-      </p>
+      <p className="text-[11px] text-neutral-600 px-5 py-6">{t.mediaDisclaimer}</p>
     </div>
   );
 }

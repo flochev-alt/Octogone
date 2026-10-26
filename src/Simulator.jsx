@@ -1,11 +1,15 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, Swords, Sparkles, Ruler, TrendingUp } from "lucide-react";
 import { FIGHTERS } from "./fightersData.js";
-import { T, translateCategory, formatHeight } from "./i18n.js";
+import { T, translateCategory, formatHeight, CATEGORY_ORDER } from "./i18n.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
-const CATEGORIES = [...new Set(FIGHTERS.map((f) => f.categorie))];
+// Toutes les catégories de la base, dans l'ordre du plus léger au plus lourd (puis femmes et légendes).
+const CATEGORIES = CATEGORY_ORDER.filter((c) => FIGHTERS.some((f) => f.categorie === c));
+
+// Champion en premier, puis classés 1 à 15, puis non-classés.
+const byRank = (a, b) => (a.rang ?? 99) - (b.rang ?? 99);
 
 const DAILY_LIMIT = 5;
 
@@ -51,7 +55,7 @@ export default function Simulator({ lang = "fr" }) {
   const t = T[lang];
   const [categorie, setCategorie] = useState(CATEGORIES[0]);
   const fightersInCategorie = useMemo(
-    () => FIGHTERS.filter((f) => f.categorie === categorie),
+    () => FIGHTERS.filter((f) => f.categorie === categorie).sort(byRank),
     [categorie]
   );
 
@@ -117,7 +121,7 @@ export default function Simulator({ lang = "fr" }) {
       const r = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fighterA, fighterB, probA, probB }),
+        body: JSON.stringify({ fighterA, fighterB, probA, probB, lang }),
       });
       if (!r.ok) throw new Error("failed");
       const data = await r.json();
@@ -256,7 +260,7 @@ export default function Simulator({ lang = "fr" }) {
             {advantages && (
               <div className="flex items-center justify-center gap-3 pt-2 mt-1 border-t border-neutral-800">
                 <span className="mono text-lg text-amber-400">{advantages.scoreA}</span>
-                <span className="text-[10px] uppercase tracking-widest text-neutral-500">Avantages</span>
+                <span className="text-[10px] uppercase tracking-widest text-neutral-500">{t.advantages}</span>
                 <span className="mono text-lg text-neutral-300">{advantages.scoreB}</span>
               </div>
             )}
@@ -276,7 +280,7 @@ export default function Simulator({ lang = "fr" }) {
                   {aiLoading ? t.generating : t.generateAI}
                 </button>
                 <p className="text-[11px] text-neutral-500 mt-2">
-                  {vip ? "Accès illimité activé" : t.freeLeft(DAILY_LIMIT - dailyUsage)}
+                  {vip ? t.vipActive : t.freeLeft(DAILY_LIMIT - dailyUsage)}
                 </p>
               </>
             )}
@@ -365,7 +369,7 @@ function FighterPicker({ label, fighters, value, onChange, exclude }) {
       >
         {fighters.filter((f) => f.id !== exclude).map((f) => (
           <option key={f.id} value={f.id}>
-            {f.nom}
+            {f.rang === 0 ? "C · " : f.rang != null ? `#${f.rang} · ` : ""}{f.nom}
           </option>
         ))}
       </select>

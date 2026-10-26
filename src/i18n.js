@@ -1,4 +1,5 @@
-// Système de traduction du site. FR et ES restent en cm/m (métrique),
+// Système de traduction du site (FR / EN / ES). Tout texte visible doit passer par ce fichier
+// ou par un objet { fr, en, es } lu avec L(). FR et ES restent en cm (métrique),
 // EN bascule automatiquement en pieds/pouces (imperial), comme demandé.
 
 export const LANGUAGES = [
@@ -57,7 +58,13 @@ export const DIVISION_LABELS = {
 
 export const translateDivision = (slug, lang) => DIVISION_LABELS[lang]?.[slug] || slug;
 
-// --- Catégories du Simulateur (issues de fightersData.js, stockées en français) ---
+// --- Catégories de poids (issues de fightersData.js, stockées en français) ---
+// Ordre d'affichage : hommes du plus léger au plus lourd, puis femmes, puis légendes.
+export const CATEGORY_ORDER = [
+  "Poids mouche", "Poids coq", "Poids plume", "Poids leger", "Poids welter", "Poids moyen",
+  "Poids mi-lourd", "Poids lourd", "Poids paille feminin", "Poids mouche feminin", "Poids coq feminin", "Legendes",
+];
+
 export const CATEGORY_TRANSLATIONS = {
   "Poids welter": { fr: "Poids welter", en: "Welterweight", es: "Peso wélter" },
   "Poids lourd": { fr: "Poids lourd", en: "Heavyweight", es: "Peso pesado" },
@@ -75,9 +82,62 @@ export const CATEGORY_TRANSLATIONS = {
 
 export const translateCategory = (cat, lang) => CATEGORY_TRANSLATIONS[cat]?.[lang] || cat;
 
+// --- Styles de combat (clés utilisées dans fightersData.js) ---
+export const STYLE_LABELS = {
+  lutte: { fr: "Lutte", en: "Wrestling", es: "Lucha" },
+  sambo: { fr: "Sambo", en: "Sambo", es: "Sambo" },
+  jjb: { fr: "Jiu-jitsu brésilien", en: "Brazilian Jiu-Jitsu", es: "Jiu-jitsu brasileño" },
+  judo: { fr: "Judo", en: "Judo", es: "Judo" },
+  boxe: { fr: "Boxe anglaise", en: "Boxing", es: "Boxeo" },
+  kickboxing: { fr: "Kickboxing", en: "Kickboxing", es: "Kickboxing" },
+  muaythai: { fr: "Muay-thaï", en: "Muay Thai", es: "Muay thai" },
+  karate: { fr: "Karaté", en: "Karate", es: "Kárate" },
+  taekwondo: { fr: "Taekwondo", en: "Taekwondo", es: "Taekwondo" },
+  sanda: { fr: "Sanda (boxe chinoise)", en: "Sanda (Chinese kickboxing)", es: "Sanda (boxeo chino)" },
+  kungfu: { fr: "Kung-fu", en: "Kung fu", es: "Kung-fu" },
+  corpsacorps: { fr: "Combat corps à corps", en: "Hand-to-hand combat", es: "Combate cuerpo a cuerpo" },
+  mma: { fr: "MMA (formé directement au MMA)", en: "MMA (trained in MMA from the start)", es: "MMA (formado directamente en MMA)" },
+};
+
+export const formatStyle = (keys, lang) => (keys || []).map((k) => STYLE_LABELS[k]?.[lang] || k).join(" · ");
+
+// --- Méthodes de victoire ---
+export const METHOD_LABELS = {
+  "KO": { fr: "KO", en: "KO", es: "KO" },
+  "TKO": { fr: "TKO", en: "TKO", es: "TKO" },
+  "Soumission": { fr: "Soumission", en: "Submission", es: "Sumisión" },
+  "Décision": { fr: "Décision", en: "Decision", es: "Decisión" },
+  "Décision unanime": { fr: "Décision unanime", en: "Unanimous decision", es: "Decisión unánime" },
+  "Décision partagée": { fr: "Décision partagée", en: "Split decision", es: "Decisión dividida" },
+};
+
+export const translateMethod = (m, lang) => METHOD_LABELS[m]?.[lang] || m;
+
+// Texte multilingue : une chaîne simple (identique dans toutes les langues) ou un objet { fr, en, es }.
+export const L = (v, lang) => (v && typeof v === "object" ? v[lang] ?? v.fr : v);
+
+// --- Dates et âge ---
+const LOCALES = { fr: "fr-FR", en: "en-GB", es: "es-ES" };
+
+export function formatDate(iso, lang, opts = { day: "numeric", month: "long", year: "numeric" }) {
+  if (!iso) return "";
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString(LOCALES[lang] || "fr-FR", { timeZone: "UTC", ...opts });
+}
+
+export function ageFrom(iso) {
+  if (!iso) return null;
+  const birth = new Date(`${iso}T00:00:00Z`);
+  const now = new Date();
+  let age = now.getUTCFullYear() - birth.getUTCFullYear();
+  const m = now.getUTCMonth() - birth.getUTCMonth();
+  if (m < 0 || (m === 0 && now.getUTCDate() < birth.getUTCDate())) age--;
+  return age;
+}
+
 // --- Textes de l'interface ---
 export const T = {
   fr: {
+    language: "Langue",
     navCombattants: "Combattants",
     navSimulateur: "Simulateur",
     navMedia: "Médias",
@@ -88,7 +148,7 @@ export const T = {
     landingCta: "Explorer le site",
     navCardCombattantsDesc: "Classements et fiches détaillées",
     navCardSimulateurDesc: "Probabilités de duels par catégorie",
-    navCardMediaDesc: "Cartes à venir et actualités",
+    navCardMediaDesc: "Cartes à venir, résultats et vidéos",
     comingSoon: "Bientôt disponible",
     searchPlaceholder: "Rechercher un combattant",
     champion: "Champion",
@@ -104,7 +164,7 @@ export const T = {
     style: "Style",
     age: "Âge",
     recentFights: "5 derniers combats",
-    footer: "Octogone — données UFC via Octagon API. Simulateur basé sur une base de combattants vérifiée manuellement.",
+    footer: "Octogone — classements, bilans et fiches vérifiés manuellement (ufc-fr.com, UFC.com, Wikipédia). Lieu de naissance et salle d'entraînement via Octagon API.",
     simTitle: "Simulateur de duel",
     weightCategory: "Catégorie de poids",
     fighter1: "Combattant 1",
@@ -124,8 +184,31 @@ export const T = {
     freeLeft: (n) => `${n} analyse${n > 1 ? "s" : ""} gratuite${n > 1 ? "s" : ""} restante${n > 1 ? "s" : ""} aujourd'hui`,
     limitReached: (n) => `Limite quotidienne atteinte (${n} analyses/jour). Reviens demain pour de nouvelles analyses !`,
     aiUnavailable: "L'analyse IA n'est pas encore activée sur ce site (il manque une clé API Anthropic dans les réglages Vercel).",
+    champions: "Champions",
+    championSince: (d, f) => `${f ? "Championne" : "Champion"} depuis le ${d}`,
+    ranking: "Classement UFC",
+    unranked: "Non classés",
+    allCategories: "Résultats dans toutes les catégories",
+    legal: "Mentions légales",
+    loading: "Chargement…",
+    instagramOf: (n) => `Instagram de ${n}`,
+    years: (n) => `${n} ans`,
+    win: "V",
+    loss: "D",
+    advantages: "Avantages",
+    vipActive: "Accès illimité activé",
+    today: "AUJOURD'HUI",
+    tomorrow: "DEMAIN",
+    mediaTitle: "Média — fil d'actualité",
+    mediaSearch: "Rechercher par mot-clé (combattant, événement, ville...)",
+    titleFight: "Combat pour le titre",
+    official: "Officiel",
+    finishLabel: "Le finish du main event",
+    viewPost: "Voir le post",
+    mediaDisclaimer: "Résumés rédigés à partir de sources publiques (UFC.com, réseaux sociaux des combattants). Les vidéos et posts X sont intégrés via le lecteur officiel de X, avec un lien vers le compte d'origine.",
   },
   en: {
+    language: "Language",
     navCombattants: "Fighters",
     navSimulateur: "Simulator",
     navMedia: "Media",
@@ -136,7 +219,7 @@ export const T = {
     landingCta: "Explore the site",
     navCardCombattantsDesc: "Rankings and detailed profiles",
     navCardSimulateurDesc: "Matchup probabilities by weight class",
-    navCardMediaDesc: "Upcoming cards and news",
+    navCardMediaDesc: "Upcoming cards, results and videos",
     comingSoon: "Coming soon",
     searchPlaceholder: "Search a fighter",
     champion: "Champion",
@@ -152,7 +235,7 @@ export const T = {
     style: "Style",
     age: "Age",
     recentFights: "Last 5 fights",
-    footer: "Octogone — UFC data via Octagon API. Simulator based on a manually verified fighter database.",
+    footer: "Octogone — rankings, records and profiles manually verified (ufc-fr.com, UFC.com, Wikipedia). Birthplace and gym via Octagon API.",
     simTitle: "Matchup Simulator",
     weightCategory: "Weight class",
     fighter1: "Fighter 1",
@@ -172,8 +255,31 @@ export const T = {
     freeLeft: (n) => `${n} free analys${n > 1 ? "es" : "is"} left today`,
     limitReached: (n) => `Daily limit reached (${n} analyses/day). Come back tomorrow for more!`,
     aiUnavailable: "AI analysis isn't activated on this site yet (missing Anthropic API key in Vercel settings).",
+    champions: "Champions",
+    championSince: (d) => `Champion since ${d}`,
+    ranking: "UFC ranking",
+    unranked: "Unranked",
+    allCategories: "Results across all weight classes",
+    legal: "Legal notice",
+    loading: "Loading…",
+    instagramOf: (n) => `${n} on Instagram`,
+    years: (n) => `${n} years`,
+    win: "W",
+    loss: "L",
+    advantages: "Advantages",
+    vipActive: "Unlimited access enabled",
+    today: "TODAY",
+    tomorrow: "TOMORROW",
+    mediaTitle: "Media — news feed",
+    mediaSearch: "Search by keyword (fighter, event, city...)",
+    titleFight: "Title fight",
+    official: "Official",
+    finishLabel: "The main event finish",
+    viewPost: "View the post",
+    mediaDisclaimer: "Summaries written from public sources (UFC.com, fighters' social media). Videos and X posts are embedded through X's official player, with a link to the original account.",
   },
   es: {
+    language: "Idioma",
     navCombattants: "Combatientes",
     navSimulateur: "Simulador",
     navMedia: "Media",
@@ -184,7 +290,7 @@ export const T = {
     landingCta: "Explorar el sitio",
     navCardCombattantsDesc: "Clasificaciones y fichas detalladas",
     navCardSimulateurDesc: "Probabilidades de combate por categoría",
-    navCardMediaDesc: "Próximas galas y noticias",
+    navCardMediaDesc: "Próximas galas, resultados y vídeos",
     comingSoon: "Próximamente",
     searchPlaceholder: "Buscar un combatiente",
     champion: "Campeón",
@@ -200,7 +306,7 @@ export const T = {
     style: "Estilo",
     age: "Edad",
     recentFights: "Últimos 5 combates",
-    footer: "Octogone — datos UFC vía Octagon API. Simulador basado en una base de combatientes verificada manualmente.",
+    footer: "Octogone — clasificaciones, récords y fichas verificados manualmente (ufc-fr.com, UFC.com, Wikipedia). Lugar de nacimiento y gimnasio vía Octagon API.",
     simTitle: "Simulador de combate",
     weightCategory: "Categoría de peso",
     fighter1: "Combatiente 1",
@@ -220,5 +326,27 @@ export const T = {
     freeLeft: (n) => `${n} análisis gratis restante${n > 1 ? "s" : ""} hoy`,
     limitReached: (n) => `Límite diario alcanzado (${n} análisis/día). ¡Vuelve mañana!`,
     aiUnavailable: "El análisis IA aún no está activado en este sitio (falta la clave API de Anthropic en Vercel).",
+    champions: "Campeones",
+    championSince: (d, f) => `${f ? "Campeona" : "Campeón"} desde el ${d}`,
+    ranking: "Clasificación UFC",
+    unranked: "Sin clasificar",
+    allCategories: "Resultados en todas las categorías",
+    legal: "Aviso legal",
+    loading: "Cargando…",
+    instagramOf: (n) => `Instagram de ${n}`,
+    years: (n) => `${n} años`,
+    win: "V",
+    loss: "D",
+    advantages: "Ventajas",
+    vipActive: "Acceso ilimitado activado",
+    today: "HOY",
+    tomorrow: "MAÑANA",
+    mediaTitle: "Media — noticias",
+    mediaSearch: "Buscar por palabra clave (combatiente, evento, ciudad...)",
+    titleFight: "Combate por el título",
+    official: "Oficial",
+    finishLabel: "El final del main event",
+    viewPost: "Ver la publicación",
+    mediaDisclaimer: "Resúmenes redactados a partir de fuentes públicas (UFC.com, redes sociales de los combatientes). Los vídeos y posts de X se integran mediante el reproductor oficial de X, con un enlace a la cuenta original.",
   },
 };

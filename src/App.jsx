@@ -1,11 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords, Instagram } from "lucide-react";
+import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords, Instagram, Cake, Dumbbell, Medal } from "lucide-react";
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import { FIGHTERS } from "./fightersData.js";
-import { LANGUAGES, T, translateDivision, formatHeight, getInitialLang, setStoredLang } from "./i18n.js";
+import {
+  LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
+  formatHeight, formatDate, ageFrom, getInitialLang, setStoredLang,
+} from "./i18n.js";
 
 // Comptes Instagram officiels vérifiés manuellement — recherche par nom (pas exhaustif,
 // à compléter au fur et à mesure). Un fighter absent de cette liste n'affiche pas la bulle.
@@ -36,51 +39,116 @@ const INSTAGRAM = {
 
 const getInstagram = (name) => INSTAGRAM[name?.toLowerCase()];
 
-// Bilans vérifiés manuellement (fightersData.js) : prioritaires sur ceux de l'API Octagon, parfois en retard.
-const normName = (n) => n?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/-/g, " ").toLowerCase().trim();
-const getLocalFighter = (name) => FIGHTERS.find((f) => normName(f.nom) === normName(name));
+const normName = (n) => n?.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/-/g, " ").toLowerCase().trim();
 const formatRecord = (v, d, n, nc) => `${v}-${d}-${n}${nc ? ` (${nc} NC)` : ""}`;
+// Identifiant de l'API Octagon (slug UFC.com) déduit du nom : "Uroš Medić" -> "uros-medic".
+const toSlug = (name) => normName(name).replace(/['.]/g, "").replace(/\s+/g, "-");
 
-const DIVISIONS = [
-  "flyweight", "bantamweight", "featherweight", "lightweight",
-  "welterweight", "middleweight", "light-heavyweight", "heavyweight",
-  "women-strawweight", "women-flyweight", "women-bantamweight", "women-featherweight",
-];
+// Classement : champion (rang 0), puis 1 à 15, puis les non-classés dans l'ordre de la base.
+const byRank = (a, b) => (a.rang ?? 99) - (b.rang ?? 99);
 
 // Champions actuels — vérifiés manuellement (recherches croisées), à mettre à jour à chaque changement de titre.
 const CHAMPIONS = [
-  { division: "Poids lourd", name: "Ciryl Gane", since: "20 sept. 2026", note: "Champion intérimaire (KO face à Alex Pereira, UFC Freedom 250), promu champion incontesté après l'abandon du titre par Tom Aspinall, blessé à l'œil. Première défense face à Josh Hokit le 14 nov. 2026 (UFC 334)." },
-  { division: "Poids mi-lourd", name: "Carlos Ulberg", since: "11 avril 2026", note: "KO au 1er round face à Jiří Procházka (UFC 327)." },
-  { division: "Poids moyen", name: "Sean Strickland", since: "9 mai 2026", note: "Décision partagée face à Khamzat Chimaev (UFC 328)." },
-  { division: "Poids welter", name: "Islam Makhachev", since: "15 nov. 2025", note: "Décision unanime face à Jack Della Maddalena (UFC 322). A défendu son titre face à Ian Machado Garry (UFC 330)." },
-  { division: "Poids léger", name: "Justin Gaethje", since: "14 juin 2026", note: "TKO au 4e round face à Ilia Topuria (UFC Freedom 250)." },
-  { division: "Poids plume", name: "Alexander Volkanovski", since: "12 avril 2025", note: "Décision unanime face à Diego Lopes (UFC 314). A défendu son titre face à Movsar Evloev par TKO au 2e round (UFC 333)." },
-  { division: "Poids coq", name: "Petr Yan", since: "6 déc. 2025", note: "Décision unanime face à Merab Dvalishvili (UFC 323). L'a de nouveau battu par décision unanime (UFC 333)." },
-  { division: "Poids mouche", name: "Joshua Van", since: "6 déc. 2025", note: "TKO au 1er round face à Alexandre Pantoja (UFC 323). L'a de nouveau battu par décision unanime (UFC 331)." },
-  { division: "F. Poids coq", name: "Kayla Harrison", since: "7 juin 2025", note: "Soumission face à Julianna Peña (UFC 316). Son combat face à Amanda Nunes, prévu à l'UFC 324, a été reporté (blessure au cou) : il aura lieu le 14 nov. 2026 (UFC 334)." },
-  { division: "F. Poids mouche", name: "Natália Silva", since: "3 oct. 2026", note: "Titre vacant (Valentina Shevchenko blessée) remporté par décision unanime face à Wang Cong (UFC 332)." },
-  { division: "F. Poids paille", name: "Mackenzie Dern", since: "25 oct. 2025", note: "Titre vacant remporté face à Virna Jandiroba (UFC 321). A défendu son titre face à Gillian Robertson (UFC 330)." },
+  {
+    categorie: "Poids lourd", name: "Ciryl Gane", since: "2026-09-20",
+    note: {
+      fr: "Champion intérimaire (KO face à Alex Pereira, UFC Freedom 250), promu champion incontesté après l'abandon du titre par Tom Aspinall, blessé à l'œil. Première défense face à Josh Hokit le 14 nov. 2026 (UFC 334).",
+      en: "Interim champion (KO over Alex Pereira, UFC Freedom 250), promoted to undisputed champion after Tom Aspinall vacated the title with an eye injury. First defense against Josh Hokit on Nov. 14, 2026 (UFC 334).",
+      es: "Campeón interino (KO a Alex Pereira, UFC Freedom 250), ascendido a campeón indiscutible tras la renuncia al título de Tom Aspinall, lesionado en un ojo. Primera defensa ante Josh Hokit el 14 de nov. de 2026 (UFC 334).",
+    },
+  },
+  {
+    categorie: "Poids mi-lourd", name: "Carlos Ulberg", since: "2026-04-11",
+    note: {
+      fr: "KO au 1er round face à Jiří Procházka (UFC 327).",
+      en: "First-round KO over Jiří Procházka (UFC 327).",
+      es: "KO en el primer asalto ante Jiří Procházka (UFC 327).",
+    },
+  },
+  {
+    categorie: "Poids moyen", name: "Sean Strickland", since: "2026-05-09",
+    note: {
+      fr: "Décision partagée face à Khamzat Chimaev (UFC 328).",
+      en: "Split decision over Khamzat Chimaev (UFC 328).",
+      es: "Decisión dividida ante Khamzat Chimaev (UFC 328).",
+    },
+  },
+  {
+    categorie: "Poids welter", name: "Islam Makhachev", since: "2025-11-15",
+    note: {
+      fr: "Décision unanime face à Jack Della Maddalena (UFC 322). A défendu son titre face à Ian Machado Garry (UFC 330).",
+      en: "Unanimous decision over Jack Della Maddalena (UFC 322). Defended his title against Ian Machado Garry (UFC 330).",
+      es: "Decisión unánime ante Jack Della Maddalena (UFC 322). Defendió su título ante Ian Machado Garry (UFC 330).",
+    },
+  },
+  {
+    categorie: "Poids leger", name: "Justin Gaethje", since: "2026-06-14",
+    note: {
+      fr: "TKO au 4e round face à Ilia Topuria (UFC Freedom 250).",
+      en: "Fourth-round TKO over Ilia Topuria (UFC Freedom 250).",
+      es: "TKO en el cuarto asalto ante Ilia Topuria (UFC Freedom 250).",
+    },
+  },
+  {
+    categorie: "Poids plume", name: "Alexander Volkanovski", since: "2025-04-12",
+    note: {
+      fr: "Décision unanime face à Diego Lopes (UFC 314). A défendu son titre face à Movsar Evloev par TKO au 2e round (UFC 333).",
+      en: "Unanimous decision over Diego Lopes (UFC 314). Defended his title against Movsar Evloev by second-round TKO (UFC 333).",
+      es: "Decisión unánime ante Diego Lopes (UFC 314). Defendió su título ante Movsar Evloev por TKO en el segundo asalto (UFC 333).",
+    },
+  },
+  {
+    categorie: "Poids coq", name: "Petr Yan", since: "2025-12-06",
+    note: {
+      fr: "Décision unanime face à Merab Dvalishvili (UFC 323). L'a de nouveau battu par décision unanime (UFC 333).",
+      en: "Unanimous decision over Merab Dvalishvili (UFC 323). Beat him again by unanimous decision (UFC 333).",
+      es: "Decisión unánime ante Merab Dvalishvili (UFC 323). Volvió a vencerle por decisión unánime (UFC 333).",
+    },
+  },
+  {
+    categorie: "Poids mouche", name: "Joshua Van", since: "2025-12-06",
+    note: {
+      fr: "TKO au 1er round face à Alexandre Pantoja (UFC 323). L'a de nouveau battu par décision unanime (UFC 331).",
+      en: "First-round TKO over Alexandre Pantoja (UFC 323). Beat him again by unanimous decision (UFC 331).",
+      es: "TKO en el primer asalto ante Alexandre Pantoja (UFC 323). Volvió a vencerle por decisión unánime (UFC 331).",
+    },
+  },
+  {
+    categorie: "Poids coq feminin", name: "Kayla Harrison", since: "2025-06-07", female: true,
+    note: {
+      fr: "Soumission face à Julianna Peña (UFC 316). Son combat face à Amanda Nunes, prévu à l'UFC 324, a été reporté (blessure au cou) : il aura lieu le 14 nov. 2026 (UFC 334).",
+      en: "Submission win over Julianna Peña (UFC 316). Her fight with Amanda Nunes, planned for UFC 324, was postponed (neck injury): it will take place on Nov. 14, 2026 (UFC 334).",
+      es: "Victoria por sumisión ante Julianna Peña (UFC 316). Su combate ante Amanda Nunes, previsto en UFC 324, se aplazó (lesión en el cuello): será el 14 de nov. de 2026 (UFC 334).",
+    },
+  },
+  {
+    categorie: "Poids mouche feminin", name: "Natália Silva", since: "2026-10-03", female: true,
+    note: {
+      fr: "Titre vacant (Valentina Shevchenko blessée) remporté par décision unanime face à Wang Cong (UFC 332).",
+      en: "Won the vacant title (Valentina Shevchenko injured) by unanimous decision over Wang Cong (UFC 332).",
+      es: "Ganó el título vacante (Valentina Shevchenko lesionada) por decisión unánime ante Wang Cong (UFC 332).",
+    },
+  },
+  {
+    categorie: "Poids paille feminin", name: "Mackenzie Dern", since: "2025-10-25", female: true,
+    note: {
+      fr: "Titre vacant remporté face à Virna Jandiroba (UFC 321). A défendu son titre face à Gillian Robertson (UFC 330).",
+      en: "Won the vacant title against Virna Jandiroba (UFC 321). Defended her title against Gillian Robertson (UFC 330).",
+      es: "Ganó el título vacante ante Virna Jandiroba (UFC 321). Defendió su título ante Gillian Robertson (UFC 330).",
+    },
+  },
 ];
-
-const label = (slug) =>
-  slug.replace("women-", "F. ").replace("-", " ").replace(/^\w/, (c) => c.toUpperCase());
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
+// 5 derniers combats vérifiés, par nom de combattant (à compléter au fur et à mesure).
 const RECENT_FIGHTS = {
-  "islam-makhachev": [
+  "Islam Makhachev": [
     { opponent: "Ian Machado Garry", result: "V", method: "Décision unanime", event: "UFC 330" },
     { opponent: "Jack Della Maddalena", result: "V", method: "Décision unanime", event: "UFC 322" },
     { opponent: "Renato Moicano", result: "V", method: "Soumission", event: "UFC 311" },
     { opponent: "Dustin Poirier", result: "V", method: "Soumission", event: "UFC 302" },
     { opponent: "Alexander Volkanovski", result: "V", method: "KO", event: "UFC 294" },
-  ],
-  "jon-jones": [
-    { opponent: "Stipe Miocic", result: "V", method: "TKO", event: "UFC 309" },
-    { opponent: "Ciryl Gane", result: "V", method: "Soumission", event: "UFC 285" },
-    { opponent: "Dominick Reyes", result: "V", method: "Décision unanime", event: "UFC 247" },
-    { opponent: "Thiago Santos", result: "V", method: "Décision", event: "UFC 239" },
-    { opponent: "Anthony Smith", result: "V", method: "Décision unanime", event: "UFC 235" },
   ],
 };
 
@@ -92,6 +160,8 @@ const METHOD_COLOR = {
   "Décision unanime": "text-neutral-300 border-neutral-700 bg-neutral-800",
 };
 
+const CATEGORIES = CATEGORY_ORDER.filter((c) => FIGHTERS.some((f) => f.categorie === c));
+
 export default function App() {
   const [view, setView] = useState("landing");
   const changeView = (v) => setView(v);
@@ -102,70 +172,33 @@ export default function App() {
     setLangState(getInitialLang());
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   const setLang = (l) => {
     setLangState(l);
     setStoredLang(l);
   };
 
-  const [rankings, setRankings] = useState(null);
-  const [division, setDivision] = useState("lightweight");
+  const [categorie, setCategorie] = useState("Poids leger");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null);
   const [closing, setClosing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [redirecting, setRedirecting] = useState(false);
 
-  useEffect(() => {
-    if (view !== "combattants") return;
-    if (division === "champions") return;
-    setLoading(true);
-    setError(null);
-    fetch(`/api/division/${division}`)
-      .then((r) => { if (!r.ok) throw new Error("indisponible"); return r.json(); })
-      .then((data) => { setRankings(data); setLoading(false); })
-      .catch((e) => { setError(e.message); setLoading(false); });
-  }, [division, view]);
-
+  // Une recherche porte sur toute la base (toutes catégories), sinon on affiche la catégorie choisie.
+  const searching = query.trim().length >= 2;
   const fighters = useMemo(() => {
-    if (!rankings?.fighters) return [];
-    if (!query) return rankings.fighters;
-    return rankings.fighters.filter((f) => f.name?.toLowerCase().includes(query.toLowerCase()));
-  }, [rankings, query]);
+    if (searching) {
+      const q = normName(query);
+      return FIGHTERS.filter((f) => normName(f.nom).includes(q)).sort(byRank);
+    }
+    return FIGHTERS.filter((f) => f.categorie === categorie).sort(byRank);
+  }, [categorie, query, searching]);
 
-  // Si la recherche ne donne rien dans la catégorie actuelle, on cherche
-  // le combattant dans les autres catégories et on bascule automatiquement dessus.
-  useEffect(() => {
-    if (view !== "combattants") return;
-    if (loading) return;
-    if (!query || query.trim().length < 3) return;
-    if (fighters.length > 0) return;
-
-    let cancelled = false;
-    const searchOtherDivisions = async () => {
-      setRedirecting(true);
-      for (const d of DIVISIONS) {
-        if (d === division || cancelled) continue;
-        try {
-          const r = await fetch(`/api/division/${d}`);
-          if (!r.ok) continue;
-          const data = await r.json();
-          const match = data.fighters?.find((f) =>
-            f.name?.toLowerCase().includes(query.toLowerCase())
-          );
-          if (match && !cancelled) {
-            setDivision(d);
-            break;
-          }
-        } catch (e) {
-          // on ignore et on passe à la catégorie suivante
-        }
-      }
-      if (!cancelled) setRedirecting(false);
-    };
-    searchOtherDivisions();
-    return () => { cancelled = true; };
-  }, [query, fighters.length, division, loading, view]);
+  const champion = !searching && fighters.find((f) => f.rang === 0);
+  const listed = champion ? fighters.filter((f) => f !== champion) : fighters;
+  const firstUnranked = searching ? -1 : listed.findIndex((f) => f.rang == null);
 
   const closePanel = () => {
     setClosing(true);
@@ -173,7 +206,15 @@ export default function App() {
   };
 
   if (view === "landing") {
-    return <Landing onEnter={() => setView("combattants")} onEnterMedia={() => setView("media")} lang={lang} setLang={setLang} />;
+    return (
+      <Landing
+        onEnter={() => setView("combattants")}
+        onEnterSimulator={() => setView("simulateur")}
+        onEnterMedia={() => setView("media")}
+        lang={lang}
+        setLang={setLang}
+      />
+    );
   }
 
   return (
@@ -261,7 +302,7 @@ export default function App() {
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value)}
-              aria-label="Langue"
+              aria-label={t.language}
               className="sm:hidden bg-neutral-900 border border-neutral-800 rounded-full text-sm px-2 py-1.5 text-neutral-200 outline-none appearance-none text-center"
             >
               {LANGUAGES.map((l) => (
@@ -289,39 +330,39 @@ export default function App() {
       {view === "simulateur" ? (
         <Simulator lang={lang} />
       ) : view === "media" ? (
-        <Media />
+        <Media lang={lang} />
       ) : view === "mentions" ? (
-        <MentionsLegales />
+        <MentionsLegales lang={lang} />
       ) : (
         <>
           <main className="max-w-5xl mx-auto px-5 py-8">
             <div className="flex gap-1.5 overflow-x-auto pb-4 mb-6 -mx-1 px-1">
               <button
-                onClick={() => { setDivision("champions"); setQuery(""); }}
+                onClick={() => { setCategorie("champions"); setQuery(""); }}
                 className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border flex items-center gap-1.5 ${
-                  division === "champions"
+                  categorie === "champions"
                     ? "bg-amber-400 text-neutral-950 border-amber-400"
                     : "bg-transparent text-amber-400 border-amber-400/40 hover:border-amber-400"
                 }`}
               >
-                <Trophy className="w-3.5 h-3.5" /> Champions
+                <Trophy className="w-3.5 h-3.5" /> {t.champions}
               </button>
-              {DIVISIONS.map((d) => (
+              {CATEGORIES.map((c) => (
                 <button
-                  key={d}
-                  onClick={() => { setDivision(d); setQuery(""); }}
+                  key={c}
+                  onClick={() => { setCategorie(c); setQuery(""); }}
                   className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border ${
-                    division === d
+                    categorie === c && !searching
                       ? "bg-amber-400 text-neutral-950 border-amber-400"
                       : "bg-transparent text-neutral-400 border-neutral-800 hover:border-amber-400/50 hover:text-neutral-50"
                   }`}
                 >
-                  {translateDivision(d, lang)}
+                  {translateCategory(c, lang)}
                 </button>
               ))}
             </div>
 
-            {division === "champions" ? (
+            {categorie === "champions" && !searching ? (
               <div className="space-y-2">
                 {CHAMPIONS.map((c, i) => (
                   <div
@@ -333,72 +374,69 @@ export default function App() {
                       <Trophy className="w-5 h-5 text-amber-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{c.division}</div>
+                      <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{translateCategory(c.categorie, lang)}</div>
                       <div className="disp text-lg truncate">{c.name}</div>
                       <div className="text-xs text-neutral-500 mt-0.5">
-                        Champion depuis le {c.since}
+                        {t.championSince(formatDate(c.since, lang), c.female)}
                       </div>
-                      <div className="text-xs text-neutral-400 mt-1">{c.note}</div>
+                      <div className="text-xs text-neutral-400 mt-1">{L(c.note, lang)}</div>
                     </div>
                   </div>
                 ))}
+                <SearchBox query={query} setQuery={setQuery} t={t} className="mt-6" />
               </div>
             ) : (
               <>
-            {rankings?.champion && (
-              <div key={division + "-champ"} className="row-rise mb-6 rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-5 flex items-center gap-4">
-                <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
-                  <Trophy className="w-5 h-5 text-amber-400" />
+                {champion && (
+                  <button
+                    key={categorie + "-champ"}
+                    onClick={() => setSelected(champion)}
+                    className="tap row-rise w-full text-left mb-6 rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 hover:border-amber-400/40 p-5 flex items-center gap-4"
+                  >
+                    <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
+                      <Trophy className="w-5 h-5 text-amber-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{t.champion} — {translateCategory(categorie, lang)}</div>
+                      <div className="disp text-xl truncate">{champion.nom}</div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
+                  </button>
+                )}
+
+                <SearchBox query={query} setQuery={setQuery} t={t} className="mb-6" />
+
+                {searching && fighters.length > 0 && (
+                  <p className="text-[11px] uppercase tracking-widest text-neutral-500 mb-3">{t.allCategories}</p>
+                )}
+
+                <div key={categorie + query} className="space-y-2">
+                  {listed.map((f, i) => (
+                    <div key={f.id}>
+                      {i === firstUnranked && (
+                        <p className="text-[11px] uppercase tracking-widest text-neutral-500 pt-4 pb-1">{t.unranked}</p>
+                      )}
+                      <button
+                        onClick={() => setSelected(f)}
+                        style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
+                        className="tap row-rise w-full text-left rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3.5 flex items-center gap-4"
+                      >
+                        <span className={`mono text-xs w-6 shrink-0 ${f.rang === 0 ? "text-amber-400" : "text-neutral-500"}`}>
+                          {f.rang === 0 ? "C" : f.rang != null ? String(f.rang).padStart(2, "0") : "–"}
+                        </span>
+                        <span className="flex-1 font-medium text-sm truncate">{f.nom}</span>
+                        {searching && (
+                          <span className="text-[11px] text-neutral-500 shrink-0 hidden sm:inline">{translateCategory(f.categorie, lang)}</span>
+                        )}
+                        <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{t.champion} — {translateDivision(division, lang)}</div>
-                  <div className="disp text-xl truncate">{rankings.champion.championName}</div>
-                </div>
-              </div>
-            )}
 
-            <div className="flex items-center gap-2.5 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 mb-6 transition-colors focus-within:border-amber-400/50">
-              <Search className="w-4 h-4 text-neutral-400" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t.searchPlaceholder}
-                className="bg-transparent outline-none w-full text-sm placeholder:text-neutral-500"
-              />
-            </div>
-
-            {loading && (
-              <div className="space-y-2">
-                {[...Array(5)].map((_, i) => <div key={i} className="h-16 rounded-xl bg-neutral-900 animate-pulse" />)}
-              </div>
-            )}
-            {error && <p className="text-sm text-amber-400">{t.categoryUnavailable}</p>}
-
-            <div key={division + query} className="space-y-2">
-              {fighters.map((f, i) => (
-                <button
-                  key={f.id}
-                  onClick={() => setSelected(f)}
-                  style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
-                  className="tap row-rise w-full text-left rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3.5 flex items-center gap-4"
-                >
-                  <span className="mono text-xs text-neutral-500 w-6 shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="flex-1 font-medium text-sm truncate">{f.name}</span>
-                  <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
-                </button>
-              ))}
-            </div>
-
-            {redirecting && (
-              <p className="text-sm text-amber-400 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                {t.searchingOtherCategories}
-              </p>
-            )}
-
-            {!loading && !error && !redirecting && fighters.length === 0 && (
-              <p className="text-sm text-neutral-400">{t.noResults(query)}</p>
-            )}
+                {fighters.length === 0 && (
+                  <p className="text-sm text-neutral-400">{t.noResults(query)}</p>
+                )}
               </>
             )}
           </main>
@@ -410,27 +448,47 @@ export default function App() {
       <footer className="max-w-5xl mx-auto px-5 py-10 text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span>{t.footer}</span>
         <button onClick={() => changeView("mentions")} className="tap underline hover:text-neutral-300">
-          Mentions légales
+          {t.legal}
         </button>
       </footer>
     </div>
   );
 }
 
+function SearchBox({ query, setQuery, t, className = "" }) {
+  return (
+    <div className={`flex items-center gap-2.5 rounded-xl border border-neutral-800 bg-neutral-900 px-4 py-3 transition-colors focus-within:border-amber-400/50 ${className}`}>
+      <Search className="w-4 h-4 text-neutral-400" />
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder={t.searchPlaceholder}
+        className="bg-transparent outline-none w-full text-sm placeholder:text-neutral-500"
+      />
+    </div>
+  );
+}
+
+// Fiche combattant : tout vient de notre base vérifiée (fightersData.js). L'API Octagon ne sert
+// plus qu'au lieu de naissance et à la salle d'entraînement, quand elle connaît le combattant.
 function FighterPanel({ fighter, onClose, closing, lang, t }) {
-  const [data, setData] = useState(null);
+  const [extra, setExtra] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
-    fetch(`/api/fighter/${fighter.id}`)
-      .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, [fighter.id]);
+    setExtra(null);
+    fetch(`/api/fighter/${toSlug(fighter.nom)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled) { setExtra(d); setLoading(false); } })
+      .catch(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [fighter.nom]);
 
-  const recent = RECENT_FIGHTS[fighter.id];
-  const local = getLocalFighter(fighter.name);
+  const recent = RECENT_FIGHTS[fighter.nom];
+  const age = ageFrom(fighter.naissance);
+  const rankLabel = fighter.rang === 0 ? t.champion : fighter.rang != null ? `#${fighter.rang}` : null;
 
   return (
     <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 ${closing ? "backdrop-exit" : "backdrop-enter"}`} onClick={onClose}>
@@ -443,7 +501,7 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
           <div className="glow-pulse absolute w-56 h-56 rounded-full bg-amber-400/30 blur-2xl" />
           <div className="ring-spin absolute w-40 h-40 rounded-full border-2 border-dashed border-amber-400/25" />
           <div className="walkout relative w-28 h-28 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl">
-            <span className="disp text-4xl text-neutral-950">{initials(fighter.name)}</span>
+            <span className="disp text-4xl text-neutral-950">{initials(fighter.nom)}</span>
           </div>
           <button onClick={onClose} className="tap absolute top-4 right-4 bg-neutral-950/60 backdrop-blur rounded-full p-1.5 text-neutral-200 hover:text-white">
             <X className="w-4 h-4" />
@@ -451,15 +509,15 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
         </div>
 
         <div className="px-5 pt-4 flex items-center gap-2">
-          <span className="disp text-xl">{fighter.name}</span>
-          {getInstagram(fighter.name) && (
+          <span className="disp text-xl">{fighter.nom}</span>
+          {getInstagram(fighter.nom) && (
             <a
-              href={`https://instagram.com/${getInstagram(fighter.name)}`}
+              href={`https://instagram.com/${getInstagram(fighter.nom)}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
               className="tap w-7 h-7 rounded-full bg-neutral-800 hover:bg-amber-400/20 flex items-center justify-center shrink-0"
-              aria-label={`Instagram de ${fighter.name}`}
+              aria-label={t.instagramOf(fighter.nom)}
             >
               <Instagram className="w-3.5 h-3.5 text-neutral-300" />
             </a>
@@ -467,57 +525,52 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
         </div>
 
         <div className="p-5 space-y-4">
-          {loading && <p className="text-sm text-neutral-400">Chargement…</p>}
-          {data && (
-            <>
-              {(local || data.wins || data.losses) && (
-                <div className="row-rise text-center py-4 rounded-xl bg-neutral-950 border border-neutral-800">
-                  <div className="mono text-2xl text-amber-400 tracking-tight">
-                    {local ? formatRecord(local.victoires, local.defaites, local.nuls, local.nc) : `${data.wins}-${data.losses}-${data.draws}`}
-                  </div>
-                  <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.record}</div>
-                  {local?.ufcV != null && (
-                    <div className="mt-3 pt-3 border-t border-neutral-800 mx-6">
-                      <div className="mono text-base text-neutral-200 tracking-tight">{formatRecord(local.ufcV, local.ufcD, local.ufcN, local.ufcNc)}</div>
-                      <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.ufcRecord}</div>
-                    </div>
-                  )}
-                </div>
-              )}
-              <Stat icon={Users} label={t.division} value={data.category} delay={40} />
-              <Stat icon={Ruler} label={`${t.heightReach} (in)`} value={[data.height, data.reach].filter(Boolean).join(" / ")} delay={80} />
-              <Stat icon={MapPin} label={t.birthplace} value={data.placeOfBirth} delay={120} />
-              <Stat label={t.trainsAt} value={data.trainsAt} delay={160} />
-              <Stat label={t.style} value={data.fightingStyle} delay={200} />
-              <Stat label={t.age} value={data.age} delay={240} />
+          <div className="row-rise text-center py-4 rounded-xl bg-neutral-950 border border-neutral-800">
+            <div className="mono text-2xl text-amber-400 tracking-tight">
+              {formatRecord(fighter.victoires, fighter.defaites, fighter.nuls, fighter.nc)}
+            </div>
+            <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.record}</div>
+            {fighter.ufcV != null && (
+              <div className="mt-3 pt-3 border-t border-neutral-800 mx-6">
+                <div className="mono text-base text-neutral-200 tracking-tight">{formatRecord(fighter.ufcV, fighter.ufcD, fighter.ufcN, fighter.ufcNc)}</div>
+                <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.ufcRecord}</div>
+              </div>
+            )}
+          </div>
+          <Stat icon={Users} label={t.division} value={translateCategory(fighter.categorie, lang)} delay={40} />
+          <Stat icon={Medal} label={t.ranking} value={rankLabel} delay={60} />
+          <Stat icon={Ruler} label={t.heightReach} value={[formatHeight(fighter.taille, lang), formatHeight(fighter.allonge, lang)].filter(Boolean).join(" / ")} delay={80} />
+          <Stat label={t.style} value={formatStyle(fighter.style, lang)} delay={120} />
+          <Stat icon={Cake} label={t.age} value={age != null ? t.years(age) : null} delay={160} />
+          <Stat icon={MapPin} label={t.birthplace} value={extra?.placeOfBirth} delay={200} />
+          <Stat icon={Dumbbell} label={t.trainsAt} value={extra?.trainsAt} delay={240} />
+          {loading && <p className="text-xs text-neutral-500">{t.loading}</p>}
 
-              {recent && (
-                <div className="row-rise pt-2" style={{ animationDelay: "280ms" }}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Swords className="w-3.5 h-3.5 text-neutral-400" />
-                    <span className="text-xs uppercase tracking-widest text-neutral-400">{t.recentFights}</span>
+          {recent && (
+            <div className="row-rise pt-2" style={{ animationDelay: "280ms" }}>
+              <div className="flex items-center gap-2 mb-3">
+                <Swords className="w-3.5 h-3.5 text-neutral-400" />
+                <span className="text-xs uppercase tracking-widest text-neutral-400">{t.recentFights}</span>
+              </div>
+              <div className="space-y-2">
+                {recent.map((fight, i) => (
+                  <div key={i} style={{ animationDelay: `${320 + i * 40}ms` }} className="row-rise flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2.5">
+                    <span className={`mono text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                      fight.result === "V" ? "bg-emerald-400/15 text-emerald-400" : "bg-rose-400/15 text-rose-400"
+                    }`}>
+                      {fight.result === "V" ? t.win : t.loss}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{fight.opponent}</div>
+                      <div className="text-[11px] text-neutral-500">{fight.event}</div>
+                    </div>
+                    <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border shrink-0 ${METHOD_COLOR[fight.method] || "text-neutral-300 border-neutral-700"}`}>
+                      {translateMethod(fight.method, lang)}
+                    </span>
                   </div>
-                  <div className="space-y-2">
-                    {recent.map((fight, i) => (
-                      <div key={i} style={{ animationDelay: `${320 + i * 40}ms` }} className="row-rise flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2.5">
-                        <span className={`mono text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                          fight.result === "V" ? "bg-emerald-400/15 text-emerald-400" : "bg-rose-400/15 text-rose-400"
-                        }`}>
-                          {fight.result}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium truncate">{fight.opponent}</div>
-                          <div className="text-[11px] text-neutral-500">{fight.event}</div>
-                        </div>
-                        <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border shrink-0 ${METHOD_COLOR[fight.method] || "text-neutral-300 border-neutral-700"}`}>
-                          {fight.method}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -528,8 +581,8 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
 function Stat({ icon: Icon, label, value, delay = 0 }) {
   if (!value) return null;
   return (
-    <div style={{ animationDelay: `${delay}ms` }} className="row-rise flex items-center justify-between py-2.5 border-b border-neutral-800 last:border-0">
-      <span className="flex items-center gap-2 text-xs text-neutral-400">
+    <div style={{ animationDelay: `${delay}ms` }} className="row-rise flex items-center justify-between gap-4 py-2.5 border-b border-neutral-800 last:border-0">
+      <span className="flex items-center gap-2 text-xs text-neutral-400 shrink-0">
         {Icon && <Icon className="w-3.5 h-3.5" />}
         {label}
       </span>
