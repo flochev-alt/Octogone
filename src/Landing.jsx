@@ -53,7 +53,7 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-50 overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen min-h-[100dvh] bg-neutral-950 text-neutral-50 overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
@@ -110,7 +110,7 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
 
       {/* Hero */}
       <section
-        className="relative min-h-screen flex flex-col items-center justify-center px-5 text-center"
+        className="relative min-h-screen min-h-[100dvh] flex flex-col items-center justify-center px-5 text-center"
         onMouseMove={spawnParticle}
         onTouchMove={spawnParticle}
       >

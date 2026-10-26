@@ -62,7 +62,7 @@ const CONTENT = {
 export default function MentionsLegales({ lang = "fr" }) {
   const c = CONTENT[lang] || CONTENT.fr;
   return (
-    <div className="max-w-2xl mx-auto px-5 py-10 text-sm text-neutral-300 leading-relaxed">
+    <div className="w-full max-w-2xl mx-auto px-5 py-10 text-sm text-neutral-300 leading-relaxed">
       <h1 className="disp text-2xl mb-2">{c.title}</h1>
       {c.note && <p className="text-xs text-neutral-500 mb-6">{c.note}</p>}
       {!c.note && <div className="mb-6" />}

@@ -125,7 +125,7 @@ export default function Simulator({ lang = "fr" }) {
   const notEnoughFighters = fightersInCategorie.length < 2;
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-8">
+    <div className="w-full max-w-5xl mx-auto px-5 py-8">
       <style>{`
         @keyframes clashInLeft {
           0% { transform: translateX(-36px) scale(0.8); opacity: 0; }

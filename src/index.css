@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fond sombre partout : évite la bande blanche sous la page (barre Safari, rebond du scroll). */
+html,
+body,
+#root {
+  background-color: #0a0a0a;
+}
+
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
 }
