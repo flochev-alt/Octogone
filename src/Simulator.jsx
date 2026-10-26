@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Search, Swords, Sparkles, Ruler, TrendingUp } from "lucide-react";
 import { FIGHTERS } from "./fightersData.js";
 import { T, translateCategory, formatHeight, CATEGORY_ORDER } from "./i18n.js";
+import { initVip, getVipCode } from "./vip.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -12,22 +13,6 @@ const CATEGORIES = CATEGORY_ORDER.filter((c) => FIGHTERS.some((f) => f.categorie
 const byRank = (a, b) => (a.rang ?? 99) - (b.rang ?? 99);
 
 const DAILY_LIMIT = 5;
-
-// Accès illimité pour toi : visite une seule fois octogone.space/?vip=flo-illimite-2026
-// sur un appareil, et cet appareil garde l'accès illimité en permanence (stocké localement).
-const VIP_CODE = "flo-illimite-2026";
-const VIP_KEY = "octogone-vip";
-
-function isVip() {
-  return localStorage.getItem(VIP_KEY) === "true";
-}
-
-function checkVipUnlock() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("vip") === VIP_CODE) {
-    localStorage.setItem(VIP_KEY, "true");
-  }
-}
 
 function getDailyUsage() {
   const today = new Date().toISOString().slice(0, 10);
@@ -69,9 +54,8 @@ export default function Simulator({ lang = "fr" }) {
   const [vip, setVip] = useState(false);
 
   useEffect(() => {
-    checkVipUnlock();
-    setVip(isVip());
     setDailyUsage(getDailyUsage());
+    initVip().then(setVip);
   }, []);
 
   useEffect(() => {
@@ -120,9 +104,13 @@ export default function Simulator({ lang = "fr" }) {
     try {
       const r = await fetch("/api/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-vip-code": vip ? getVipCode() || "" : "" },
         body: JSON.stringify({ fighterA, fighterB, probA, probB, lang }),
       });
+      if (r.status === 429) {
+        setDailyUsage(DAILY_LIMIT);
+        return;
+      }
       if (!r.ok) throw new Error("failed");
       const data = await r.json();
       setAiText(data.analysis);

@@ -4,6 +4,7 @@ import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
+import ConsentBanner from "./ConsentBanner.jsx";
 import { FIGHTERS } from "./fightersData.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
@@ -185,6 +186,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(null);
   const [closing, setClosing] = useState(false);
+  const [cookiesOpen, setCookiesOpen] = useState(false);
 
   // Une recherche porte sur toute la base (toutes catégories), sinon on affiche la catégorie choisie.
   const searching = query.trim().length >= 2;
@@ -205,15 +207,27 @@ export default function App() {
     setTimeout(() => { setSelected(null); setClosing(false); }, 260);
   };
 
+  const banner = (
+    <ConsentBanner
+      lang={lang}
+      forceOpen={cookiesOpen}
+      onClose={() => setCookiesOpen(false)}
+      onLegal={() => setView("mentions")}
+    />
+  );
+
   if (view === "landing") {
     return (
-      <Landing
-        onEnter={() => setView("combattants")}
-        onEnterSimulator={() => setView("simulateur")}
-        onEnterMedia={() => setView("media")}
-        lang={lang}
-        setLang={setLang}
-      />
+      <>
+        <Landing
+          onEnter={() => setView("combattants")}
+          onEnterSimulator={() => setView("simulateur")}
+          onEnterMedia={() => setView("media")}
+          lang={lang}
+          setLang={setLang}
+        />
+        {banner}
+      </>
     );
   }
 
@@ -450,7 +464,11 @@ export default function App() {
         <button onClick={() => changeView("mentions")} className="tap underline hover:text-neutral-300">
           {t.legal}
         </button>
+        <button onClick={() => setCookiesOpen(true)} className="tap underline hover:text-neutral-300">
+          {t.cookies}
+        </button>
       </footer>
+      {banner}
     </div>
   );
 }
