@@ -10,11 +10,15 @@ export default async function handler(req, res) {
     });
   }
 
-  const { fighterA, fighterB, probA, probB } = req.body;
+  const { fighterA, fighterB, probA, probB, lang = "fr" } = req.body;
+  const LANGUAGE_NAMES = { fr: "français", en: "anglais", es: "espagnol" };
+  const language = LANGUAGE_NAMES[lang] || "français";
+  const STYLE_NAMES = { jjb: "jiu-jitsu brésilien", boxe: "boxe anglaise", muaythai: "muay-thaï", corpsacorps: "combat corps à corps", kungfu: "kung-fu", mma: "formé directement au MMA" };
+  const base = (f) => (f.style?.length ? f.style.map((k) => STYLE_NAMES[k] || k).join(" + ") : "?");
 
-  const prompt = `Tu es un analyste MMA expert. Rédige une analyse détaillée et approfondie de ce duel hypothétique, en français, en 7-9 phrases, sans inventer de détails que je ne te donne pas.
+  const prompt = `Tu es un analyste MMA expert. Rédige une analyse détaillée et approfondie de ce duel hypothétique, en ${language}, en 7-9 phrases, sans inventer de détails que je ne te donne pas.
 
-${fighterA.nom} (${fighterA.victoires}-${fighterA.defaites}, striking ${fighterA.striking ?? "?"}%, TD accuracy ${fighterA.tdAcc ?? "?"}%, TD defense ${fighterA.tdDef ?? "?"}%) vs ${fighterB.nom} (${fighterB.victoires}-${fighterB.defaites}, striking ${fighterB.striking ?? "?"}%, TD accuracy ${fighterB.tdAcc ?? "?"}%, TD defense ${fighterB.tdDef ?? "?"}%).
+${fighterA.nom} (${fighterA.victoires}-${fighterA.defaites}, base ${base(fighterA)}, striking ${fighterA.striking ?? "?"}%, TD accuracy ${fighterA.tdAcc ?? "?"}%, TD defense ${fighterA.tdDef ?? "?"}%) vs ${fighterB.nom} (${fighterB.victoires}-${fighterB.defaites}, base ${base(fighterB)}, striking ${fighterB.striking ?? "?"}%, TD accuracy ${fighterB.tdAcc ?? "?"}%, TD defense ${fighterB.tdDef ?? "?"}%).
 
 Probabilité calculée : ${fighterA.nom} ${probA}% / ${fighterB.nom} ${probB}%.
 
@@ -43,7 +47,7 @@ Ne donne aucun pronostic de méthode de victoire ou de round précis, et ne ment
 
     if (!response.ok) throw new Error("Anthropic API error");
     const data = await response.json();
-    const analysis = data.content?.[0]?.text || "Analyse indisponible.";
+    const analysis = data.content?.[0]?.text || "—";
     res.status(200).json({ analysis });
   } catch (e) {
     res.status(502).json({ error: "Impossible de générer l'analyse pour le moment." });

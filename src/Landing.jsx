@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Swords, Trophy, Newspaper, Radio } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
-import { UPCOMING } from "./Media.jsx";
+import { UPCOMING, eventName } from "./Media.jsx";
+import { FIGHTERS } from "./fightersData.js";
 
-const TICKER_FIGHTERS = [
-  { nom: "Islam Makhachev", record: "29-1-0" },
-  { nom: "Alex Pereira", record: "13-4-0" },
-  { nom: "Ciryl Gane", record: "14-2-0" },
-  { nom: "Alexandre Pantoja", record: "30-7-0" },
-  { nom: "Justin Gaethje", record: "28-5-0" },
-  { nom: "Khamzat Chimaev", record: "15-1-0" },
-];
+// Bandeau défilant : les bilans sont lus dans fightersData.js pour rester à jour automatiquement.
+const TICKER_FIGHTERS = ["Islam Makhachev", "Alex Pereira", "Ciryl Gane", "Alexandre Pantoja", "Justin Gaethje", "Khamzat Chimaev"]
+  .map((nom) => FIGHTERS.find((f) => f.nom === nom))
+  .filter(Boolean)
+  .map((f) => ({ nom: f.nom, record: `${f.victoires}-${f.defaites}-${f.nuls}` }));
 
 const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   angle: (360 / 12) * i,
@@ -27,7 +25,7 @@ function getTodayHighlight() {
   return { ...event, isToday: event.iso === today };
 }
 
-export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
+export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
   const todayHighlight = getTodayHighlight();
@@ -203,7 +201,7 @@ export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, l
                 <Radio className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               )}
               <span className="text-xs font-semibold text-amber-300">
-                {todayHighlight.isToday ? "AUJOURD'HUI" : "DEMAIN"} · {todayHighlight.name}
+                {todayHighlight.isToday ? t.today : t.tomorrow} · {eventName(todayHighlight.name, lang)}
               </span>
             </button>
           )}
@@ -249,7 +247,7 @@ export default function Landing({ onEnter = () => {}, onEnterMedia = () => {}, l
       {/* Navigation vers les sections */}
       <section className="max-w-4xl mx-auto px-5 pb-20 grid sm:grid-cols-3 gap-3">
         <NavCard icon={Trophy} title={t.navCombattants} desc={t.navCardCombattantsDesc} onClick={onEnter} />
-        <NavCard icon={Swords} title={t.navSimulateur} desc={t.navCardSimulateurDesc} onClick={onEnter} />
+        <NavCard icon={Swords} title={t.navSimulateur} desc={t.navCardSimulateurDesc} onClick={onEnterSimulator} />
         <NavCard icon={Newspaper} title={t.navMedia} desc={t.navCardMediaDesc} onClick={onEnterMedia} />
       </section>
     </div>
