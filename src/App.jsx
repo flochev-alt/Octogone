@@ -6,6 +6,7 @@ import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
 import { FIGHTERS } from "./fightersData.js";
+import { RECENT_FIGHTS } from "./recentFights.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
   formatHeight, formatDate, ageFrom, getInitialLang, setStoredLang,
@@ -142,23 +143,22 @@ const CHAMPIONS = [
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
-// 5 derniers combats vérifiés, par nom de combattant (à compléter au fur et à mesure).
-const RECENT_FIGHTS = {
-  "Islam Makhachev": [
-    { opponent: "Ian Machado Garry", result: "V", method: "Décision unanime", event: "UFC 330" },
-    { opponent: "Jack Della Maddalena", result: "V", method: "Décision unanime", event: "UFC 322" },
-    { opponent: "Renato Moicano", result: "V", method: "Soumission", event: "UFC 311" },
-    { opponent: "Dustin Poirier", result: "V", method: "Soumission", event: "UFC 302" },
-    { opponent: "Alexander Volkanovski", result: "V", method: "KO", event: "UFC 294" },
-  ],
-};
-
 const METHOD_COLOR = {
   "KO": "text-amber-400 border-amber-400/30 bg-amber-400/10",
   "TKO": "text-amber-400 border-amber-400/30 bg-amber-400/10",
   "Soumission": "text-sky-400 border-sky-400/30 bg-sky-400/10",
   "Décision": "text-neutral-300 border-neutral-700 bg-neutral-800",
   "Décision unanime": "text-neutral-300 border-neutral-700 bg-neutral-800",
+  "Décision partagée": "text-neutral-300 border-neutral-700 bg-neutral-800",
+  "Décision majoritaire": "text-neutral-300 border-neutral-700 bg-neutral-800",
+  "Décision technique": "text-neutral-300 border-neutral-700 bg-neutral-800",
+};
+
+const RESULT_STYLE = {
+  V: "bg-emerald-400/15 text-emerald-400",
+  D: "bg-rose-400/15 text-rose-400",
+  N: "bg-neutral-700/60 text-neutral-300",
+  NC: "bg-neutral-700/60 text-neutral-300",
 };
 
 const CATEGORIES = CATEGORY_ORDER.filter((c) => FIGHTERS.some((f) => f.categorie === c));
@@ -504,7 +504,7 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
     return () => { cancelled = true; };
   }, [fighter.nom]);
 
-  const recent = RECENT_FIGHTS[fighter.nom];
+  const recent = RECENT_FIGHTS[fighter.id];
   const age = ageFrom(fighter.naissance);
   const rankLabel = fighter.rang === 0 ? t.champion : fighter.rang != null ? `#${fighter.rang}` : null;
 
@@ -573,14 +573,12 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
               <div className="space-y-2">
                 {recent.map((fight, i) => (
                   <div key={i} style={{ animationDelay: `${320 + i * 40}ms` }} className="row-rise flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2.5">
-                    <span className={`mono text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                      fight.result === "V" ? "bg-emerald-400/15 text-emerald-400" : "bg-rose-400/15 text-rose-400"
-                    }`}>
-                      {fight.result === "V" ? t.win : t.loss}
+                    <span className={`mono text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${RESULT_STYLE[fight.result]}`}>
+                      {{ V: t.win, D: t.loss, N: t.draw, NC: t.noContest }[fight.result]}
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{fight.opponent}</div>
-                      <div className="text-[11px] text-neutral-500">{fight.event}</div>
+                      <div className="text-[11px] text-neutral-500">{lang === "fr" ? fight.event : fight.event.replace(" : ", ": ")}</div>
                     </div>
                     <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border shrink-0 ${METHOD_COLOR[fight.method] || "text-neutral-300 border-neutral-700"}`}>
                       {translateMethod(fight.method, lang)}
