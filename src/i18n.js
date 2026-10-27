@@ -112,6 +112,8 @@ export const METHOD_LABELS = {
   "Décision majoritaire": { fr: "Décision majoritaire", en: "Majority decision", es: "Decisión mayoritaria" },
   "Décision technique": { fr: "Décision technique", en: "Technical decision", es: "Decisión técnica" },
   "Match nul partagé": { fr: "Match nul partagé", en: "Split draw", es: "Empate dividido" },
+  "Match nul majoritaire": { fr: "Match nul majoritaire", en: "Majority draw", es: "Empate mayoritario" },
+  "Disqualification": { fr: "Disqualification", en: "Disqualification", es: "Descalificación" },
   "Sans décision": { fr: "Sans décision", en: "No contest", es: "Sin resultado" },
 };
 
