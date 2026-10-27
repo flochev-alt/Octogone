@@ -163,6 +163,38 @@ export const RECENT_FIGHTS = {
     { opponent: "Amanda Lemos", result: "V", method: "Soumission", event: "UFC on ESPN : Lemos vs. Jandiroba" },
     { opponent: "Loopy Godínez", result: "V", method: "Décision unanime", event: "UFC on ESPN : Blanchfield vs. Fiorot" },
   ],
+  // Khabib Nurmagomedov
+  f021: [
+    { opponent: "Justin Gaethje", result: "V", method: "Soumission", event: "UFC 254" },
+    { opponent: "Dustin Poirier", result: "V", method: "Soumission", event: "UFC 242" },
+    { opponent: "Conor McGregor", result: "V", method: "Soumission", event: "UFC 229" },
+    { opponent: "Al Iaquinta", result: "V", method: "Décision unanime", event: "UFC 223" },
+    { opponent: "Edson Barboza", result: "V", method: "Décision unanime", event: "UFC 219" },
+  ],
+  // Georges St-Pierre
+  f022: [
+    { opponent: "Michael Bisping", result: "V", method: "Soumission", event: "UFC 217" },
+    { opponent: "Johny Hendricks", result: "V", method: "Décision partagée", event: "UFC 167" },
+    { opponent: "Nick Diaz", result: "V", method: "Décision unanime", event: "UFC 158" },
+    { opponent: "Carlos Condit", result: "V", method: "Décision unanime", event: "UFC 154" },
+    { opponent: "Jake Shields", result: "V", method: "Décision unanime", event: "UFC 129" },
+  ],
+  // Conor McGregor
+  f023: [
+    { opponent: "Max Holloway", result: "D", method: "TKO", event: "UFC 329" },
+    { opponent: "Dustin Poirier", result: "D", method: "TKO", event: "UFC 264" },
+    { opponent: "Dustin Poirier", result: "D", method: "TKO", event: "UFC 257" },
+    { opponent: "Donald Cerrone", result: "V", method: "TKO", event: "UFC 246" },
+    { opponent: "Khabib Nurmagomedov", result: "D", method: "Soumission", event: "UFC 229" },
+  ],
+  // Salahdine Parnasse
+  f024: [
+    { opponent: "Dan Hooker", result: "V", method: "TKO", event: "UFC Paris : Hooker vs. Parnasse" },
+    { opponent: "Kenneth Cross", result: "V", method: "TKO", event: "MVP MMA : Rousey vs. Carano" },
+    { opponent: "Marcin Held", result: "V", method: "TKO", event: "KSW 114" },
+    { opponent: "Marian Ziółkowski", result: "V", method: "TKO", event: "KSW 106" },
+    { opponent: "Wilson Varela", result: "V", method: "TKO", event: "KSW 101" },
+  ],
   // Arman Tsarukyan
   f025: [
     { opponent: "Mauricio Ruffy", result: "V", method: "KO", event: "UFC 331" },
@@ -211,6 +243,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Ľudovít Klein", result: "V", method: "Décision unanime", event: "UFC on ESPN : Gamrot vs. Klein" },
     { opponent: "Dan Hooker", result: "D", method: "Décision partagée", event: "UFC 305" },
   ],
+  // Dan Hooker
+  f031: [
+    { opponent: "Salahdine Parnasse", result: "D", method: "TKO", event: "UFC Paris : Hooker vs. Parnasse" },
+    { opponent: "Benoît Saint Denis", result: "D", method: "TKO", event: "UFC 325" },
+    { opponent: "Arman Tsarukyan", result: "D", method: "Soumission", event: "UFC Fight Night : Tsarukyan vs. Hooker" },
+    { opponent: "Mateusz Gamrot", result: "V", method: "Décision partagée", event: "UFC 305" },
+    { opponent: "Jalin Turner", result: "V", method: "Décision partagée", event: "UFC 290" },
+  ],
   // Renato Moicano
   f032: [
     { opponent: "Chris Duncan", result: "V", method: "Soumission", event: "UFC Fight Night : Moicano vs. Duncan" },
@@ -235,6 +275,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Benoît Saint Denis", result: "D", method: "Soumission", event: "UFC Fight Night : Imavov vs. Borralho" },
     { opponent: "King Green", result: "V", method: "KO", event: "UFC 313" },
   ],
+  // Beneil Dariush
+  f035: [
+    { opponent: "Quillan Salkilld", result: "D", method: "TKO", event: "UFC Fight Night : Della Maddalena vs. Prates" },
+    { opponent: "Benoît Saint Denis", result: "D", method: "KO", event: "UFC 322" },
+    { opponent: "Renato Moicano", result: "V", method: "Décision unanime", event: "UFC 317" },
+    { opponent: "Arman Tsarukyan", result: "D", method: "KO", event: "UFC on ESPN : Dariush vs. Tsarukyan" },
+    { opponent: "Charles Oliveira", result: "D", method: "TKO", event: "UFC 289" },
+  ],
   // Quillan Salkilld
   f036: [
     { opponent: "Mateusz Gamrot", result: "V", method: "Soumission", event: "UFC Fight Night : Gamrot vs. Salkilld" },
@@ -242,6 +290,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Jamie Mullarkey", result: "V", method: "Soumission", event: "UFC 325" },
     { opponent: "Nasrat Haqparast", result: "V", method: "KO", event: "UFC 321" },
     { opponent: "Yanal Ashmouz", result: "V", method: "Décision unanime", event: "UFC 316" },
+  ],
+  // Manuel Torres
+  f037: [
+    { opponent: "Rafael Fiziev", result: "D", method: "KO", event: "UFC Fight Night : Fiziev vs. Torres" },
+    { opponent: "Grant Dawson", result: "V", method: "TKO", event: "UFC 323" },
+    { opponent: "Drew Dober", result: "V", method: "TKO", event: "UFC on ESPN : Moreno vs. Erceg" },
+    { opponent: "Ignacio Bahamondes", result: "D", method: "TKO", event: "UFC 306" },
+    { opponent: "Chris Duncan", result: "V", method: "Soumission", event: "UFC Fight Night : Moreno vs. Royval 2" },
   ],
   // Natália Silva
   f038: [
@@ -307,6 +363,22 @@ export const RECENT_FIGHTS = {
     { opponent: "Jailton Almeida", result: "D", method: "TKO", event: "UFC 311" },
     { opponent: "Marcin Tybura", result: "V", method: "Soumission", event: "UFC on ESPN : Tybura vs. Spivac 2" },
   ],
+  // Ante Delija
+  f046: [
+    { opponent: "Serghei Spivac", result: "D", method: "Décision unanime", event: "UFC Fight Night : Strickland vs. Hernandez" },
+    { opponent: "Waldo Cortes-Acosta", result: "D", method: "KO", event: "UFC Fight Night : Garcia vs. Onama" },
+    { opponent: "Marcin Tybura", result: "V", method: "KO", event: "UFC Fight Night : Imavov vs. Borralho" },
+    { opponent: "Yorgan De Castro", result: "V", method: "TKO", event: "Fight Nation Championship 22" },
+    { opponent: "Valentin Moldavsky", result: "D", method: "TKO", event: "PFL 1 (2024)" },
+  ],
+  // Derrick Lewis
+  f047: [
+    { opponent: "Josh Hokit", result: "D", method: "TKO", event: "UFC Freedom 250" },
+    { opponent: "Waldo Cortes-Acosta", result: "D", method: "TKO", event: "UFC 324" },
+    { opponent: "Tallison Teixeira", result: "V", method: "TKO", event: "UFC on ESPN : Lewis vs. Teixeira" },
+    { opponent: "Rodrigo Nascimento", result: "V", method: "TKO", event: "UFC on ESPN : Lewis vs. Nascimento" },
+    { opponent: "Jailton Almeida", result: "D", method: "Décision unanime", event: "UFC Fight Night : Almeida vs. Lewis" },
+  ],
   // Alexander Volkov
   f048: [
     { opponent: "Rizvan Kuniev", result: "V", method: "Décision unanime", event: "UFC 333" },
@@ -323,6 +395,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Don'Tale Mayes", result: "V", method: "Soumission", event: "UFC Fight Night : Cannonier vs. Rodrigues" },
     { opponent: "Junior Tafa", result: "V", method: "Soumission", event: "UFC 305" },
   ],
+  // Tyrell Fortune
+  f050: [
+    { opponent: "Rizvan Kuniev", result: "D", method: "TKO", event: "UFC Fight Night : Ankalaev vs. Guskov" },
+    { opponent: "Marcin Tybura", result: "V", method: "Décision unanime", event: "UFC Fight Night : Adesanya vs. Pyfer" },
+    { opponent: "Demoreo Dennis", result: "V", method: "TKO", event: "Lights Out Xtreme Fighting 27" },
+    { opponent: "Tony Lopez", result: "V", method: "KO", event: "RUF MMA 64" },
+    { opponent: "Myron Dennis", result: "V", method: "TKO", event: "Lights Out Xtreme Fighting 24" },
+  ],
   // Mario Pinto
   f051: [
     { opponent: "Ryan Spann", result: "V", method: "TKO", event: "UFC Paris : Hooker vs. Parnasse" },
@@ -330,6 +410,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Jhonata Diniz", result: "V", method: "TKO", event: "UFC Fight Night : Oliveira vs. Gamrot" },
     { opponent: "Austen Lane", result: "V", method: "KO", event: "UFC Fight Night : Kape vs. Almabayev" },
     { opponent: "Lucas Triverio Camacho", result: "V", method: "KO", event: "Dana White's Contender Series 75" },
+  ],
+  // Aleksandar Rakić
+  f052: [
+    { opponent: "Marcin Tybura", result: "V", method: "Décision unanime", event: "UFC Fight Night : Medić vs. Rodriguez" },
+    { opponent: "Azamat Murzakanov", result: "D", method: "TKO", event: "UFC 321" },
+    { opponent: "Magomed Ankalaev", result: "D", method: "Décision unanime", event: "UFC 308" },
+    { opponent: "Jiří Procházka", result: "D", method: "TKO", event: "UFC 300" },
+    { opponent: "Jan Błachowicz", result: "D", method: "TKO", event: "UFC on ESPN : Błachowicz vs. Rakić" },
   ],
   // Brando Pericic
   f053: [
@@ -403,6 +491,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Brendson Ribeiro", result: "V", method: "TKO", event: "UFC 316" },
     { opponent: "Alonzo Menifield", result: "V", method: "KO", event: "UFC on ABC : Sandhagen vs. Nurmagomedov" },
   ],
+  // Jan Błachowicz
+  f062: [
+    { opponent: "Navajo Stirling", result: "D", method: "TKO", event: "UFC Fight Night : Medić vs. Rodriguez" },
+    { opponent: "Bogdan Guskov", result: "N", method: "Match nul majoritaire", event: "UFC 323" },
+    { opponent: "Carlos Ulberg", result: "D", method: "Décision unanime", event: "UFC Fight Night : Edwards vs. Brady" },
+    { opponent: "Alex Pereira", result: "D", method: "Décision partagée", event: "UFC 291" },
+    { opponent: "Magomed Ankalaev", result: "N", method: "Match nul partagé", event: "UFC 282" },
+  ],
   // Dominick Reyes
   f063: [
     { opponent: "Azamat Murzakanov", result: "V", method: "KO", event: "UFC 333" },
@@ -434,6 +530,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Volkan Oezdemir", result: "D", method: "KO", event: "UFC Fight Night : Tsarukyan vs. Hooker" },
     { opponent: "Oumar Sy", result: "V", method: "Décision unanime", event: "UFC on ESPN : Usman vs. Buckley" },
     { opponent: "Julius Walker", result: "V", method: "Décision partagée", event: "UFC Fight Night : Cejudo vs. Song" },
+  ],
+  // Nikita Krylov
+  f067: [
+    { opponent: "Abdul Rakhman Yakhyaev", result: "D", method: "TKO", event: "UFC 333" },
+    { opponent: "Robert Whittaker", result: "D", method: "TKO", event: "UFC 329" },
+    { opponent: "Modestas Bukauskas", result: "V", method: "KO", event: "UFC 324" },
+    { opponent: "Bogdan Guskov", result: "D", method: "KO", event: "UFC on ABC : Whittaker vs. de Ridder" },
+    { opponent: "Dominick Reyes", result: "D", method: "KO", event: "UFC 314" },
   ],
   // Robert Whittaker
   f068: [
@@ -547,6 +651,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Marco Tulio", result: "V", method: "KO", event: "UFC Fight Night : Bonfim vs. Brown" },
     { opponent: "Eryk Anders", result: "V", method: "TKO", event: "UFC on ESPN : Dolidze vs. Hernandez" },
   ],
+  // Jared Cannonier
+  f082: [
+    { opponent: "Christian Leroy Duncan", result: "D", method: "Décision unanime", event: "UFC Fight Night : Du Plessis vs. Usman" },
+    { opponent: "Michael Page", result: "D", method: "Décision unanime", event: "UFC 319" },
+    { opponent: "Gregory Rodrigues", result: "V", method: "TKO", event: "UFC Fight Night : Cannonier vs. Rodrigues" },
+    { opponent: "Caio Borralho", result: "D", method: "Décision unanime", event: "UFC on ESPN : Cannonier vs. Borralho" },
+    { opponent: "Nassourdine Imavov", result: "D", method: "TKO", event: "UFC on ESPN : Cannonier vs. Imavov" },
+  ],
   // Abusupiyan Magomedov
   f083: [
     { opponent: "Cam Rowston", result: "V", method: "Soumission", event: "UFC 333" },
@@ -570,6 +682,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Reinier de Ridder", result: "D", method: "TKO", event: "UFC on ESPN : Sandhagen vs. Figueiredo" },
     { opponent: "Paul Craig", result: "V", method: "Décision unanime", event: "UFC 309" },
     { opponent: "Cody Brundage", result: "V", method: "Soumission", event: "UFC 300" },
+  ],
+  // Sharabutdin Magomedov
+  f086: [
+    { opponent: "Michel Pereira", result: "V", method: "Décision unanime", event: "UFC Fight Night : Fiziev vs. Torres" },
+    { opponent: "Marc-André Barriault", result: "V", method: "Décision unanime", event: "UFC on ABC : Whittaker vs. de Ridder" },
+    { opponent: "Michael Page", result: "D", method: "Décision unanime", event: "UFC Fight Night : Adesanya vs. Imavov" },
+    { opponent: "Armen Petrosyan", result: "V", method: "KO", event: "UFC 308" },
+    { opponent: "Michał Oleksiejczuk", result: "V", method: "Décision unanime", event: "UFC on ABC : Sandhagen vs. Nurmagomedov" },
   ],
   // Roman Kopylov
   f087: [
@@ -691,6 +811,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Alex Morono", result: "V", method: "Décision partagée", event: "UFC Fight Night : Royval vs. Taira" },
     { opponent: "Kelvin Gastelum", result: "D", method: "Décision unanime", event: "UFC on ABC : Whittaker vs. Aliskerov" },
   ],
+  // Neil Magny
+  f102: [
+    { opponent: "Ramiz Brahimaj", result: "V", method: "TKO", event: "UFC 330" },
+    { opponent: "Yaroslav Amosov", result: "D", method: "Soumission", event: "UFC on ESPN : Royval vs. Kape" },
+    { opponent: "Jake Matthews", result: "V", method: "Soumission", event: "UFC Fight Night : Ulberg vs. Reyes" },
+    { opponent: "Elizeu Zaleski dos Santos", result: "V", method: "TKO", event: "UFC on ESPN : Taira vs. Park" },
+    { opponent: "Carlos Prates", result: "D", method: "KO", event: "UFC Fight Night : Magny vs. Prates" },
+  ],
   // Kevin Holland
   f103: [
     { opponent: "Randy Brown", result: "V", method: "Décision unanime", event: "UFC 327" },
@@ -706,6 +834,22 @@ export const RECENT_FIGHTS = {
     { opponent: "Viacheslav Borshchev", result: "V", method: "Décision unanime", event: "UFC 312" },
     { opponent: "Alex Reyes", result: "V", method: "Décision unanime", event: "UFC 305" },
     { opponent: "Victor Martinez", result: "V", method: "TKO", event: "UFC Fight Night : Barboza vs. Murphy" },
+  ],
+  // Melquizael Costa
+  f105: [
+    { opponent: "Arnold Allen", result: "D", method: "Décision unanime", event: "UFC Fight Night : Allen vs. Costa" },
+    { opponent: "Dan Ige", result: "V", method: "TKO", event: "UFC Fight Night : Strickland vs. Hernandez" },
+    { opponent: "Morgan Charrière", result: "V", method: "KO", event: "UFC on ESPN : Royval vs. Kape" },
+    { opponent: "Julian Erosa", result: "V", method: "Décision unanime", event: "UFC Fight Night : Burns vs. Morales" },
+    { opponent: "Christian Rodriguez", result: "V", method: "Décision unanime", event: "UFC on ESPN : Moreno vs. Erceg" },
+  ],
+  // Brian Ortega
+  f106: [
+    { opponent: "Aljamain Sterling", result: "D", method: "Décision unanime", event: "UFC Fight Night : Walker vs. Zhang" },
+    { opponent: "Diego Lopes", result: "D", method: "Décision unanime", event: "UFC 306" },
+    { opponent: "Yair Rodríguez", result: "V", method: "Soumission", event: "UFC Fight Night : Moreno vs. Royval 2" },
+    { opponent: "Yair Rodríguez", result: "D", method: "TKO", event: "UFC on ABC : Ortega vs. Rodríguez" },
+    { opponent: "Alexander Volkanovski", result: "D", method: "Décision unanime", event: "UFC 266" },
   ],
   // Tofiq Musayev
   f107: [
@@ -771,6 +915,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Bryce Mitchell", result: "V", method: "Soumission", event: "UFC 314" },
     { opponent: "Melsik Baghdasaryan", result: "V", method: "TKO", event: "UFC Fight Night : Cejudo vs. Song" },
   ],
+  // Yair Rodríguez
+  f115: [
+    { opponent: "Patrício Pitbull", result: "V", method: "Décision unanime", event: "UFC 314" },
+    { opponent: "Brian Ortega", result: "D", method: "Soumission", event: "UFC Fight Night : Moreno vs. Royval 2" },
+    { opponent: "Alexander Volkanovski", result: "D", method: "TKO", event: "UFC 290" },
+    { opponent: "Josh Emmett", result: "V", method: "Soumission", event: "UFC 284" },
+    { opponent: "Brian Ortega", result: "V", method: "TKO", event: "UFC on ABC : Ortega vs. Rodríguez" },
+  ],
   // Arnold Allen
   f116: [
     { opponent: "Melquizael Costa", result: "V", method: "Décision unanime", event: "UFC Fight Night : Allen vs. Costa" },
@@ -810,6 +962,22 @@ export const RECENT_FIGHTS = {
     { opponent: "Calvin Kattar", result: "V", method: "Décision unanime", event: "UFC on ESPN : Lewis vs. Teixeira" },
     { opponent: "Kyle Nelson", result: "V", method: "TKO", event: "UFC Fight Night : Burns vs. Brady" },
     { opponent: "Choi Seung-woo", result: "V", method: "TKO", event: "UFC on ESPN : Lemos vs. Jandiroba" },
+  ],
+  // Patrício Pitbull
+  f121: [
+    { opponent: "Dooho Choi", result: "V", method: "TKO", event: "UFC 331" },
+    { opponent: "Aaron Pico", result: "D", method: "Décision unanime", event: "UFC 327" },
+    { opponent: "Dan Ige", result: "V", method: "Décision unanime", event: "UFC 318" },
+    { opponent: "Yair Rodríguez", result: "D", method: "Décision unanime", event: "UFC 314" },
+    { opponent: "Jeremy Kennedy", result: "V", method: "TKO", event: "Bellator Champions Series : Belfast" },
+  ],
+  // David Onama
+  f122: [
+    { opponent: "Steve Garcia", result: "D", method: "TKO", event: "UFC Fight Night : Garcia vs. Onama" },
+    { opponent: "Giga Chikadze", result: "V", method: "Décision unanime", event: "UFC on ESPN : Machado Garry vs. Prates" },
+    { opponent: "Roberto Romero", result: "V", method: "Décision unanime", event: "UFC 309" },
+    { opponent: "Jonathan Pearce", result: "V", method: "Décision unanime", event: "UFC on ESPN : Nicolau vs. Perez" },
+    { opponent: "Gabriel Santos", result: "V", method: "KO", event: "UFC on ABC : Emmett vs. Topuria" },
   ],
   // Pat Sabatini
   f123: [
@@ -899,6 +1067,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Saimon Oliveira", result: "V", method: "TKO", event: "UFC on ESPN : Moreno vs. Erceg" },
     { opponent: "Xavier Franklin", result: "V", method: "Décision unanime", event: "Dana White's Contender Series 74" },
   ],
+  // Deiveson Figueiredo
+  f134: [
+    { opponent: "Payton Talbott", result: "D", method: "TKO", event: "UFC 332" },
+    { opponent: "Song Yadong", result: "D", method: "Soumission", event: "UFC Fight Night : Song vs. Figueiredo" },
+    { opponent: "Umar Nurmagomedov", result: "D", method: "Décision unanime", event: "UFC 324" },
+    { opponent: "Montel Jackson", result: "V", method: "Décision partagée", event: "UFC Fight Night : Oliveira vs. Gamrot" },
+    { opponent: "Cory Sandhagen", result: "D", method: "TKO", event: "UFC on ESPN : Sandhagen vs. Figueiredo" },
+  ],
   // Marlon Vera
   f135: [
     { opponent: "Charles Jourdain", result: "V", method: "TKO", event: "UFC 331" },
@@ -922,6 +1098,22 @@ export const RECENT_FIGHTS = {
     { opponent: "Vince Morales", result: "V", method: "Décision unanime", event: "UFC on ESPN : Moreno vs. Erceg" },
     { opponent: "Aoriqileng", result: "V", method: "Décision unanime", event: "UFC 306" },
     { opponent: "Ricky Turcios", result: "V", method: "Soumission", event: "UFC on ESPN : Cannonier vs. Imavov" },
+  ],
+  // Raoni Barcelos
+  f138: [
+    { opponent: "Raul Rosas Jr.", result: "D", method: "TKO", event: "UFC Fight Night : Rosas Jr. vs. Barcelos" },
+    { opponent: "Montel Jackson", result: "V", method: "Décision partagée", event: "UFC Fight Night : Sterling vs. Zalal" },
+    { opponent: "Ricky Simón", result: "V", method: "Décision unanime", event: "UFC Fight Night : Bonfim vs. Brown" },
+    { opponent: "Cody Garbrandt", result: "V", method: "Décision unanime", event: "UFC on ESPN : Usman vs. Buckley" },
+    { opponent: "Payton Talbott", result: "V", method: "Décision unanime", event: "UFC 311" },
+  ],
+  // Farid Basharat
+  f139: [
+    { opponent: "John Garza", result: "V", method: "Décision unanime", event: "UFC 329" },
+    { opponent: "Jean Matsumoto", result: "V", method: "Décision partagée", event: "UFC Fight Night : Bautista vs. Oliveira" },
+    { opponent: "Chris Gutiérrez", result: "V", method: "Décision unanime", event: "UFC 320" },
+    { opponent: "Victor Hugo", result: "V", method: "Décision unanime", event: "UFC 308" },
+    { opponent: "Taylor Lapilus", result: "V", method: "Décision unanime", event: "UFC Fight Night : Ankalaev vs. Walker 2" },
   ],
   // Marcus McGhee
   f140: [
@@ -1019,6 +1211,22 @@ export const RECENT_FIGHTS = {
     { opponent: "C.J. Vergara", result: "V", method: "TKO", event: "UFC Fight Night : Royval vs. Taira" },
     { opponent: "Takaki Soya", result: "V", method: "KO", event: "Rizin 44" },
   ],
+  // Tim Elliott
+  f152: [
+    { opponent: "Édgar Cháirez", result: "V", method: "Décision unanime", event: "Noche UFC : Silva vs. Delgado" },
+    { opponent: "Steve Erceg", result: "D", method: "Décision unanime", event: "UFC Fight Night : Della Maddalena vs. Prates" },
+    { opponent: "Kai Asakura", result: "V", method: "Soumission", event: "UFC 319" },
+    { opponent: "Sumudaerji", result: "V", method: "Soumission", event: "UFC Fight Night : Song vs. Gutiérrez" },
+    { opponent: "Muhammad Mokaev", result: "D", method: "Soumission", event: "UFC 294" },
+  ],
+  // Steve Erceg
+  f153: [
+    { opponent: "Ramazan Temirov", result: "D", method: "KO", event: "UFC Fight Night : Ankalaev vs. Guskov" },
+    { opponent: "Tim Elliott", result: "V", method: "Décision unanime", event: "UFC Fight Night : Della Maddalena vs. Prates" },
+    { opponent: "Ode' Osbourne", result: "V", method: "Décision unanime", event: "UFC on ESPN : Dolidze vs. Hernandez" },
+    { opponent: "Brandon Moreno", result: "D", method: "Décision unanime", event: "UFC on ESPN : Moreno vs. Erceg" },
+    { opponent: "Kai Kara-France", result: "D", method: "TKO", event: "UFC 305" },
+  ],
   // Sumudaerji
   f154: [
     { opponent: "Alex Perez", result: "V", method: "Décision unanime", event: "UFC Fight Night : Nurmagomedov vs. Song" },
@@ -1026,6 +1234,22 @@ export const RECENT_FIGHTS = {
     { opponent: "Jesús Santos Aguilar", result: "V", method: "Décision unanime", event: "UFC 326" },
     { opponent: "Kevin Borjas", result: "V", method: "Décision unanime", event: "UFC Fight Night : Walker vs. Zhang" },
     { opponent: "Mitch Raposo", result: "V", method: "Décision partagée", event: "UFC 314" },
+  ],
+  // Tagir Ulanbekov
+  f155: [
+    { opponent: "Kyoji Horiguchi", result: "D", method: "Soumission", event: "UFC Fight Night : Tsarukyan vs. Hooker" },
+    { opponent: "Azat Maksum", result: "V", method: "Décision unanime", event: "UFC on ABC : Hill vs. Rountree Jr." },
+    { opponent: "Clayton Carpenter", result: "V", method: "Décision unanime", event: "UFC 311" },
+    { opponent: "Cody Durden", result: "V", method: "Soumission", event: "UFC 296" },
+    { opponent: "Nate Maness", result: "V", method: "Soumission", event: "UFC Fight Night : Rodriguez vs. Lemos" },
+  ],
+  // Alex Perez
+  f156: [
+    { opponent: "Sumudaerji", result: "D", method: "Décision unanime", event: "UFC Fight Night : Nurmagomedov vs. Song" },
+    { opponent: "Sumudaerji", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo" },
+    { opponent: "Charles Johnson", result: "V", method: "TKO", event: "UFC 324" },
+    { opponent: "Asu Almabayev", result: "D", method: "Soumission", event: "UFC Fight Night : Tsarukyan vs. Hooker" },
+    { opponent: "Tatsuro Taira", result: "D", method: "TKO", event: "UFC on ESPN : Perez vs. Taira" },
   ],
   // Mitch Raposo
   f157: [
@@ -1058,6 +1282,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Bruno Silva", result: "V", method: "Décision partagée", event: "UFC Fight Night : Emmett vs. Vallejos" },
     { opponent: "Alex Perez", result: "D", method: "TKO", event: "UFC 324" },
     { opponent: "Lone'er Kavanagh", result: "V", method: "KO", event: "UFC Fight Night : Walker vs. Zhang" },
+  ],
+  // Raquel Pennington
+  f161: [
+    { opponent: "Julianna Peña", result: "D", method: "Décision partagée", event: "UFC 307" },
+    { opponent: "Mayra Bueno Silva", result: "V", method: "Décision unanime", event: "UFC 297" },
+    { opponent: "Ketlen Vieira", result: "V", method: "Décision partagée", event: "UFC Fight Night : Strickland vs. Imavov" },
+    { opponent: "Aspen Ladd", result: "V", method: "Décision unanime", event: "UFC 273" },
+    { opponent: "Macy Chiasson", result: "V", method: "Soumission", event: "UFC Fight Night : Lewis vs. Daukaus" },
   ],
   // Joselyne Edwards
   f162: [
@@ -1146,6 +1378,22 @@ export const RECENT_FIGHTS = {
     { opponent: "Karol Rosa", result: "D", method: "Décision unanime", event: "UFC on ESPN : Taira vs. Park" },
     { opponent: "Hailey Cowan", result: "V", method: "Soumission", event: "UFC 314" },
     { opponent: "Jacqueline Cavalcanti", result: "D", method: "Décision partagée", event: "UFC Fight Night : Moicano vs. Saint Denis" },
+  ],
+  // Miesha Tate
+  f173: [
+    { opponent: "Yana Santos", result: "D", method: "Décision unanime", event: "UFC on ESPN : Sandhagen vs. Figueiredo" },
+    { opponent: "Julia Avila", result: "V", method: "Soumission", event: "UFC on ESPN : Dariush vs. Tsarukyan" },
+    { opponent: "Lauren Murphy", result: "D", method: "Décision unanime", event: "UFC on ABC : Ortega vs. Rodríguez" },
+    { opponent: "Ketlen Vieira", result: "D", method: "Décision unanime", event: "UFC Fight Night : Vieira vs. Tate" },
+    { opponent: "Marion Reneau", result: "V", method: "TKO", event: "UFC on ESPN : Makhachev vs. Moisés" },
+  ],
+  // Melissa Croden
+  f174: [
+    { opponent: "Chelsea Chandler", result: "D", method: "Soumission", event: "UFC Fight Night : Buckley vs. Malott" },
+    { opponent: "Darya Zheleznyakova", result: "V", method: "Décision unanime", event: "UFC Fight Night : Burns vs. Malott" },
+    { opponent: "Luana Santos", result: "D", method: "Décision unanime", event: "UFC on ESPN : Royval vs. Kape" },
+    { opponent: "Tainara Lisboa", result: "V", method: "TKO", event: "UFC Fight Night : de Ridder vs. Allen" },
+    { opponent: "Ashley Deen", result: "V", method: "TKO", event: "LFA 195" },
   ],
   // Chelsea Chandler
   f175: [
@@ -1249,6 +1497,22 @@ export const RECENT_FIGHTS = {
     { opponent: "Ariane da Silva", result: "D", method: "Soumission", event: "UFC 296" },
     { opponent: "Jennifer Maia", result: "D", method: "Décision unanime", event: "UFC 286" },
   ],
+  // Eduarda Moura
+  f188: [
+    { opponent: "Casey O'Neill", result: "D", method: "Soumission", event: "UFC 331" },
+    { opponent: "Wang Cong", result: "D", method: "Décision unanime", event: "UFC Fight Night : Bautista vs. Oliveira" },
+    { opponent: "Lauren Murphy", result: "V", method: "Décision unanime", event: "UFC on ESPN : Lewis vs. Teixeira" },
+    { opponent: "Veronica Hardy", result: "V", method: "Décision unanime", event: "UFC 309" },
+    { opponent: "Denise Gomes", result: "D", method: "Décision partagée", event: "UFC on ESPN : Cannonier vs. Imavov" },
+  ],
+  // Gabriella Fernandes
+  f189: [
+    { opponent: "Casey O'Neill", result: "D", method: "KO", event: "UFC Fight Night : Adesanya vs. Pyfer" },
+    { opponent: "Julija Stoliarenko", result: "V", method: "Décision unanime", event: "UFC on ESPN : Dolidze vs. Hernandez" },
+    { opponent: "Wang Cong", result: "V", method: "Soumission", event: "UFC Fight Night : Yan vs. Figueiredo" },
+    { opponent: "Carli Judice", result: "V", method: "Décision partagée", event: "UFC on ESPN : Perez vs. Taira" },
+    { opponent: "Tereza Bleda", result: "D", method: "Décision unanime", event: "UFC on ESPN : Vettori vs. Cannonier" },
+  ],
   // Regina Tarin
   f190: [
     { opponent: "J.J. Aldrich", result: "V", method: "Décision unanime", event: "Noche UFC : Silva vs. Delgado" },
@@ -1329,6 +1593,14 @@ export const RECENT_FIGHTS = {
     { opponent: "Molly McCann", result: "V", method: "Soumission", event: "UFC Fight Night : Edwards vs. Brady" },
     { opponent: "Rose Conceição", result: "V", method: "Décision unanime", event: "Dana White's Contender Series 73" },
   ],
+  // Jéssica Andrade
+  f200: [
+    { opponent: "Loopy Godínez", result: "D", method: "Décision unanime", event: "UFC 319" },
+    { opponent: "Jasmine Jasudavicius", result: "D", method: "Soumission", event: "UFC 315" },
+    { opponent: "Natália Silva", result: "D", method: "Décision unanime", event: "UFC Fight Night : Burns vs. Brady" },
+    { opponent: "Marina Rodriguez", result: "V", method: "Décision partagée", event: "UFC 300" },
+    { opponent: "Mackenzie Dern", result: "V", method: "TKO", event: "UFC 295" },
+  ],
   // Tabatha Ricci
   f201: [
     { opponent: "Fatima Kline", result: "D", method: "Décision unanime", event: "UFC Fight Night : Du Plessis vs. Usman" },
@@ -1344,6 +1616,22 @@ export const RECENT_FIGHTS = {
     { opponent: "Tatiana Suarez", result: "D", method: "Décision unanime", event: "Noche UFC : Lopes vs. Silva" },
     { opponent: "Iasmin Lucindo", result: "V", method: "Décision unanime", event: "UFC 313" },
     { opponent: "Virna Jandiroba", result: "D", method: "Soumission", event: "UFC on ESPN : Lemos vs. Jandiroba" },
+  ],
+  // Amanda Ribas
+  f203: [
+    { opponent: "Tabatha Ricci", result: "D", method: "TKO", event: "UFC on ABC : Whittaker vs. de Ridder" },
+    { opponent: "Mackenzie Dern", result: "D", method: "Soumission", event: "UFC Fight Night : Dern vs. Ribas 2" },
+    { opponent: "Rose Namajunas", result: "D", method: "Décision unanime", event: "UFC on ESPN : Ribas vs. Namajunas" },
+    { opponent: "Luana Pinheiro", result: "V", method: "TKO", event: "UFC Fight Night : Allen vs. Craig" },
+    { opponent: "Maycee Barber", result: "D", method: "TKO", event: "UFC on ABC : Emmett vs. Topuria" },
+  ],
+  // Angela Hill
+  f204: [
+    { opponent: "Xiong Jingnan", result: "V", method: "Décision unanime", event: "UFC Fight Night : Song vs. Figueiredo" },
+    { opponent: "Fatima Kline", result: "D", method: "Décision unanime", event: "UFC 322" },
+    { opponent: "Iasmin Lucindo", result: "D", method: "Décision unanime", event: "UFC on ESPN : Dolidze vs. Hernandez" },
+    { opponent: "Ketlen Souza", result: "V", method: "Décision partagée", event: "UFC Fight Night : Cannonier vs. Rodrigues" },
+    { opponent: "Tabatha Ricci", result: "D", method: "Décision unanime", event: "UFC on ESPN : Cannonier vs. Borralho" },
   ],
   // Mizuki Inoue
   f205: [
