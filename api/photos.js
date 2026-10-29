@@ -2,7 +2,7 @@
 // Cherche une photo libre de droits de chaque combattant :
 // 1. la photo de l'infobox Wikipédia (en, puis fr), gardée seulement si elle est sur Wikimedia Commons ;
 // 2. sinon, une recherche directe sur Commons parmi les fichiers dont le nom contient le nom complet
-//    du combattant (la plus récente).
+//    du combattant (photo d'événement UFC d'abord, puis la plus récente).
 // Les photos trop petites (< 500 px de large) sont écartées. Renvoie une version HD (1200 px),
 // l'auteur et la licence pour le crédit affiché sur le site. Réponse mise en cache 7 jours par Vercel.
 const UA = "Octogone/1.0 (https://octogone.space)";
@@ -110,10 +110,12 @@ export default async function handler(req, res) {
     }
     const candidates = await commonsInfo(found.flat());
     rest.forEach((name, k) => {
+      // Priorité aux photos prises en événement UFC (souvent dans la cage), puis à la plus récente.
+      const ufc = (c) => (/ufc/i.test(c.page) ? 1 : 0);
       const best = found[k]
         .map((f) => candidates[f.replace(/ /g, "_")])
         .filter(Boolean)
-        .sort((a, b) => (b.date || "").localeCompare(a.date || "") || b.width - a.width)[0];
+        .sort((a, b) => ufc(b) - ufc(a) || (b.date || "").localeCompare(a.date || "") || b.width - a.width)[0];
       if (best) photos[name] = best;
     });
     res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=86400");
