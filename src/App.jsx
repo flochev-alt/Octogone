@@ -6,6 +6,7 @@ import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
 import { useFighters } from "./useFighters.js";
+import FighterBadge from "./FighterBadge.jsx";
 import { RECENT_FIGHTS } from "./recentFights.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
@@ -141,7 +142,6 @@ const CHAMPIONS = [
   },
 ];
 
-const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
 const METHOD_COLOR = {
   "KO": "text-amber-400 border-amber-400/30 bg-amber-400/10",
@@ -378,15 +378,21 @@ export default function App() {
 
             {categorie === "champions" && !searching ? (
               <div className="space-y-2">
-                {CHAMPIONS.map((c, i) => (
+                {CHAMPIONS.map((c, i) => {
+                  const f = allFighters.find((x) => x.nom === c.name);
+                  return (
                   <div
                     key={i}
                     style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
                     className="row-rise rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-5 flex items-center gap-4"
                   >
-                    <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
-                      <Trophy className="w-5 h-5 text-amber-400" />
-                    </div>
+                    {f ? (
+                      <FighterBadge name={c.name} photo={f.photo} size={52} gold />
+                    ) : (
+                      <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
+                        <Trophy className="w-5 h-5 text-amber-400" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{translateCategory(c.categorie, lang)}</div>
                       <div className="disp text-lg truncate">{c.name}</div>
@@ -396,7 +402,8 @@ export default function App() {
                       <div className="text-xs text-neutral-400 mt-1">{L(c.note, lang)}</div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
                 <SearchBox query={query} setQuery={setQuery} t={t} className="mt-6" />
               </div>
             ) : (
@@ -405,16 +412,22 @@ export default function App() {
                   <button
                     key={categorie + "-champ"}
                     onClick={() => setSelected(champion)}
-                    className="tap row-rise w-full text-left mb-6 rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 hover:border-amber-400/40 p-5 flex items-center gap-4"
+                    className="tap row-rise relative overflow-hidden w-full text-left mb-6 rounded-2xl border border-amber-400/30 bg-neutral-950 hover:border-amber-400/60 p-5 sm:p-6 flex items-center gap-4"
                   >
-                    <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
-                      <Trophy className="w-5 h-5 text-amber-400" />
+                    <div className="glow-pulse absolute -right-10 top-1/2 -translate-y-1/2 w-56 h-56 rounded-full bg-amber-400/25 blur-3xl pointer-events-none" />
+                    <div className="relative flex-1 min-w-0">
+                      <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-1 flex items-center gap-1.5">
+                        <Trophy className="w-3.5 h-3.5" /> {t.champion} — {translateCategory(categorie, lang)}
+                      </div>
+                      <div className="disp text-2xl sm:text-3xl leading-tight">{champion.nom}</div>
+                      <div className="mono text-xl text-amber-400 mt-2 tracking-tight">
+                        {formatRecord(champion.victoires, champion.defaites, champion.nuls, champion.nc)}
+                      </div>
+                      {champion.style?.length > 0 && (
+                        <div className="text-xs text-neutral-400 mt-1">{formatStyle(champion.style, lang)}</div>
+                      )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{t.champion} — {translateCategory(categorie, lang)}</div>
-                      <div className="disp text-xl truncate">{champion.nom}</div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
+                    <FighterBadge name={champion.nom} photo={champion.photo} size={104} gold className="relative" />
                   </button>
                 )}
 
@@ -433,11 +446,12 @@ export default function App() {
                       <button
                         onClick={() => setSelected(f)}
                         style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
-                        className="tap row-rise w-full text-left rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3.5 flex items-center gap-4"
+                        className="tap row-rise w-full text-left rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-2.5 flex items-center gap-3"
                       >
                         <span className={`mono text-xs w-6 shrink-0 ${f.rang === 0 ? "text-amber-400" : "text-neutral-500"}`}>
                           {f.rang === 0 ? "C" : f.rang != null ? String(f.rang).padStart(2, "0") : "–"}
                         </span>
+                        <FighterBadge name={f.nom} photo={f.photo} size={36} gold={f.rang === 0} />
                         <span className="flex-1 font-medium text-sm truncate">{f.nom}</span>
                         {searching && (
                           <span className="text-[11px] text-neutral-500 shrink-0 hidden sm:inline">{translateCategory(f.categorie, lang)}</span>
@@ -518,8 +532,8 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
           <div className="panel-flash absolute inset-0 bg-white z-10 pointer-events-none" />
           <div className="glow-pulse absolute w-56 h-56 rounded-full bg-amber-400/30 blur-2xl" />
           <div className="ring-spin absolute w-40 h-40 rounded-full border-2 border-dashed border-amber-400/25" />
-          <div className="walkout relative w-28 h-28 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl">
-            <span className="disp text-4xl text-neutral-950">{initials(fighter.nom)}</span>
+          <div className="walkout relative">
+            <FighterBadge name={fighter.nom} photo={fighter.photo} size={fighter.photo ? 160 : 120} gold />
           </div>
           <button onClick={onClose} className="tap absolute top-4 right-4 bg-neutral-950/60 backdrop-blur rounded-full p-1.5 text-neutral-200 hover:text-white">
             <X className="w-4 h-4" />
@@ -555,6 +569,21 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
               </div>
             )}
           </div>
+          {fighter.victoires > 0 && fighter.ko + fighter.sub + fighter.dec > 0 && (
+            <div className="row-rise" style={{ animationDelay: "20ms" }}>
+              <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2">{t.winsBy}</div>
+              <div className="h-2.5 rounded-full overflow-hidden flex bg-neutral-800">
+                <div style={{ width: `${fighter.ko}%` }} className="bg-amber-400" />
+                <div style={{ width: `${fighter.sub}%` }} className="bg-amber-700" />
+                <div style={{ width: `${fighter.dec}%` }} className="bg-neutral-500" />
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] text-neutral-300">
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400" />{translateMethod("KO", lang)} {fighter.ko} %</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-700" />{translateMethod("Soumission", lang)} {fighter.sub} %</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-neutral-500" />{translateMethod("Décision", lang)} {fighter.dec} %</span>
+              </div>
+            </div>
+          )}
           <Stat icon={Users} label={t.division} value={translateCategory(fighter.categorie, lang)} delay={40} />
           <Stat icon={Medal} label={t.ranking} value={rankLabel} delay={60} />
           <Stat icon={Ruler} label={t.heightReach} value={[formatHeight(fighter.taille, lang), formatHeight(fighter.allonge, lang)].filter(Boolean).join(" / ")} delay={80} />

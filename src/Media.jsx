@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Newspaper, MapPin, CheckCircle2, Search } from "lucide-react";
 import { T, L, formatDate, translateMethod } from "./i18n.js";
 import { useMedia } from "./useMedia.js";
+import { useFighters } from "./useFighters.js";
+import FighterBadge from "./FighterBadge.jsx";
 
 export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" : ", ": "));
 
@@ -9,7 +11,6 @@ export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" 
 const byIsoDesc = (a, b) => (a.iso < b.iso ? 1 : -1);
 
 const shortDate = (iso, lang) => formatDate(iso, lang, { day: "numeric", month: "short", year: "numeric" });
-const initialsOf = (n) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
 function Avatar({ label, highlight }) {
   return (
@@ -25,16 +26,26 @@ function FightersBadges({ fighters, highlight }) {
   if (!fighters || fighters.length < 2) return <Avatar label="UFC" highlight={highlight} />;
   return (
     <div className="flex -space-x-2 shrink-0">
-      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[10px] border-2 border-neutral-950 ${
-        highlight ? "bg-amber-400 text-neutral-950" : "bg-neutral-800 text-neutral-300"
-      }`}>
-        {initialsOf(fighters[0])}
-      </div>
-      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[10px] border-2 border-neutral-950 ${
-        highlight ? "bg-amber-300 text-neutral-950" : "bg-neutral-700 text-neutral-300"
-      }`}>
-        {initialsOf(fighters[1])}
-      </div>
+      <FighterBadge name={fighters[0]} size={36} gold={highlight} base="bg-neutral-800" />
+      <FighterBadge name={fighters[1]} size={36} gold={highlight} base="bg-neutral-800" />
+    </div>
+  );
+}
+
+// Face-à-face des affiches mises en avant : écussons (ou photos) des deux combattants.
+function FaceOff({ names }) {
+  const roster = useFighters();
+  const photoOf = (n) => roster.find((f) => f.nom === n)?.photo;
+  return (
+    <div className="relative overflow-hidden mt-3 rounded-xl border border-amber-400/30 bg-neutral-950 px-4 py-5 flex items-center justify-between gap-3">
+      <div className="glow-pulse absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-amber-400/20 blur-3xl pointer-events-none" />
+      {names.map((n, i) => (
+        <div key={n} className={`relative flex-1 min-w-0 flex flex-col items-center gap-2 text-center ${i === 1 ? "order-3" : ""}`}>
+          <FighterBadge name={n} photo={photoOf(n)} size={72} gold />
+          <span className="disp text-sm leading-tight">{n}</span>
+        </div>
+      ))}
+      <span className="relative order-2 disp text-sm w-10 h-10 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center shrink-0">VS</span>
     </div>
   );
 }
@@ -62,7 +73,8 @@ function UpcomingPost({ c, lang, t }) {
         </div>
         <div className="disp text-base mt-1">{eventName(c.name, lang)}</div>
         <div className="text-sm text-neutral-200 mt-1">{L(c.main, lang)}</div>
-        {c.note && <div className="text-xs text-neutral-500 mt-1">{L(c.note, lang)}</div>}
+        {c.highlight && c.fighters?.length === 2 && <FaceOff names={c.fighters} />}
+        {c.note && <div className="text-xs text-neutral-500 mt-2">{L(c.note, lang)}</div>}
         <div className="flex items-center gap-1.5 text-xs text-neutral-500 mt-2">
           <MapPin className="w-3 h-3" /> {L(c.location, lang)}
           <CheckCircle2 className="w-3 h-3 text-amber-400 ml-2" /> {t.official}
