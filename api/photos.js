@@ -97,6 +97,7 @@ async function commonsSearch(name) {
 // l'usage commercial (CC BY, CC BY-SA, CC0, domaine public…), en HD, dont le titre ou les tags
 // contiennent le nom complet du combattant. Les plus récentes d'abord.
 const FLICKR_LICENSES = { 4: "CC BY 2.0", 5: "CC BY-SA 2.0", 7: "No known copyright restrictions", 8: "United States Government Work", 9: "CC0 1.0", 10: "Public Domain Mark" };
+const AGENCY = /getty|zuffa|usa ?today|imagn|reuters|\bafp\b|associated ?press|\bap photo|shutterstock|alamy/i;
 async function flickrSearch(name) {
   const key = process.env.FLICKR_API_KEY;
   if (!key) return [];
@@ -110,6 +111,8 @@ async function flickrSearch(name) {
   return ((await r.json()).photos?.photo || [])
     // Les tags Flickr sont collés en minuscules (« iliatopuria ») : on teste les deux formes.
     .filter((p) => norm(`${p.title} ${p.tags}`).includes(n) || norm(p.tags).replace(/ /g, "").includes(n.replace(/ /g, "")))
+    // Écarte les photos d'agence republiées sous une licence libre par erreur.
+    .filter((p) => !AGENCY.test(`${p.title} ${p.tags} ${p.ownername}`))
     .map((p) => ({
       url: p.url_h || p.url_l,
       width: Number(p.width_h || p.width_l || 0),
