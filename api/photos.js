@@ -1,7 +1,7 @@
 // GET /api/photos?names=Ilia Topuria|Justin Gaethje (25 noms max)
-// Cherche une photo libre de droits (Wikimedia Commons) de chaque combattant, parmi :
-// la photo de son infobox Wikipédia (en, puis fr), les fichiers Commons portant son nom complet
-// et ceux de sa catégorie Commons. On garde la plus récente (puis prise en événement UFC, puis la plus grande).
+// Cherche une photo libre de droits de chaque combattant, parmi : la photo de son infobox Wikipédia
+// (en, puis fr), les fichiers Commons portant son nom complet, ceux de sa catégorie Commons,
+// et les photos Flickr sous licence libre (si la clé Flickr est configurée). On garde la plus récente (puis prise en événement UFC, puis la plus grande).
 // Les photos trop petites (< 500 px de large) sont écartées. Renvoie une version HD (1200 px),
 // l'auteur et la licence pour le crédit affiché sur le site. Réponse mise en cache 7 jours par Vercel.
 const UA = "Octogone/1.0 (https://octogone.space)";
@@ -93,8 +93,37 @@ async function commonsSearch(name) {
   ])].slice(0, 15);
 }
 
+// Flickr (si la clé FLICKR_API_KEY est définie sur Vercel) : photos sous licence libre autorisant
+// l'usage commercial (CC BY, CC BY-SA, CC0, domaine public…), en HD, dont le titre ou les tags
+// contiennent le nom complet du combattant. Les plus récentes d'abord.
+const FLICKR_LICENSES = { 4: "CC BY 2.0", 5: "CC BY-SA 2.0", 7: "No known copyright restrictions", 8: "United States Government Work", 9: "CC0 1.0", 10: "Public Domain Mark" };
+async function flickrSearch(name) {
+  const key = process.env.FLICKR_API_KEY;
+  if (!key) return [];
+  const r = await fetch("https://www.flickr.com/services/rest/?" + new URLSearchParams({
+    method: "flickr.photos.search", api_key: key, format: "json", nojsoncallback: "1",
+    text: `"${name}"`, license: Object.keys(FLICKR_LICENSES).join(","), media: "photos", content_type: "1",
+    sort: "date-taken-desc", per_page: "30", extras: "owner_name,license,date_taken,tags,url_h,url_l,o_dims",
+  }), { headers: { "User-Agent": UA } });
+  if (!r.ok) return [];
+  const n = norm(name);
+  return ((await r.json()).photos?.photo || [])
+    // Les tags Flickr sont collés en minuscules (« iliatopuria ») : on teste les deux formes.
+    .filter((p) => norm(`${p.title} ${p.tags}`).includes(n) || norm(p.tags).replace(/ /g, "").includes(n.replace(/ /g, "")))
+    .map((p) => ({
+      url: p.url_h || p.url_l,
+      width: Number(p.width_h || p.width_l || 0),
+      author: p.ownername,
+      license: FLICKR_LICENSES[p.license] || "",
+      page: `https://www.flickr.com/photos/${p.owner}/${p.id}`,
+      date: (p.datetaken || "").slice(0, 10),
+      ufc: /ufc/i.test(`${p.title} ${p.tags}`),
+    }))
+    .filter((p) => p.url && p.width >= 1000);
+}
+
 // Meilleure photo : la plus récente d'abord, puis celle prise en événement UFC, puis la plus grande.
-const ufc = (c) => (/ufc/i.test(c.page) ? 1 : 0);
+const ufc = (c) => (c.ufc || /ufc/i.test(c.page) ? 1 : 0);
 const best = (list) =>
   list.filter(Boolean).sort((a, b) => (b.date || "0").localeCompare(a.date || "0") || ufc(b) - ufc(a) || b.width - a.width)[0];
 
@@ -113,9 +142,13 @@ export default async function handler(req, res) {
     }
     const files = names.map((n, k) => [...new Set([infobox[n], ...found[k]].filter(Boolean))]);
     const info = await commonsInfo(files.flat());
+    const flickr = [];
+    for (let i = 0; i < names.length; i += 5) {
+      flickr.push(...(await Promise.all(names.slice(i, i + 5).map((n) => flickrSearch(n).catch(() => [])))));
+    }
     const photos = {};
     names.forEach((name, k) => {
-      const pick = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
+      const pick = best([...files[k].map((f) => info[f.replace(/ /g, "_")]), ...flickr[k]]);
       if (pick) photos[name] = pick;
     });
     res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=86400");
