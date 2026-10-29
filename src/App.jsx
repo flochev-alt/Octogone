@@ -421,7 +421,7 @@ export default function App() {
                     {/* Portrait à droite : la photo détourée si on l'a, sinon les initiales en grand */}
                     <div className="absolute right-0 bottom-0 top-0 w-1/2 flex items-end justify-center">
                       {photoOf(champion) ? (
-                        <img src={photoOf(champion).url} alt={champion.nom} className="h-full w-full object-cover object-top [mask-image:linear-gradient(to_right,transparent,black_45%)]" />
+                        <img src={photoOf(champion).url} alt={champion.nom} className="shoot h-full w-full object-cover object-top [mask-image:linear-gradient(to_right,transparent,black_45%)]" />
                       ) : (
                         <span aria-hidden="true" className="disp text-[7rem] sm:text-[8rem] leading-none text-amber-400/25 self-center">{initialsOf(champion.nom)}</span>
                       )}
@@ -548,7 +548,9 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
         <div className="relative h-80 overflow-hidden bg-neutral-950 flex items-center justify-center">
           <div className="panel-flash absolute inset-0 bg-white z-10 pointer-events-none" />
           {photo ? (
-            <img src={photo.url} alt={fighter.nom} className="walkout absolute inset-0 w-full h-full object-cover object-top" />
+            <div className="walkout absolute inset-0">
+              <img src={photo.url} alt={fighter.nom} className="shoot shoot-fade w-full h-full object-cover object-top" />
+            </div>
           ) : (
             <>
               <div className="glow-pulse absolute w-64 h-64 rounded-full bg-amber-400/30 blur-2xl -translate-y-12" />
