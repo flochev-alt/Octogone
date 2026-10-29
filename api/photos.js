@@ -1,7 +1,7 @@
 // GET /api/photos?names=Ilia Topuria|Justin Gaethje (25 noms max)
 // Cherche une photo libre de droits de chaque combattant, parmi : la photo de son infobox Wikipédia
 // (en, puis fr), les fichiers Commons portant son nom complet, ceux de sa catégorie Commons,
-// et les photos Flickr sous licence libre (si la clé Flickr est configurée). On garde la plus récente (puis prise en événement UFC, puis la plus grande).
+// et, si Commons n'a rien de récent, les photos libres trouvées par Openverse (Flickr notamment). On garde la plus récente (puis prise en événement UFC, puis la plus grande).
 // Les photos trop petites (< 500 px de large) sont écartées. Renvoie une version HD (1200 px),
 // l'auteur et la licence pour le crédit affiché sur le site. Réponse mise en cache 7 jours par Vercel.
 const UA = "Octogone/1.0 (https://octogone.space)";
@@ -93,34 +93,34 @@ async function commonsSearch(name) {
   ])].slice(0, 15);
 }
 
-// Flickr (si la clé FLICKR_API_KEY est définie sur Vercel) : photos sous licence libre autorisant
-// l'usage commercial (CC BY, CC BY-SA, CC0, domaine public…), en HD, dont le titre ou les tags
-// contiennent le nom complet du combattant. Les plus récentes d'abord.
-const FLICKR_LICENSES = { 4: "CC BY 2.0", 5: "CC BY-SA 2.0", 7: "No known copyright restrictions", 8: "United States Government Work", 9: "CC0 1.0", 10: "Public Domain Mark" };
+// Openverse (moteur de recherche d'images libres, sans clé) : photos Flickr et autres sous licence
+// libre autorisant l'usage commercial (CC BY, CC BY-SA, CC0, domaine public), en HD, dont le titre
+// ou les tags contiennent le nom complet du combattant. Openverse ne donne pas la date de prise de vue.
 const AGENCY = /getty|zuffa|usa ?today|imagn|reuters|\bafp\b|associated ?press|\bap photo|shutterstock|alamy/i;
-async function flickrSearch(name) {
-  const key = process.env.FLICKR_API_KEY;
-  if (!key) return [];
-  const r = await fetch("https://www.flickr.com/services/rest/?" + new URLSearchParams({
-    method: "flickr.photos.search", api_key: key, format: "json", nojsoncallback: "1",
-    text: `"${name}"`, license: Object.keys(FLICKR_LICENSES).join(","), media: "photos", content_type: "1",
-    sort: "date-taken-desc", per_page: "30", extras: "owner_name,license,date_taken,tags,url_h,url_l,o_dims",
+const LICENSE_NAMES = { by: "CC BY", "by-sa": "CC BY-SA", cc0: "CC0", pdm: "Public Domain Mark" };
+async function openverseSearch(name) {
+  const r = await fetch("https://api.openverse.org/v1/images/?" + new URLSearchParams({
+    q: `"${name}"`, license: "by,by-sa,cc0,pdm", category: "photograph", page_size: "20", mature: "false",
   }), { headers: { "User-Agent": UA } });
   if (!r.ok) return [];
   const n = norm(name);
-  return ((await r.json()).photos?.photo || [])
-    // Les tags Flickr sont collés en minuscules (« iliatopuria ») : on teste les deux formes.
-    .filter((p) => norm(`${p.title} ${p.tags}`).includes(n) || norm(p.tags).replace(/ /g, "").includes(n.replace(/ /g, "")))
+  return ((await r.json()).results || [])
+    .filter((p) => p.source !== "wikimedia") // Commons est déjà interrogé directement
+    // Les tags Flickr sont souvent collés (« iliatopuria ») : on teste les deux formes.
+    .filter((p) => {
+      const text = `${p.title || ""} ${(p.tags || []).map((t) => t.name).join(" ")}`;
+      return norm(text).includes(n) || norm(text).replace(/ /g, "").includes(n.replace(/ /g, ""));
+    })
     // Écarte les photos d'agence republiées sous une licence libre par erreur.
-    .filter((p) => !AGENCY.test(`${p.title} ${p.tags} ${p.ownername}`))
+    .filter((p) => !AGENCY.test(`${p.title} ${p.creator}`))
     .map((p) => ({
-      url: p.url_h || p.url_l,
-      width: Number(p.width_h || p.width_l || 0),
-      author: p.ownername,
-      license: FLICKR_LICENSES[p.license] || "",
-      page: `https://www.flickr.com/photos/${p.owner}/${p.id}`,
-      date: (p.datetaken || "").slice(0, 10),
-      ufc: /ufc/i.test(`${p.title} ${p.tags}`),
+      url: p.url,
+      width: p.width || 0,
+      author: p.creator || "",
+      license: [LICENSE_NAMES[p.license] || p.license?.toUpperCase(), p.license_version].filter(Boolean).join(" "),
+      page: p.foreign_landing_url,
+      date: "",
+      ufc: /ufc/i.test(`${p.title} ${(p.tags || []).map((t) => t.name).join(" ")}`),
     }))
     .filter((p) => p.url && p.width >= 1000);
 }
@@ -145,13 +145,21 @@ export default async function handler(req, res) {
     }
     const files = names.map((n, k) => [...new Set([infobox[n], ...found[k]].filter(Boolean))]);
     const info = await commonsInfo(files.flat());
-    const flickr = [];
+    // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
+    const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
+    const others = [];
     for (let i = 0; i < names.length; i += 5) {
-      flickr.push(...(await Promise.all(names.slice(i, i + 5).map((n) => flickrSearch(n).catch(() => [])))));
+      others.push(...(await Promise.all(names.slice(i, i + 5).map((n, j) => {
+        const fromCommons = best(files[i + j].map((f) => info[f.replace(/ /g, "_")]));
+        return fromCommons?.date >= recent ? [] : openverseSearch(n).catch(() => []);
+      }))));
     }
     const photos = {};
     names.forEach((name, k) => {
-      const pick = best([...files[k].map((f) => info[f.replace(/ /g, "_")]), ...flickr[k]]);
+      // Openverse n'a pas de date : on préfère sa photo d'événement UFC à une photo Commons ancienne.
+      const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
+      const fromOpenverse = best(others[k]);
+      const pick = fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
       if (pick) photos[name] = pick;
     });
     res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=86400");
