@@ -1,0 +1,42 @@
+# Recopie les données du site (combattants + fil Média) dans Supabase à chaque mise à jour sur main.
+# Les fichiers source restent src/fightersData.js et src/mediaData.js : ce workflow régénère les seeds
+# puis les exécute sur la base. Nécessite le secret GitHub SUPABASE_DB_URL
+# (Supabase > Connect > Session pooler, avec le mot de passe de la base).
+name: Synchro Supabase
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - src/fightersData.js
+      - src/mediaData.js
+      - scripts/generate-fighters-seed.mjs
+      - scripts/generate-media-seed.mjs
+  workflow_dispatch:
+
+concurrency:
+  group: sync-supabase
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Générer les seeds
+        run: |
+          node scripts/generate-fighters-seed.mjs
+          node scripts/generate-media-seed.mjs
+      - name: Appliquer sur Supabase
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::warning::Secret SUPABASE_DB_URL absent : synchro ignorée."
+            exit 0
+          fi
+          psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 --single-transaction \
+            -f supabase/seed_fighters.sql -f supabase/seed_media.sql

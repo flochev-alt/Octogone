@@ -9,17 +9,22 @@ const fromRow = ({ td_acc, td_def, ufc_v, ufc_d, ufc_n, ufc_nc, actif, updated_a
 
 // Affiche tout de suite les données locales (fightersData.js), puis les remplace
 // par celles de Supabase si la base répond. En cas de panne, le site reste fonctionnel.
+// Une seule requête partagée entre les pages (accueil, combattants, simulateur).
+let request = null;
+const loadFighters = () =>
+  (request ??= fetchTable("fighters", "select=*&order=id")
+    .then((rows) => (rows.length ? rows.map(fromRow) : null))
+    .catch(() => null));
+
 export function useFighters() {
   const [fighters, setFighters] = useState(FIGHTERS);
 
   useEffect(() => {
     if (!supabaseEnabled) return;
     let cancelled = false;
-    fetchTable("fighters", "select=*&order=id")
-      .then((rows) => {
-        if (!cancelled && rows.length) setFighters(rows.map(fromRow));
-      })
-      .catch(() => {});
+    loadFighters().then((rows) => {
+      if (!cancelled && rows) setFighters(rows);
+    });
     return () => { cancelled = true; };
   }, []);
 

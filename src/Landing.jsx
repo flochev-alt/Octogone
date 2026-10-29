@@ -3,11 +3,12 @@ import { ArrowRight, Swords, Trophy, Newspaper, Radio } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 import { eventName } from "./Media.jsx";
 import { UPCOMING } from "./mediaData.js";
-import { FIGHTERS } from "./fightersData.js";
+import { useFighters } from "./useFighters.js";
 
-// Bandeau défilant : les bilans sont lus dans fightersData.js pour rester à jour automatiquement.
-const TICKER_FIGHTERS = ["Islam Makhachev", "Alex Pereira", "Ciryl Gane", "Alexandre Pantoja", "Justin Gaethje", "Khamzat Chimaev"]
-  .map((nom) => FIGHTERS.find((f) => f.nom === nom))
+// Bandeau défilant : les bilans sont lus dans la base (Supabase, sinon fightersData.js) pour rester à jour.
+const TICKER_NAMES = ["Islam Makhachev", "Alex Pereira", "Ciryl Gane", "Alexandre Pantoja", "Justin Gaethje", "Khamzat Chimaev"];
+const tickerFrom = (fighters) => TICKER_NAMES
+  .map((nom) => fighters.find((f) => f.nom === nom))
   .filter(Boolean)
   .map((f) => ({ nom: f.nom, record: `${f.victoires}-${f.defaites}-${f.nuls}` }));
 
@@ -29,6 +30,7 @@ function getTodayHighlight() {
 export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
+  const tickerFighters = tickerFrom(useFighters());
   const todayHighlight = getTodayHighlight();
   const [particles, setParticles] = useState([]);
   const lastSpawn = useRef(0);
@@ -236,7 +238,7 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
         {/* Ticker */}
         <div className="rise absolute bottom-8 left-0 right-0 overflow-hidden" style={{ animationDelay: "700ms" }}>
           <div className="flex whitespace-nowrap ticker-track">
-            {[...TICKER_FIGHTERS, ...TICKER_FIGHTERS, ...TICKER_FIGHTERS].map((f, i) => (
+            {[...tickerFighters, ...tickerFighters, ...tickerFighters].map((f, i) => (
               <span key={i} className="mono text-xs text-neutral-600 mx-6 flex items-center gap-2">
                 {f.nom} <span className="text-amber-400/60">{f.record}</span>
               </span>
