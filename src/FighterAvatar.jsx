@@ -11,7 +11,7 @@ export default function FighterAvatar({ name, photo, size = 44, gold = false, cl
       } ${className}`}
     >
       {photo ? (
-        <img src={photo} alt={name} loading="lazy" className="shoot w-full h-full object-cover object-top" />
+        <img src={photo} alt={name} loading="lazy" className="w-full h-full object-cover object-top" />
       ) : (
         <span aria-hidden="true">{initialsOf(name)}</span>
       )}

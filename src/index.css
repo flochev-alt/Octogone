@@ -18,11 +18,8 @@ body {
   margin: 0;
 }
 
-/* Traitement « shooting » des photos libres : noir et blanc contrasté, teinte or, bords fondus dans le noir. */
-.shoot {
-  filter: grayscale(1) sepia(0.55) saturate(1.5) contrast(1.3) brightness(0.88);
-}
-.shoot-fade {
+/* Bords des grandes photos fondus dans le noir du site (photos en couleur, sans filtre). */
+.photo-fade {
   -webkit-mask-image: radial-gradient(ellipse 75% 85% at 50% 30%, #000 50%, transparent 100%);
   mask-image: radial-gradient(ellipse 75% 85% at 50% 30%, #000 50%, transparent 100%);
 }
