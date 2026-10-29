@@ -7,6 +7,7 @@ import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
 import { useFighters } from "./useFighters.js";
 import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
+import { usePhotos, creditOf } from "./usePhotos.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
@@ -188,6 +189,9 @@ export default function App() {
 
   // Une recherche porte sur toute la base (toutes catégories), sinon on affiche la catégorie choisie.
   const allFighters = useFighters();
+  // Photos libres (Wikimedia Commons), chargées seulement sur l'onglet Combattants.
+  const photos = usePhotos(view === "combattants" ? allFighters.map((f) => f.nom) : []);
+  const photoOf = (f) => (f.photo ? { url: f.photo } : photos[f.nom] || null);
   const categories = useMemo(() => CATEGORY_ORDER.filter((c) => allFighters.some((f) => f.categorie === c)), [allFighters]);
   const searching = query.trim().length >= 2;
   const fighters = useMemo(() => {
@@ -387,7 +391,7 @@ export default function App() {
                     className="row-rise rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-5 flex items-center gap-4"
                   >
                     {f ? (
-                      <FighterAvatar name={c.name} photo={f.photo} size={52} gold />
+                      <FighterAvatar name={c.name} photo={photoOf(f)?.url} size={52} gold />
                     ) : (
                       <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
                         <Trophy className="w-5 h-5 text-amber-400" />
@@ -416,8 +420,8 @@ export default function App() {
                   >
                     {/* Portrait à droite : la photo détourée si on l'a, sinon les initiales en grand */}
                     <div className="absolute right-0 bottom-0 top-0 w-1/2 flex items-end justify-center">
-                      {champion.photo ? (
-                        <img src={champion.photo} alt={champion.nom} className="h-full w-full object-cover object-top" />
+                      {photoOf(champion) ? (
+                        <img src={photoOf(champion).url} alt={champion.nom} className="h-full w-full object-cover object-top [mask-image:linear-gradient(to_right,transparent,black_45%)]" />
                       ) : (
                         <span aria-hidden="true" className="disp text-[7rem] sm:text-[8rem] leading-none text-amber-400/25 self-center">{initialsOf(champion.nom)}</span>
                       )}
@@ -459,7 +463,7 @@ export default function App() {
                         <span className={`mono text-sm w-6 shrink-0 ${f.rang === 0 || f.rang === 1 ? "text-amber-400" : "text-neutral-500"}`}>
                           {f.rang === 0 ? "C" : f.rang != null ? f.rang : "–"}
                         </span>
-                        <FighterAvatar name={f.nom} photo={f.photo} size={44} gold={f.rang === 0 || f.rang === 1} />
+                        <FighterAvatar name={f.nom} photo={photoOf(f)?.url} size={44} gold={f.rang === 0 || f.rang === 1} />
                         <span className="flex-1 min-w-0 flex flex-col">
                           <span className="font-semibold text-[15px] truncate">{f.nom}</span>
                           <span className="text-xs text-neutral-400 truncate">
@@ -481,7 +485,7 @@ export default function App() {
             )}
           </main>
 
-          {selected && <FighterPanel fighter={selected} closing={closing} onClose={closePanel} lang={lang} t={t} />}
+          {selected && <FighterPanel fighter={selected} photo={photoOf(selected)} closing={closing} onClose={closePanel} lang={lang} t={t} />}
         </>
       )}
 
@@ -515,7 +519,7 @@ function SearchBox({ query, setQuery, t, className = "" }) {
 
 // Fiche combattant : tout vient de notre base vérifiée (fightersData.js). L'API Octagon ne sert
 // plus qu'au lieu de naissance et à la salle d'entraînement, quand elle connaît le combattant.
-function FighterPanel({ fighter, onClose, closing, lang, t }) {
+function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
   const [extra, setExtra] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -543,8 +547,8 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
       >
         <div className="relative h-80 overflow-hidden bg-neutral-950 flex items-center justify-center">
           <div className="panel-flash absolute inset-0 bg-white z-10 pointer-events-none" />
-          {fighter.photo ? (
-            <img src={fighter.photo} alt={fighter.nom} className="walkout absolute inset-0 w-full h-full object-cover object-top" />
+          {photo ? (
+            <img src={photo.url} alt={fighter.nom} className="walkout absolute inset-0 w-full h-full object-cover object-top" />
           ) : (
             <>
               <div className="glow-pulse absolute w-64 h-64 rounded-full bg-amber-400/30 blur-2xl -translate-y-12" />
@@ -580,6 +584,11 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
           </div>
         </div>
 
+        {photo?.page && (
+          <a href={photo.page} target="_blank" rel="noopener noreferrer" className="block px-5 pt-2 text-[10px] text-neutral-500 hover:text-neutral-300 truncate">
+            {t.photoBy} {creditOf(photo)}
+          </a>
+        )}
         <div className="p-5 space-y-4">
           <div className="row-rise grid grid-cols-3 gap-2">
             <Tile value={formatRecord(fighter.victoires, fighter.defaites, fighter.nuls, fighter.nc)} label={t.proRecord} gold />
