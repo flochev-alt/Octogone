@@ -5,7 +5,7 @@ import Landing from "./Landing.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
-import { FIGHTERS } from "./fightersData.js";
+import { useFighters } from "./useFighters.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
@@ -161,8 +161,6 @@ const RESULT_STYLE = {
   NC: "bg-neutral-700/60 text-neutral-300",
 };
 
-const CATEGORIES = CATEGORY_ORDER.filter((c) => FIGHTERS.some((f) => f.categorie === c));
-
 export default function App() {
   const [view, setView] = useState("landing");
   const changeView = (v) => setView(v);
@@ -189,14 +187,16 @@ export default function App() {
   const [cookiesOpen, setCookiesOpen] = useState(false);
 
   // Une recherche porte sur toute la base (toutes catégories), sinon on affiche la catégorie choisie.
+  const allFighters = useFighters();
+  const categories = useMemo(() => CATEGORY_ORDER.filter((c) => allFighters.some((f) => f.categorie === c)), [allFighters]);
   const searching = query.trim().length >= 2;
   const fighters = useMemo(() => {
     if (searching) {
       const q = normName(query);
-      return FIGHTERS.filter((f) => normName(f.nom).includes(q)).sort(byRank);
+      return allFighters.filter((f) => normName(f.nom).includes(q)).sort(byRank);
     }
-    return FIGHTERS.filter((f) => f.categorie === categorie).sort(byRank);
-  }, [categorie, query, searching]);
+    return allFighters.filter((f) => f.categorie === categorie).sort(byRank);
+  }, [allFighters, categorie, query, searching]);
 
   const champion = !searching && fighters.find((f) => f.rang === 0);
   const listed = champion ? fighters.filter((f) => f !== champion) : fighters;
@@ -361,7 +361,7 @@ export default function App() {
               >
                 <Trophy className="w-3.5 h-3.5" /> {t.champions}
               </button>
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <button
                   key={c}
                   onClick={() => { setCategorie(c); setQuery(""); }}
