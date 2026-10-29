@@ -3,7 +3,7 @@ import { Newspaper, MapPin, CheckCircle2, Search } from "lucide-react";
 import { T, L, formatDate, translateMethod } from "./i18n.js";
 import { useMedia } from "./useMedia.js";
 import { useFighters } from "./useFighters.js";
-import FighterBadge from "./FighterBadge.jsx";
+import FighterAvatar from "./FighterAvatar.jsx";
 
 export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" : ", ": "));
 
@@ -26,8 +26,8 @@ function FightersBadges({ fighters, highlight }) {
   if (!fighters || fighters.length < 2) return <Avatar label="UFC" highlight={highlight} />;
   return (
     <div className="flex -space-x-2 shrink-0">
-      <FighterBadge name={fighters[0]} size={36} gold={highlight} base="bg-neutral-800" />
-      <FighterBadge name={fighters[1]} size={36} gold={highlight} base="bg-neutral-800" />
+      <FighterAvatar name={fighters[0]} size={36} gold={highlight} />
+      <FighterAvatar name={fighters[1]} size={36} gold={highlight} />
     </div>
   );
 }
@@ -37,15 +37,15 @@ function FaceOff({ names }) {
   const roster = useFighters();
   const photoOf = (n) => roster.find((f) => f.nom === n)?.photo;
   return (
-    <div className="relative overflow-hidden mt-3 rounded-xl border border-amber-400/30 bg-neutral-950 px-4 py-5 flex items-center justify-between gap-3">
+    <div className="relative overflow-hidden mt-3 rounded-xl border border-amber-400/30 bg-neutral-950 px-4 py-5 flex items-start justify-between gap-3">
       <div className="glow-pulse absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-amber-400/20 blur-3xl pointer-events-none" />
       {names.map((n, i) => (
         <div key={n} className={`relative flex-1 min-w-0 flex flex-col items-center gap-2 text-center ${i === 1 ? "order-3" : ""}`}>
-          <FighterBadge name={n} photo={photoOf(n)} size={72} gold />
+          <FighterAvatar name={n} photo={photoOf(n)} size={72} gold />
           <span className="disp text-sm leading-tight">{n}</span>
         </div>
       ))}
-      <span className="relative order-2 disp text-sm w-10 h-10 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center shrink-0">VS</span>
+      <span className="relative order-2 self-start mt-4 disp text-sm w-10 h-10 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center shrink-0">VS</span>
     </div>
   );
 }
