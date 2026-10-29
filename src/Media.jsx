@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Newspaper, MapPin, CheckCircle2, Search } from "lucide-react";
+import { Newspaper, MapPin, CheckCircle2, Search, Play } from "lucide-react";
 import { T, L, formatDate, translateMethod } from "./i18n.js";
 import { useMedia } from "./useMedia.js";
+import { useFighters } from "./useFighters.js";
+import FighterAvatar from "./FighterAvatar.jsx";
 
 export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" : ", ": "));
 
@@ -9,7 +11,6 @@ export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" 
 const byIsoDesc = (a, b) => (a.iso < b.iso ? 1 : -1);
 
 const shortDate = (iso, lang) => formatDate(iso, lang, { day: "numeric", month: "short", year: "numeric" });
-const initialsOf = (n) => n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
 function Avatar({ label, highlight }) {
   return (
@@ -25,16 +26,26 @@ function FightersBadges({ fighters, highlight }) {
   if (!fighters || fighters.length < 2) return <Avatar label="UFC" highlight={highlight} />;
   return (
     <div className="flex -space-x-2 shrink-0">
-      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[10px] border-2 border-neutral-950 ${
-        highlight ? "bg-amber-400 text-neutral-950" : "bg-neutral-800 text-neutral-300"
-      }`}>
-        {initialsOf(fighters[0])}
-      </div>
-      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[10px] border-2 border-neutral-950 ${
-        highlight ? "bg-amber-300 text-neutral-950" : "bg-neutral-700 text-neutral-300"
-      }`}>
-        {initialsOf(fighters[1])}
-      </div>
+      <FighterAvatar name={fighters[0]} size={36} gold={highlight} />
+      <FighterAvatar name={fighters[1]} size={36} gold={highlight} />
+    </div>
+  );
+}
+
+// Face-à-face des affiches mises en avant : écussons (ou photos) des deux combattants.
+function FaceOff({ names }) {
+  const roster = useFighters();
+  const photoOf = (n) => roster.find((f) => f.nom === n)?.photo;
+  return (
+    <div className="relative overflow-hidden mt-3 rounded-xl border border-amber-400/30 bg-neutral-950 px-4 py-5 flex items-start justify-between gap-3">
+      <div className="glow-pulse absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-amber-400/20 blur-3xl pointer-events-none" />
+      {names.map((n, i) => (
+        <div key={n} className={`relative flex-1 min-w-0 flex flex-col items-center gap-2 text-center ${i === 1 ? "order-3" : ""}`}>
+          <FighterAvatar name={n} photo={photoOf(n)} size={72} gold />
+          <span className="disp text-sm leading-tight">{n}</span>
+        </div>
+      ))}
+      <span className="relative order-2 self-start mt-4 disp text-sm w-10 h-10 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center shrink-0">VS</span>
     </div>
   );
 }
@@ -62,7 +73,8 @@ function UpcomingPost({ c, lang, t }) {
         </div>
         <div className="disp text-base mt-1">{eventName(c.name, lang)}</div>
         <div className="text-sm text-neutral-200 mt-1">{L(c.main, lang)}</div>
-        {c.note && <div className="text-xs text-neutral-500 mt-1">{L(c.note, lang)}</div>}
+        {c.highlight && c.fighters?.length === 2 && <FaceOff names={c.fighters} />}
+        {c.note && <div className="text-xs text-neutral-500 mt-2">{L(c.note, lang)}</div>}
         <div className="flex items-center gap-1.5 text-xs text-neutral-500 mt-2">
           <MapPin className="w-3 h-3" /> {L(c.location, lang)}
           <CheckCircle2 className="w-3 h-3 text-amber-400 ml-2" /> {t.official}
@@ -189,6 +201,74 @@ function TweetPost({ tw, lang, t }) {
   );
 }
 
+// Nom de famille pour les titres d'affiche : "Carlos Prates" -> "Prates".
+const lastName = (n) => n.split(" ").slice(1).join(" ") || n;
+
+// Affiche « À venir » : les deux combattants face à face, en grand, comme un poster.
+function UpcomingPoster({ c, lang, t }) {
+  const roster = useFighters();
+  const photoOf = (n) => roster.find((f) => f.nom === n)?.photo;
+  return (
+    <section className="row-rise rounded-2xl overflow-hidden border border-amber-400/35 bg-neutral-900">
+      <div className="relative h-56 sm:h-64 flex">
+        {c.fighters.map((n) => (
+          <div key={n} className="relative flex-1 overflow-hidden bg-[radial-gradient(circle_at_50%_35%,rgba(251,191,36,0.22),#0a0a0a_70%)] flex items-start justify-center pt-6">
+            {photoOf(n) ? (
+              <img src={photoOf(n)} alt={n} className="absolute inset-0 w-full h-full object-cover object-top" />
+            ) : (
+              <span aria-hidden="true" className="disp text-6xl sm:text-7xl text-amber-400/30">{n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>
+            )}
+          </div>
+        ))}
+        <span className="absolute left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 disp text-base w-14 h-14 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center shadow-2xl">VS</span>
+        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-neutral-900 to-transparent" />
+        <div className="absolute left-4 right-4 bottom-3 disp text-2xl leading-tight">
+          {lastName(c.fighters[0])} vs. {lastName(c.fighters[1])}
+        </div>
+      </div>
+      <div className="px-4 pb-4 pt-1">
+        <div className="text-sm font-semibold text-amber-400">
+          {eventName(c.name, lang)}{c.badge ? ` · ${L(c.badge, lang)}` : c.highlight ? ` · ${t.titleFight}` : ""}
+        </div>
+        <div className="text-xs text-neutral-400 mt-1">{formatDate(c.iso, lang)} · {L(c.location, lang)}</div>
+      </div>
+    </section>
+  );
+}
+
+// Carte « Derniers résultats » : vignette vers la vidéo du finish, puis les deux premiers combats.
+function LatestResults({ card, lang, t }) {
+  return (
+    <section className="row-rise rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-900">
+      {card.tweetUrl && (
+        <a
+          href={card.tweetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="tap relative h-36 flex items-center justify-center bg-[repeating-linear-gradient(135deg,#3a2f10_0_10px,#2a220b_10px_20px)]"
+        >
+          <span className="w-14 h-14 rounded-full bg-neutral-950/80 border border-amber-400 flex items-center justify-center">
+            <Play className="w-5 h-5 text-amber-400 fill-amber-400 ml-0.5" />
+          </span>
+          <span className="absolute left-3 top-3 mono text-[10px] uppercase tracking-widest text-amber-400 bg-neutral-950 rounded-md px-2 py-1">{t.finishVideo}</span>
+        </a>
+      )}
+      <div className="px-4 py-3.5 space-y-1.5">
+        <div className="disp text-lg">{eventName(card.name, lang)}</div>
+        {card.results.slice(0, 2).map((r, i) => {
+          const [winner, loser] = r.fight.split(" def. ");
+          return (
+            <div key={i} className="text-sm">
+              <span className="text-amber-400 font-semibold">{lastName(winner)}</span>
+              <span className="text-neutral-400"> {t.beat} {loser ? lastName(loser) : ""} · {translateMethod(r.method, lang)}</span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 // Toutes les versions d'un texte multilingue, pour que la recherche marche quelle que soit la langue tapée.
 const allLangs = (v) => (v && typeof v === "object" ? Object.values(v) : [v]);
 
@@ -226,6 +306,14 @@ export default function Media({ lang = "fr" }) {
 
   const noResults = filteredFeed.length === 0 && filteredTrashTalk.length === 0;
 
+  // À la une : la prochaine affiche (avec ses deux combattants) et le dernier événement terminé.
+  const today = new Date().toISOString().slice(0, 10);
+  const nextPoster = useMemo(
+    () => items.filter((i) => i.type === "upcoming" && i.iso >= today && i.data.fighters?.length === 2).sort((a, b) => (a.iso < b.iso ? -1 : 1))[0]?.data,
+    [items, today]
+  );
+  const latestRecap = useMemo(() => feed.find((i) => i.type === "recap")?.data, [feed]);
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       <div className="row-rise flex items-center gap-2 px-5 py-6">
@@ -244,6 +332,24 @@ export default function Media({ lang = "fr" }) {
           />
         </div>
       </div>
+
+      {!query.trim() && (nextPoster || latestRecap) && (
+        <div className="px-5 pb-6 space-y-6">
+          {nextPoster && (
+            <div>
+              <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-2">{t.upcomingLabel}</div>
+              <UpcomingPoster c={nextPoster} lang={lang} t={t} />
+            </div>
+          )}
+          {latestRecap && (
+            <div>
+              <div className="mono text-[10px] uppercase tracking-widest text-neutral-400 mb-2">{t.latestResults}</div>
+              <LatestResults card={latestRecap} lang={lang} t={t} />
+            </div>
+          )}
+          <div className="mono text-[10px] uppercase tracking-widest text-neutral-400 pt-2">{t.newsFeed}</div>
+        </div>
+      )}
 
       <div className="border-t border-neutral-800">
         {filteredFeed.map((item, i) => (

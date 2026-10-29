@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, X, ChevronRight, Trophy, MapPin, Ruler, Users, Swords, Instagram, Cake, Dumbbell, Medal } from "lucide-react";
+import { Search, X, ChevronRight, Trophy, MapPin, Users, Swords, Instagram, Cake, Dumbbell, Medal } from "lucide-react";
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
 import { useFighters } from "./useFighters.js";
+import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
 import { RECENT_FIGHTS } from "./recentFights.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
@@ -141,7 +142,6 @@ const CHAMPIONS = [
   },
 ];
 
-const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
 const METHOD_COLOR = {
   "KO": "text-amber-400 border-amber-400/30 bg-amber-400/10",
@@ -378,15 +378,21 @@ export default function App() {
 
             {categorie === "champions" && !searching ? (
               <div className="space-y-2">
-                {CHAMPIONS.map((c, i) => (
+                {CHAMPIONS.map((c, i) => {
+                  const f = allFighters.find((x) => x.nom === c.name);
+                  return (
                   <div
                     key={i}
                     style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
                     className="row-rise rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 p-5 flex items-center gap-4"
                   >
-                    <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
-                      <Trophy className="w-5 h-5 text-amber-400" />
-                    </div>
+                    {f ? (
+                      <FighterAvatar name={c.name} photo={f.photo} size={52} gold />
+                    ) : (
+                      <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
+                        <Trophy className="w-5 h-5 text-amber-400" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{translateCategory(c.categorie, lang)}</div>
                       <div className="disp text-lg truncate">{c.name}</div>
@@ -396,7 +402,8 @@ export default function App() {
                       <div className="text-xs text-neutral-400 mt-1">{L(c.note, lang)}</div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
                 <SearchBox query={query} setQuery={setQuery} t={t} className="mt-6" />
               </div>
             ) : (
@@ -405,21 +412,35 @@ export default function App() {
                   <button
                     key={categorie + "-champ"}
                     onClick={() => setSelected(champion)}
-                    className="tap row-rise w-full text-left mb-6 rounded-2xl border border-neutral-800 bg-gradient-to-br from-neutral-900 to-neutral-950 hover:border-amber-400/40 p-5 flex items-center gap-4"
+                    className="tap row-rise relative overflow-hidden w-full h-56 sm:h-64 text-left mb-6 rounded-2xl border border-amber-400/35 hover:border-amber-400/70 bg-[radial-gradient(circle_at_75%_40%,rgba(251,191,36,0.35),#0a0a0a_65%)]"
                   >
-                    <div className="w-11 h-11 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
-                      <Trophy className="w-5 h-5 text-amber-400" />
+                    {/* Portrait à droite : la photo détourée si on l'a, sinon les initiales en grand */}
+                    <div className="absolute right-0 bottom-0 top-0 w-1/2 flex items-end justify-center">
+                      {champion.photo ? (
+                        <img src={champion.photo} alt={champion.nom} className="h-full w-full object-cover object-top" />
+                      ) : (
+                        <span aria-hidden="true" className="disp text-[7rem] sm:text-[8rem] leading-none text-amber-400/25 self-center">{initialsOf(champion.nom)}</span>
+                      )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{t.champion} — {translateCategory(categorie, lang)}</div>
-                      <div className="disp text-xl truncate">{champion.nom}</div>
+                    <div className="absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-neutral-950 via-neutral-950/80 to-transparent" />
+                    <div className="relative h-full p-5 sm:p-6 flex flex-col justify-center max-w-[65%]">
+                      <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-1.5">
+                        {t.champion} · {translateCategory(categorie, lang)}
+                      </div>
+                      <div className="disp text-3xl sm:text-4xl leading-[1.02]">{champion.nom}</div>
+                      <div className="mono text-2xl text-amber-400 mt-3 tracking-tight">
+                        {formatRecord(champion.victoires, champion.defaites, champion.nuls, champion.nc)}
+                      </div>
+                      {champion.ko > 0 && <div className="text-xs text-neutral-400 mt-1">{t.koShare(champion.ko)}</div>}
                     </div>
-                    <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
                   </button>
                 )}
 
                 <SearchBox query={query} setQuery={setQuery} t={t} className="mb-6" />
 
+                {!searching && listed.some((f) => f.rang != null) && (
+                  <p className="mono text-[10px] uppercase tracking-widest text-neutral-500 mb-2">{t.officialRanking}</p>
+                )}
                 {searching && fighters.length > 0 && (
                   <p className="text-[11px] uppercase tracking-widest text-neutral-500 mb-3">{t.allCategories}</p>
                 )}
@@ -433,16 +454,21 @@ export default function App() {
                       <button
                         onClick={() => setSelected(f)}
                         style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
-                        className="tap row-rise w-full text-left rounded-xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3.5 flex items-center gap-4"
+                        className="tap row-rise w-full text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-2.5 flex items-center gap-3"
                       >
-                        <span className={`mono text-xs w-6 shrink-0 ${f.rang === 0 ? "text-amber-400" : "text-neutral-500"}`}>
-                          {f.rang === 0 ? "C" : f.rang != null ? String(f.rang).padStart(2, "0") : "–"}
+                        <span className={`mono text-sm w-6 shrink-0 ${f.rang === 0 || f.rang === 1 ? "text-amber-400" : "text-neutral-500"}`}>
+                          {f.rang === 0 ? "C" : f.rang != null ? f.rang : "–"}
                         </span>
-                        <span className="flex-1 font-medium text-sm truncate">{f.nom}</span>
-                        {searching && (
-                          <span className="text-[11px] text-neutral-500 shrink-0 hidden sm:inline">{translateCategory(f.categorie, lang)}</span>
-                        )}
-                        <ChevronRight className="w-4 h-4 text-neutral-500 shrink-0" />
+                        <FighterAvatar name={f.nom} photo={f.photo} size={44} gold={f.rang === 0 || f.rang === 1} />
+                        <span className="flex-1 min-w-0 flex flex-col">
+                          <span className="font-semibold text-[15px] truncate">{f.nom}</span>
+                          <span className="text-xs text-neutral-400 truncate">
+                            {searching ? translateCategory(f.categorie, lang) : formatStyle(f.style, lang)}
+                          </span>
+                        </span>
+                        <span className="mono text-sm text-neutral-300 shrink-0">
+                          {`${f.victoires}-${f.defaites}-${f.nuls}`}
+                        </span>
                       </button>
                     </div>
                   ))}
@@ -507,6 +533,7 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
   const recent = RECENT_FIGHTS[fighter.id];
   const age = ageFrom(fighter.naissance);
   const rankLabel = fighter.rang === 0 ? t.champion : fighter.rang != null ? `#${fighter.rang}` : null;
+  const heroRank = fighter.rang === 0 ? t.champion : fighter.rang != null ? `${lang === "fr" ? "N°" : "#"}${fighter.rang}` : null;
 
   return (
     <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 ${closing ? "backdrop-exit" : "backdrop-enter"}`} onClick={onClose}>
@@ -514,50 +541,69 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
         className={`bg-neutral-900 border border-neutral-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[85vh] overflow-y-auto ${closing ? "sheet-exit" : "sheet-enter"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative h-56 overflow-hidden bg-neutral-950 flex items-center justify-center">
+        <div className="relative h-80 overflow-hidden bg-neutral-950 flex items-center justify-center">
           <div className="panel-flash absolute inset-0 bg-white z-10 pointer-events-none" />
-          <div className="glow-pulse absolute w-56 h-56 rounded-full bg-amber-400/30 blur-2xl" />
-          <div className="ring-spin absolute w-40 h-40 rounded-full border-2 border-dashed border-amber-400/25" />
-          <div className="walkout relative w-28 h-28 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl">
-            <span className="disp text-4xl text-neutral-950">{initials(fighter.nom)}</span>
-          </div>
-          <button onClick={onClose} className="tap absolute top-4 right-4 bg-neutral-950/60 backdrop-blur rounded-full p-1.5 text-neutral-200 hover:text-white">
+          {fighter.photo ? (
+            <img src={fighter.photo} alt={fighter.nom} className="walkout absolute inset-0 w-full h-full object-cover object-top" />
+          ) : (
+            <>
+              <div className="glow-pulse absolute w-64 h-64 rounded-full bg-amber-400/30 blur-2xl -translate-y-12" />
+              <div className="ring-spin absolute w-44 h-44 rounded-full border-2 border-dashed border-amber-400/25 -translate-y-12" />
+              <div className="walkout relative w-32 h-32 -translate-y-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl">
+                <span className="disp text-5xl text-neutral-950">{initialsOf(fighter.nom)}</span>
+              </div>
+            </>
+          )}
+          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-neutral-900 via-neutral-900/70 to-transparent" />
+          <button onClick={onClose} aria-label="Fermer" className="tap absolute top-4 right-4 bg-neutral-950/60 backdrop-blur rounded-full p-1.5 text-neutral-200 hover:text-white">
             <X className="w-4 h-4" />
           </button>
-        </div>
-
-        <div className="px-5 pt-4 flex items-center gap-2">
-          <span className="disp text-xl">{fighter.nom}</span>
-          {getInstagram(fighter.nom) && (
-            <a
-              href={`https://instagram.com/${getInstagram(fighter.nom)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="tap w-7 h-7 rounded-full bg-neutral-800 hover:bg-amber-400/20 flex items-center justify-center shrink-0"
-              aria-label={t.instagramOf(fighter.nom)}
-            >
-              <Instagram className="w-3.5 h-3.5 text-neutral-300" />
-            </a>
-          )}
+          <div className="absolute left-5 right-5 bottom-4">
+            <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-1">
+              {[heroRank, translateCategory(fighter.categorie, lang)].filter(Boolean).join(" · ")}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="disp text-3xl leading-tight">{fighter.nom}</span>
+              {getInstagram(fighter.nom) && (
+                <a
+                  href={`https://instagram.com/${getInstagram(fighter.nom)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="tap w-7 h-7 rounded-full bg-neutral-800 hover:bg-amber-400/20 flex items-center justify-center shrink-0"
+                  aria-label={t.instagramOf(fighter.nom)}
+                >
+                  <Instagram className="w-3.5 h-3.5 text-neutral-300" />
+                </a>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="p-5 space-y-4">
-          <div className="row-rise text-center py-4 rounded-xl bg-neutral-950 border border-neutral-800">
-            <div className="mono text-2xl text-amber-400 tracking-tight">
-              {formatRecord(fighter.victoires, fighter.defaites, fighter.nuls, fighter.nc)}
-            </div>
-            <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.record}</div>
-            {fighter.ufcV != null && (
-              <div className="mt-3 pt-3 border-t border-neutral-800 mx-6">
-                <div className="mono text-base text-neutral-200 tracking-tight">{formatRecord(fighter.ufcV, fighter.ufcD, fighter.ufcN, fighter.ufcNc)}</div>
-                <div className="text-[10px] uppercase tracking-widest text-neutral-500 mt-1">{t.ufcRecord}</div>
-              </div>
-            )}
+          <div className="row-rise grid grid-cols-3 gap-2">
+            <Tile value={formatRecord(fighter.victoires, fighter.defaites, fighter.nuls, fighter.nc)} label={t.proRecord} gold />
+            <Tile value={formatHeight(fighter.taille, lang)} label={t.height} />
+            <Tile value={formatHeight(fighter.allonge, lang)} label={t.reach} />
           </div>
+          {fighter.victoires > 0 && fighter.ko + fighter.sub + fighter.dec > 0 && (
+            <div className="row-rise" style={{ animationDelay: "20ms" }}>
+              <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2">{t.winsBy}</div>
+              <div className="h-2.5 rounded-full overflow-hidden flex bg-neutral-800">
+                <div style={{ width: `${fighter.ko}%` }} className="bg-amber-400" />
+                <div style={{ width: `${fighter.sub}%` }} className="bg-amber-700" />
+                <div style={{ width: `${fighter.dec}%` }} className="bg-neutral-500" />
+              </div>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] text-neutral-300">
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-400" />{translateMethod("KO", lang)} {fighter.ko} %</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-700" />{translateMethod("Soumission", lang)} {fighter.sub} %</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-neutral-500" />{translateMethod("Décision", lang)} {fighter.dec} %</span>
+              </div>
+            </div>
+          )}
           <Stat icon={Users} label={t.division} value={translateCategory(fighter.categorie, lang)} delay={40} />
           <Stat icon={Medal} label={t.ranking} value={rankLabel} delay={60} />
-          <Stat icon={Ruler} label={t.heightReach} value={[formatHeight(fighter.taille, lang), formatHeight(fighter.allonge, lang)].filter(Boolean).join(" / ")} delay={80} />
+          <Stat icon={Swords} label={t.ufcRecord} value={fighter.ufcV != null ? formatRecord(fighter.ufcV, fighter.ufcD, fighter.ufcN, fighter.ufcNc) : null} delay={80} />
           <Stat label={t.style} value={formatStyle(fighter.style, lang)} delay={120} />
           <Stat icon={Cake} label={t.age} value={age != null ? t.years(age) : null} delay={160} />
           <Stat icon={MapPin} label={t.birthplace} value={extra?.placeOfBirth} delay={200} />
@@ -573,7 +619,7 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
               <div className="space-y-2">
                 {recent.map((fight, i) => (
                   <div key={i} style={{ animationDelay: `${320 + i * 40}ms` }} className="row-rise flex items-center gap-3 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2.5">
-                    <span className={`mono text-[10px] font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${RESULT_STYLE[fight.result]}`}>
+                    <span className={`mono text-[10px] font-bold w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${RESULT_STYLE[fight.result]}`}>
                       {{ V: t.win, D: t.loss, N: t.draw, NC: t.noContest }[fight.result]}
                     </span>
                     <div className="flex-1 min-w-0">
@@ -590,6 +636,15 @@ function FighterPanel({ fighter, onClose, closing, lang, t }) {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function Tile({ value, label, gold = false }) {
+  return (
+    <div className="rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2.5 min-w-0">
+      <div className={`mono text-base sm:text-lg tracking-tight truncate ${gold ? "text-amber-400" : "text-neutral-100"}`}>{value || "–"}</div>
+      <div className="text-[10px] text-neutral-500 mt-0.5 leading-tight">{label}</div>
     </div>
   );
 }
