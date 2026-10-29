@@ -1,8 +1,7 @@
-// GET /api/photos?names=Ilia Topuria|Justin Gaethje (50 noms max)
-// Cherche une photo libre de droits de chaque combattant :
-// 1. la photo de l'infobox Wikipédia (en, puis fr), gardée seulement si elle est sur Wikimedia Commons ;
-// 2. sinon, une recherche directe sur Commons parmi les fichiers dont le nom contient le nom complet
-//    du combattant (photo d'événement UFC d'abord, puis la plus récente).
+// GET /api/photos?names=Ilia Topuria|Justin Gaethje (25 noms max)
+// Cherche une photo libre de droits (Wikimedia Commons) de chaque combattant, parmi :
+// la photo de son infobox Wikipédia (en, puis fr), les fichiers Commons portant son nom complet
+// et ceux de sa catégorie Commons. On garde la plus récente (puis prise en événement UFC, puis la plus grande).
 // Les photos trop petites (< 500 px de large) sont écartées. Renvoie une version HD (1200 px),
 // l'auteur et la licence pour le crédit affiché sur le site. Réponse mise en cache 7 jours par Vercel.
 const UA = "Octogone/1.0 (https://octogone.space)";
@@ -67,56 +66,57 @@ async function commonsInfo(files) {
       author: stripHtml(meta.Artist?.value),
       license: stripHtml(meta.LicenseShortName?.value) || "",
       page: ii.descriptionurl,
-      date: stripHtml(meta.DateTimeOriginal?.value).slice(0, 10),
+      date: stripHtml(meta.DateTimeOriginal?.value || meta.DateTime?.value).slice(0, 10),
       width: ii.width,
     };
   }
   return out;
 }
 
-// Recherche directe sur Commons : fichiers image dont le titre contient le nom complet du combattant.
+// Recherches directes sur Commons pour un combattant :
+// - fichiers dont le titre contient son nom complet ;
+// - fichiers de sa catégorie Commons (« Category:Nom »), si le titre contient au moins son nom de famille.
 async function commonsSearch(name) {
-  const data = await api("commons.wikimedia.org", {
-    action: "query", list: "search", srnamespace: "6", srlimit: "10",
-    srsearch: `intitle:"${name}" filetype:bitmap`,
-  });
   const n = norm(name);
-  return (data.query?.search || [])
-    .map((r) => r.title.replace(/^File:/, ""))
-    .filter((f) => norm(f).includes(n))
-    .slice(0, 6);
+  const last = norm(name.split(" ").slice(-1)[0]);
+  const search = (srsearch) =>
+    api("commons.wikimedia.org", { action: "query", list: "search", srnamespace: "6", srlimit: "20", srsearch })
+      .then((d) => (d.query?.search || []).map((r) => r.title.replace(/^File:/, "")))
+      .catch(() => []);
+  const [byTitle, byCategory] = await Promise.all([
+    search(`intitle:"${name}" filetype:bitmap`),
+    search(`incategory:"${name}" filetype:bitmap`),
+  ]);
+  return [...new Set([
+    ...byTitle.filter((f) => norm(f).includes(n)),
+    ...byCategory.filter((f) => norm(f).includes(last)),
+  ])].slice(0, 15);
 }
 
+// Meilleure photo : la plus récente d'abord, puis celle prise en événement UFC, puis la plus grande.
+const ufc = (c) => (/ufc/i.test(c.page) ? 1 : 0);
+const best = (list) =>
+  list.filter(Boolean).sort((a, b) => (b.date || "0").localeCompare(a.date || "0") || ufc(b) - ufc(a) || b.width - a.width)[0];
+
 export default async function handler(req, res) {
-  const names = String(req.query.names || "").split("|").map((n) => n.trim()).filter(Boolean).slice(0, 50);
+  const names = String(req.query.names || "").split("|").map((n) => n.trim()).filter(Boolean).slice(0, 25);
   if (!names.length) return res.status(400).json({ error: "names manquant" });
   try {
-    const files = await infoboxFiles("en", names);
-    const missing = names.filter((n) => !files[n]);
-    if (missing.length) Object.assign(files, await infoboxFiles("fr", missing));
-    const info = await commonsInfo(Object.values(files));
-    const photos = {};
-    for (const [name, file] of Object.entries(files)) {
-      const i = info[file.replace(/ /g, "_")];
-      if (i) photos[name] = i;
-    }
-
-    // Pas de photo d'infobox exploitable : recherche directe sur Commons, on garde la plus récente.
-    const rest = names.filter((n) => !photos[n]);
+    // Photo de l'infobox (en, puis fr) + recherches Commons, pour chaque combattant.
+    const infobox = await infoboxFiles("en", names);
+    const missing = names.filter((n) => !infobox[n]);
+    if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing));
     const found = [];
-    for (let i = 0; i < rest.length; i += 10) {
-      // 10 recherches à la fois, pour rester poli avec l'API Wikimedia.
-      found.push(...(await Promise.all(rest.slice(i, i + 10).map((n) => commonsSearch(n).catch(() => [])))));
+    for (let i = 0; i < names.length; i += 5) {
+      // 5 combattants à la fois, pour rester poli avec l'API Wikimedia.
+      found.push(...(await Promise.all(names.slice(i, i + 5).map((n) => commonsSearch(n).catch(() => [])))));
     }
-    const candidates = await commonsInfo(found.flat());
-    rest.forEach((name, k) => {
-      // Priorité aux photos prises en événement UFC (souvent dans la cage), puis à la plus récente.
-      const ufc = (c) => (/ufc/i.test(c.page) ? 1 : 0);
-      const best = found[k]
-        .map((f) => candidates[f.replace(/ /g, "_")])
-        .filter(Boolean)
-        .sort((a, b) => ufc(b) - ufc(a) || (b.date || "").localeCompare(a.date || "") || b.width - a.width)[0];
-      if (best) photos[name] = best;
+    const files = names.map((n, k) => [...new Set([infobox[n], ...found[k]].filter(Boolean))]);
+    const info = await commonsInfo(files.flat());
+    const photos = {};
+    names.forEach((name, k) => {
+      const pick = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
+      if (pick) photos[name] = pick;
     });
     res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=86400");
     res.status(200).json(photos);
