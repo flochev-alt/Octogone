@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Swords, Trophy, Newspaper, Radio } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
-import { UPCOMING, eventName } from "./Media.jsx";
+import { eventName } from "./Media.jsx";
+import { UPCOMING } from "./mediaData.js";
 import { FIGHTERS } from "./fightersData.js";
 
 // Bandeau défilant : les bilans sont lus dans fightersData.js pour rester à jour automatiquement.
