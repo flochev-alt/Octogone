@@ -62,17 +62,24 @@ alter table public.fighters add column if not exists style     text[];
 create index if not exists fighters_categorie_idx on public.fighters (categorie);
 
 -- ─────────────────────────────────────────────
--- Fil Média (cartes à venir, résultats, réactions, trash talk)
+-- Fil Média (cartes à venir, résultats, réactions, posts X, trash talk)
 -- ─────────────────────────────────────────────
 create table if not exists public.media_posts (
   id          bigint generated always as identity primary key,
-  type        text not null check (type in ('upcoming', 'recap', 'reaction', 'trash_talk')),
+  slug        text unique,                   -- clé stable des posts venant de mediaData.js (null = ajouté à la main)
+  type        text not null check (type in ('upcoming', 'recap', 'reaction', 'tweet', 'trash_talk')),
   iso         date,                          -- date de l'événement / du post, sert au tri
   data        jsonb not null,                -- même forme que les objets de Media.jsx
   publie      boolean not null default true,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
+
+-- Ajouts après la première version : sans effet s'ils existent déjà.
+alter table public.media_posts add column if not exists slug text unique;
+alter table public.media_posts drop constraint if exists media_posts_type_check;
+alter table public.media_posts add constraint media_posts_type_check
+  check (type in ('upcoming', 'recap', 'reaction', 'tweet', 'trash_talk'));
 
 create index if not exists media_posts_type_iso_idx on public.media_posts (type, iso desc);
 
