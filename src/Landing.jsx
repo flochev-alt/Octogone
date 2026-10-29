@@ -56,7 +56,7 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
   }, []);
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-neutral-950 text-neutral-50 overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen min-h-[100dvh] bg-neutral-950 text-neutral-50 overflow-hidden select-none" style={{ fontFamily: "'Inter', sans-serif", WebkitTouchCallout: "none" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
