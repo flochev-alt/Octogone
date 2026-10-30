@@ -334,7 +334,7 @@ export default function Media({ lang = "fr" }) {
   const latestRecap = useMemo(() => feed.find((i) => i.type === "recap")?.data, [feed]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-2xl lg:max-w-5xl mx-auto">
       <div className="row-rise flex items-center gap-2 px-5 py-6">
         <Newspaper className="w-4 h-4 text-amber-400" />
         <span className="text-xs uppercase tracking-widest text-neutral-400">{t.mediaTitle}</span>
@@ -353,7 +353,8 @@ export default function Media({ lang = "fr" }) {
       </div>
 
       {!query.trim() && (nextPoster || latestRecap) && (
-        <div className="px-5 pb-6 space-y-6">
+        // Sur ordinateur, l'affiche et les derniers résultats sont côte à côte.
+        <div className="px-5 pb-6 grid gap-6 lg:grid-cols-2">
           {nextPoster && (
             <div>
               <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-2">{t.upcomingLabel}</div>
@@ -366,11 +367,11 @@ export default function Media({ lang = "fr" }) {
               <LatestResults card={latestRecap} lang={lang} t={t} />
             </div>
           )}
-          <div className="mono text-[10px] uppercase tracking-widest text-neutral-400 pt-2">{t.newsFeed}</div>
+          <div className="mono text-[10px] uppercase tracking-widest text-neutral-400 pt-2 lg:col-span-2">{t.newsFeed}</div>
         </div>
       )}
 
-      <div className="border-t border-neutral-800">
+      <div className="border-t border-neutral-800 lg:max-w-2xl lg:mx-auto">
         {filteredFeed.map((item, i) => (
           <Post key={`${item.type}-${i}`}>
             {item.type === "upcoming" && <UpcomingPost c={item.data} lang={lang} t={t} />}

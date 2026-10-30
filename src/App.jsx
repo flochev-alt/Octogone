@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Fragment } from "react";
 import { Search, X, ChevronRight, Trophy, MapPin, Users, Swords, Instagram, Cake, Dumbbell, Medal } from "lucide-react";
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
@@ -449,11 +449,12 @@ export default function App() {
                   <p className="text-[11px] uppercase tracking-widest text-neutral-500 mb-3">{t.allCategories}</p>
                 )}
 
-                <div key={categorie + query} className="space-y-2">
+                {/* Une colonne sur téléphone, deux à partir de l'écran d'ordinateur. */}
+                <div key={categorie + query} className="grid gap-2 lg:grid-cols-2">
                   {listed.map((f, i) => (
-                    <div key={f.id}>
+                    <Fragment key={f.id}>
                       {i === firstUnranked && (
-                        <p className="text-[11px] uppercase tracking-widest text-neutral-500 pt-4 pb-1">{t.unranked}</p>
+                        <p className="text-[11px] uppercase tracking-widest text-neutral-500 pt-4 pb-1 lg:col-span-2">{t.unranked}</p>
                       )}
                       <button
                         onClick={() => setSelected(f)}
@@ -474,7 +475,7 @@ export default function App() {
                           {`${f.victoires}-${f.defaites}-${f.nuls}`}
                         </span>
                       </button>
-                    </div>
+                    </Fragment>
                   ))}
                 </div>
 
