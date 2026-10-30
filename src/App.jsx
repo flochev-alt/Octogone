@@ -3,9 +3,11 @@ import { Search, X, ChevronLeft, ChevronRight, Trophy, MapPin, Users, Swords, In
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Hub from "./Hub.jsx";
+import CategoryBar from "./CategoryBar.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
+import { initVip } from "./vip.js";
 import { useFighters } from "./useFighters.js";
 import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
 import { usePhotos, creditOf } from "./usePhotos.js";
@@ -212,6 +214,19 @@ export default function App() {
     setLangState(getInitialLang());
   }, []);
 
+  // Accès VIP vérifié dès l'arrivée sur le site (lien octogone.space/?vip=CODE), quelle que soit la page.
+  const [vip, setVip] = useState(false);
+  const [vipToast, setVipToast] = useState(null);
+  useEffect(() => {
+    initVip().then(({ vip, tried }) => {
+      setVip(vip);
+      if (tried) {
+        setVipToast(vip ? "on" : "bad");
+        setTimeout(() => setVipToast(null), 5000);
+      }
+    });
+  }, []);
+
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
@@ -286,12 +301,19 @@ export default function App() {
   const shown = selected && (allFighters.find((f) => f.id === selected.id) || selected);
 
   const banner = (
+    <>
+    {vipToast && (
+      <div role="status" className="fixed z-[60] bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full text-sm font-semibold shadow-lg border bg-neutral-900 border-amber-400/60 text-amber-300 whitespace-nowrap">
+        {vipToast === "on" ? t.vipOn : t.vipBad}
+      </div>
+    )}
     <ConsentBanner
       lang={lang}
       forceOpen={cookiesOpen}
       onClose={() => setCookiesOpen(false)}
       onLegal={() => setView("mentions")}
     />
+    </>
   );
 
   if (view === "landing") {
@@ -432,7 +454,7 @@ export default function App() {
       </header>
 
       {view === "simulateur" ? (
-        <Simulator lang={lang} />
+        <Simulator lang={lang} vip={vip} />
       ) : view === "media" ? (
         <Media lang={lang} />
       ) : view === "mentions" ? (
@@ -837,53 +859,6 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
         </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-// Barre des catégories qui défile : fondu et flèches sur les bords quand il reste des catégories cachées,
-// et la catégorie choisie (ou ouverte depuis un lien) est ramenée dans le champ.
-function CategoryBar({ active, children }) {
-  const ref = useRef(null);
-  const [edges, setEdges] = useState({ left: false, right: false });
-  const update = () => {
-    const el = ref.current;
-    if (!el) return;
-    setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
-  };
-  useEffect(() => {
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-  useEffect(() => {
-    const el = ref.current;
-    const pill = active && el?.querySelector(`[data-cat="${CSS.escape(active)}"]`);
-    if (!pill) return;
-    const left = pill.offsetLeft - (el.clientWidth - pill.offsetWidth) / 2;
-    el.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
-  }, [active]);
-  const scrollBy = (dir) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.7, behavior: "smooth" });
-  return (
-    <div className="relative mb-6">
-      <div ref={ref} onScroll={update} className="no-scrollbar flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-        {children}
-      </div>
-      {[["left", -1, ChevronLeft], ["right", 1, ChevronRight]].map(([side, dir, Icon]) => (
-        <div
-          key={side}
-          className={`pointer-events-none absolute top-0 bottom-1 w-14 flex items-center ${side === "left" ? "left-0 justify-start bg-gradient-to-r" : "right-0 justify-end bg-gradient-to-l"} from-neutral-950 via-neutral-950/80 to-transparent transition-opacity duration-200 ${edges[side] ? "opacity-100" : "opacity-0"}`}
-        >
-          <button
-            onClick={() => scrollBy(dir)}
-            aria-label={side === "left" ? "←" : "→"}
-            tabIndex={edges[side] ? 0 : -1}
-            className={`tap hidden sm:flex w-8 h-8 rounded-full bg-neutral-900 border border-neutral-700 items-center justify-center text-neutral-200 hover:border-amber-400 hover:text-amber-400 ${edges[side] ? "pointer-events-auto" : ""}`}
-          >
-            <Icon className="w-4 h-4" />
-          </button>
-        </div>
-      ))}
     </div>
   );
 }

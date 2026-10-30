@@ -25,12 +25,18 @@ async function checkCode(code) {
 }
 
 // À appeler au chargement : lit ?vip= dans l'adresse, l'efface de la barre d'adresse,
-// puis renvoie true si ce navigateur a un code VIP valide.
+// puis renvoie { vip, tried } : vip vaut true si ce navigateur a un code VIP valide,
+// tried vaut true si un code venait d'être donné dans l'adresse (pour afficher « activé » ou « incorrect »).
 export async function initVip() {
+  const tried = new URLSearchParams(window.location.search).has("vip");
+  return { vip: await checkVip(), tried };
+}
+
+async function checkVip() {
   try {
     localStorage.removeItem("octogone-vip"); // ancien système, désactivé
     const params = new URLSearchParams(window.location.search);
-    const fromUrl = params.get("vip");
+    const fromUrl = params.get("vip")?.trim();
     if (fromUrl) {
       params.delete("vip");
       const qs = params.toString();
