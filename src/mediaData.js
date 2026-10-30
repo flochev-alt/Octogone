@@ -82,6 +82,8 @@ export const UPCOMING = [
   },
   {
     iso: "2026-10-31",
+    // Début de la carte principale (UTC) : 20 h ET / minuit GMT (ufcalendar.com, boxingnews.com).
+    start: "2026-11-01T00:00:00Z",
     name: "UFC Fight Night : Moicano vs. Nolan",
     location: "Las Vegas",
     main: {
