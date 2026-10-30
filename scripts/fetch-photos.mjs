@@ -77,7 +77,19 @@ function titleMatches(file, n) {
 // Photo de groupe ou de combat (« X and Y », « X e Y », « X vs Y », « X knock out Y », « X - Y - Z ») :
 // le recadrage risque de montrer quelqu'un d'autre. On ne la garde que si c'est la photo de l'infobox Wikipédia.
 const GROUP = /\b(and|et|e|y|with|avec|com|vs|v|x|knock|knocks|knocked|defeats|def|against)\b|&|,|\s[-–]\s?/i;
-const solo = (file) => !GROUP.test(file.replace(/^File:/i, "").replace(/\.[a-z]+$/i, "").replace(/_/g, " "));
+// Une version « cropped » a été recadrée sur une personne : seule la mise en scène d'un KO ou d'une poignée de main
+// avec un tiers (« knock », « congratulates », « Trump ») reste écartée.
+const STAGED = /\b(knock|knocks|knocked|congratulates|trump)\b/i;
+const solo = (file) => {
+  const t = file.replace(/^File:/i, "").replace(/\.[a-z]+$/i, "").replace(/_/g, " ");
+  return !STAGED.test(t) && (/cropped/i.test(t) || !GROUP.test(t));
+};
+// Combattants dont le nom est surtout porté par d'autres personnes sur Commons (basketteur, footballeur,
+// joueur de billard, cardinal, chanteur…) : pas de photo plutôt qu'une erreur.
+const NO_PHOTO = new Set([
+  "Alex Perez", "Anthony Hernandez", "Charles Johnson", "Daniel Rodriguez", "David Martínez", "Sean Brady",
+  "Tim Elliott", "Tom Nolan", "Manuel Torres", "Johnny Walker", "Mizuki Inoue",
+]);
 // Fichiers écartés après contrôle visuel (2026-10-30) : homonymes (basketteur, footballeur, joueur de
 // billard, cardinal…), photos de groupe ou où le combattant n'est pas reconnaissable.
 const REJECTED = new Set([
@@ -239,7 +251,7 @@ async function findPhotos(names) {
     const fromOpenverse = best(others[k]);
     const pinned = PINNED[name] === "infobox" && infobox[name] && info[infobox[name].replace(/ /g, "_")];
     const pick = pinned || fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
-    if (pick) photos[name] = pick;
+    if (pick && !NO_PHOTO.has(name)) photos[name] = pick;
   });
   return photos;
 }
@@ -257,7 +269,7 @@ for (let i = 0; i < names.length; i += 5) {
   Object.assign(photos, await findPhotos(names.slice(i, i + 5)));
   await sleep(1000);
 }
-for (const n of names) if (!photos[n] && previous[n]) photos[n] = previous[n];
+for (const n of names) if (!NO_PHOTO.has(n) && !photos[n] && previous[n]) photos[n] = previous[n];
 const sorted = Object.fromEntries(Object.keys(photos).sort().map((n) => [n, photos[n]]));
 writeFileSync(out, JSON.stringify(sorted, null, 1) + "\n");
 console.log(`${Object.keys(photos).length}/${names.length} combattants avec photo.`);
