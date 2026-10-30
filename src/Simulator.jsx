@@ -5,13 +5,14 @@ import { T, translateCategory, formatHeight, formatStyle, ageFrom, CATEGORY_ORDE
 import { usePhotos } from "./usePhotos.js";
 import FighterAvatar from "./FighterAvatar.jsx";
 import { initVip, getVipCode } from "./vip.js";
+import { RECENT_FIGHTS } from "./recentFights.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
 // Champion en premier, puis classés 1 à 15, puis non-classés.
 const byRank = (a, b) => (a.rang ?? 99) - (b.rang ?? 99);
 
-const DAILY_LIMIT = 10;
+const DAILY_LIMIT = 5;
 
 function getDailyUsage() {
   const today = new Date().toISOString().slice(0, 10);
@@ -107,6 +108,9 @@ export default function Simulator({ lang = "fr" }) {
     if (vip || dailyUsage < DAILY_LIMIT) genererAnalyseIA();
   };
 
+  // Les 5 derniers combats donnent à l'IA la forme du moment.
+  const withRecent = (f) => ({ ...f, recent: f.recent || RECENT_FIGHTS[f.id] || [] });
+
   async function genererAnalyseIA() {
     setAiLoading(true);
     setAiError(null);
@@ -114,7 +118,7 @@ export default function Simulator({ lang = "fr" }) {
       const r = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-vip-code": vip ? getVipCode() || "" : "" },
-        body: JSON.stringify({ fighterA, fighterB, probA, probB, lang }),
+        body: JSON.stringify({ fighterA: withRecent(fighterA), fighterB: withRecent(fighterB), probA, probB, lang }),
       });
       if (r.status === 429) {
         setDailyUsage(DAILY_LIMIT);
@@ -293,7 +297,17 @@ export default function Simulator({ lang = "fr" }) {
                     )}
                     {aiText && (
                       <>
-                        <p className="row-rise text-sm text-neutral-200 leading-relaxed">{aiText}</p>
+                        <div className="row-rise space-y-3 text-sm text-neutral-200 leading-relaxed">
+                          {aiText.split(/\n\s*\n/).map((para, i) => {
+                            const m = para.match(/^\s*\**([^:*\n]{3,40})\**\s*:\s*([\s\S]*)$/);
+                            return m ? (
+                              <p key={i}><span className="font-semibold text-amber-400">{m[1]} : </span>{m[2]}</p>
+                            ) : (
+                              <p key={i}>{para.trim()}</p>
+                            );
+                          })}
+                        </div>
+                        <p className="text-[11px] text-neutral-500 mt-3">{t.aiDisclaimer}</p>
                         {!vip && <p className="text-[11px] text-neutral-500 mt-3">{t.freeLeft(Math.max(0, DAILY_LIMIT - dailyUsage))}</p>}
                         {vip && <p className="text-[11px] text-neutral-500 mt-3">{t.vipActive}</p>}
                       </>
