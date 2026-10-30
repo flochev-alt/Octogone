@@ -23,7 +23,12 @@ export function useFighters() {
     if (!supabaseEnabled) return;
     let cancelled = false;
     loadFighters().then((rows) => {
-      if (!cancelled && rows) setFighters(rows);
+      // Les combattants ajoutés dans fightersData.js mais pas encore synchronisés (version de test,
+      // ou quelques minutes après une fusion) restent visibles.
+      if (!cancelled && rows) {
+        const ids = new Set(rows.map((f) => f.id));
+        setFighters([...rows, ...FIGHTERS.filter((f) => !ids.has(f.id))]);
+      }
     });
     return () => { cancelled = true; };
   }, []);
