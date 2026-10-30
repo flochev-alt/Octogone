@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Swords, Sparkles, Ruler, TrendingUp } from "lucide-react";
+import { Swords, Sparkles, TrendingUp, ChevronDown, Trophy } from "lucide-react";
 import { useFighters } from "./useFighters.js";
-import { T, translateCategory, formatHeight, CATEGORY_ORDER } from "./i18n.js";
+import { T, translateCategory, formatHeight, formatStyle, ageFrom, CATEGORY_ORDER } from "./i18n.js";
+import { usePhotos } from "./usePhotos.js";
+import FighterAvatar from "./FighterAvatar.jsx";
 import { initVip, getVipCode } from "./vip.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -129,162 +131,176 @@ export default function Simulator({ lang = "fr" }) {
   };
 
   const notEnoughFighters = fightersInCategorie.length < 2;
+  const photos = usePhotos();
+  const photoOf = (f) => photos[f.nom]?.url;
+  const favorite = probA === probB ? null : probA > probB ? fighterA : fighterB;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-5 py-8">
+    <div className="w-full max-w-4xl mx-auto px-5 py-8">
       <style>{`
         @keyframes clashInLeft {
-          0% { transform: translateX(-36px) scale(0.8); opacity: 0; }
-          40% { opacity: 1; }
+          0% { transform: translateX(-60px) scale(0.85); opacity: 0.4; }
           100% { transform: translateX(0) scale(1); opacity: 1; }
         }
         @keyframes clashInRight {
-          0% { transform: translateX(36px) scale(0.8); opacity: 0; }
-          40% { opacity: 1; }
+          0% { transform: translateX(60px) scale(0.85); opacity: 0.4; }
           100% { transform: translateX(0) scale(1); opacity: 1; }
         }
         @keyframes clashFlashBurst {
-          0%, 50% { opacity: 0; transform: scale(0.2); }
-          62% { opacity: 0.9; transform: scale(1.6); }
-          100% { opacity: 0; transform: scale(2.6); }
+          0%, 45% { opacity: 0; transform: scale(0.2); }
+          60% { opacity: 0.9; transform: scale(1.6); }
+          100% { opacity: 0; transform: scale(2.8); }
         }
         @keyframes clashShakeKf {
-          0%, 58% { transform: translateX(0); }
-          62% { transform: translateX(-5px); }
-          68% { transform: translateX(5px); }
-          74% { transform: translateX(-3px); }
-          80% { transform: translateX(3px); }
-          86%, 100% { transform: translateX(0); }
+          0%, 55% { transform: translateX(0); }
+          60% { transform: translateX(-6px); }
+          66% { transform: translateX(6px); }
+          72% { transform: translateX(-3px); }
+          78% { transform: translateX(3px); }
+          84%, 100% { transform: translateX(0); }
         }
-        .clash-in-left { animation: clashInLeft 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .clash-in-right { animation: clashInRight 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
-        .clash-flash { animation: clashFlashBurst 0.9s ease-out forwards; filter: blur(6px); }
+        .clash-in-left { animation: clashInLeft 0.9s cubic-bezier(0.16,1,0.3,1) both; }
+        .clash-in-right { animation: clashInRight 0.9s cubic-bezier(0.16,1,0.3,1) both; }
+        .clash-flash { animation: clashFlashBurst 0.9s ease-out forwards; filter: blur(8px); }
         .clash-shake { animation: clashShakeKf 0.9s ease-out both; }
-        @keyframes confidencePulse {
-          0%, 100% { filter: brightness(1); }
-          50% { filter: brightness(1.35); }
-        }
+        @keyframes confidencePulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
         .confidence-pulse { animation: confidencePulse 1.6s ease-in-out infinite; }
+        @keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        .bar-grow-l { transform-origin: right; animation: barGrow 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+        .bar-grow-r { transform-origin: left; animation: barGrow 0.8s cubic-bezier(0.16,1,0.3,1) both; }
       `}</style>
-      <div className="row-rise flex items-center gap-2 mb-6">
-        <Swords className="w-4 h-4 text-amber-400" />
-        <span className="text-xs uppercase tracking-widest text-neutral-400">{t.simTitle}</span>
+
+      {/* En-tête */}
+      <div className="row-rise text-center mb-6">
+        <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-amber-400 mb-2">
+          <Swords className="w-3.5 h-3.5" /> {t.simTitle}
+        </div>
+        <p className="text-sm text-neutral-400">{t.simSubtitle}</p>
       </div>
 
-      <div className="mb-4">
-        <label className="block text-[11px] uppercase tracking-widest text-neutral-500 mb-1.5">{t.weightCategory}</label>
-        <select
-          value={categorie}
-          onChange={(e) => setCategorie(e.target.value)}
-          className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-3 text-sm text-neutral-100 outline-none focus:border-amber-400/50"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{translateCategory(c, lang)}</option>
-          ))}
-        </select>
+      {/* Catégories */}
+      <div className="no-scrollbar flex gap-1.5 overflow-x-auto pb-1 mb-6 -mx-1 px-1 sm:flex-wrap sm:justify-center">
+        {CATEGORIES.map((c) => (
+          <button
+            key={c}
+            onClick={() => setCategorie(c)}
+            className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border ${
+              categorie === c
+                ? "bg-amber-400 text-neutral-950 border-amber-400"
+                : "bg-transparent text-neutral-400 border-neutral-800 hover:border-amber-400/50 hover:text-neutral-50"
+            }`}
+          >
+            {translateCategory(c, lang)}
+          </button>
+        ))}
       </div>
 
       {notEnoughFighters ? (
-        <p className="text-sm text-neutral-400 mb-6">{t.notEnoughFighters}</p>
+        <p className="text-sm text-neutral-400 mb-6 text-center">{t.notEnoughFighters}</p>
       ) : (
-        <>
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <FighterPicker label={t.fighter1} fighters={fightersInCategorie} value={idA} onChange={setIdA} exclude={idB} />
-            <FighterPicker label={t.fighter2} fighters={fightersInCategorie} value={idB} onChange={setIdB} exclude={idA} />
-          </div>
-
-          <button
-            onClick={analyser}
-            className="tap w-full rounded-xl bg-amber-400 text-neutral-950 font-semibold text-sm py-3.5 mb-6 hover:bg-amber-300"
-          >
-            {t.analyze}
-          </button>
-        </>
-      )}
-
-      {clashing && fighterA && fighterB && (
-        <div className="clash-shake relative h-36 flex items-center justify-center mb-5 px-2 overflow-hidden">
-          <div className="clash-flash absolute w-24 h-24 rounded-full bg-amber-300" />
-          <div className="clash-in-left flex flex-col items-center gap-1.5 min-w-0 flex-1 max-w-[40%]">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0">
-              <span className="disp text-xl text-neutral-950">{initials(fighterA.nom)}</span>
-            </div>
-            <span className="text-xs text-neutral-300 font-medium text-center truncate w-full px-1">{fighterA.nom}</span>
-          </div>
-          <span className="disp text-2xl text-neutral-700 z-10 shrink-0 px-2">VS</span>
-          <div className="clash-in-right flex flex-col items-center gap-1.5 min-w-0 flex-1 max-w-[40%]">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-800 flex items-center justify-center shrink-0">
-              <span className="disp text-xl text-neutral-100">{initials(fighterB.nom)}</span>
-            </div>
-            <span className="text-xs text-neutral-300 font-medium text-center truncate w-full px-1">{fighterB.nom}</span>
-          </div>
-        </div>
-      )}
-
-      {showResult && fighterA && fighterB && (
-        <div key={idA + idB} className="row-rise space-y-5">
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="disp text-lg truncate">{fighterA.nom}</span>
-              <span className="disp text-lg truncate text-right">{fighterB.nom}</span>
-            </div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="mono text-2xl text-amber-400"><CountUp value={probA} suffix="%" /></span>
-              <div className="flex-1 h-2.5 rounded-full bg-neutral-800 overflow-hidden flex">
-                <div className={`h-full bg-amber-400 ${probA > probB ? "confidence-pulse" : ""}`} style={{ width: `${probA}%` }} />
-                <div className={`h-full bg-neutral-600 ${probB > probA ? "confidence-pulse" : ""}`} style={{ width: `${probB}%` }} />
+        fighterA && fighterB && (
+          <>
+            {/* Face-à-face : les deux coins de l'octogone */}
+            <div className={`relative grid grid-cols-[1fr_auto_1fr] items-stretch gap-2 sm:gap-4 mb-5 ${clashing ? "clash-shake" : ""}`}>
+              <FighterCorner side="a" fighter={fighterA} photo={photoOf(fighterA)} fighters={fightersInCategorie} onChange={setIdA} exclude={idB} t={t} lang={lang} animate={clashing} />
+              <div className="relative flex items-center justify-center w-12 sm:w-20">
+                {clashing && <div className="clash-flash absolute w-24 h-24 rounded-full bg-amber-300" />}
+                <svg viewBox="0 0 100 100" className="relative w-12 h-12 sm:w-16 sm:h-16" aria-hidden="true">
+                  <polygon points="32,6 68,6 94,32 94,68 68,94 32,94 6,68 6,32" fill="#0a0a0a" stroke="#fbbf24" strokeWidth="5" />
+                  <text x="50" y="62" textAnchor="middle" fontFamily="Archivo, sans-serif" fontWeight="800" fontSize="34" fill="#fbbf24">VS</text>
+                </svg>
               </div>
-              <span className="mono text-2xl text-neutral-300"><CountUp value={probB} suffix="%" /></span>
+              <FighterCorner side="b" fighter={fighterB} photo={photoOf(fighterB)} fighters={fightersInCategorie} onChange={setIdB} exclude={idA} t={t} lang={lang} animate={clashing} />
             </div>
-            <div className="text-center text-xs text-neutral-500 mt-2">
-              {t.probLabel(translateCategory(categorie, lang))}
-            </div>
-          </div>
 
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5 space-y-3">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-1">
-              <TrendingUp className="w-3.5 h-3.5" /> {t.comparatif}
-            </div>
-            <StatRow label={t.record2} a={`${fighterA.victoires}-${fighterA.defaites}`} b={`${fighterB.victoires}-${fighterB.defaites}`} winner={advantages?.winners.winRate} />
-            <StatRow label={t.strikingAcc} a={pct(fighterA.striking)} b={pct(fighterB.striking)} winner={advantages?.winners.striking} />
-            <StatRow label={t.tdAcc} a={pct(fighterA.tdAcc)} b={pct(fighterB.tdAcc)} winner={advantages?.winners.tdAcc} />
-            <StatRow label={t.tdDef} a={pct(fighterA.tdDef)} b={pct(fighterB.tdDef)} winner={advantages?.winners.tdDef} />
-            <StatRow label={t.reach} a={formatHeight(fighterA.allonge, lang) ?? "—"} b={formatHeight(fighterB.allonge, lang) ?? "—"} winner={advantages?.winners.reach} />
+            <button
+              onClick={analyser}
+              disabled={clashing}
+              className="tap w-full rounded-2xl bg-amber-400 text-neutral-950 font-semibold text-sm py-4 mb-6 hover:bg-amber-300 flex items-center justify-center gap-2 shadow-[0_0_30px_-8px_rgba(251,191,36,0.6)] disabled:opacity-70"
+            >
+              <Swords className="w-4 h-4" /> {t.analyze}
+            </button>
 
-            {advantages && (
-              <div className="flex items-center justify-center gap-3 pt-2 mt-1 border-t border-neutral-800">
-                <span className="mono text-lg text-amber-400">{advantages.scoreA}</span>
-                <span className="text-[10px] uppercase tracking-widest text-neutral-500">{t.advantages}</span>
-                <span className="mono text-lg text-neutral-300">{advantages.scoreB}</span>
+            {/* Face-à-face et résultat, après « Analyser le duel » */}
+            {showResult && (
+            <div key={idA + idB} className="row-rise grid gap-5 lg:grid-cols-2 lg:items-start">
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-4">
+                  <TrendingUp className="w-3.5 h-3.5" /> {t.taleOfTape}
+                </div>
+                <div className="space-y-3">
+                  <TapeRow label={t.record2} a={`${fighterA.victoires}-${fighterA.defaites}-${fighterA.nuls}`} b={`${fighterB.victoires}-${fighterB.defaites}-${fighterB.nuls}`} va={winRate(fighterA)} vb={winRate(fighterB)} />
+                  <TapeRow label={t.age} a={ageFrom(fighterA.naissance) != null ? t.years(ageFrom(fighterA.naissance)) : "—"} b={ageFrom(fighterB.naissance) != null ? t.years(ageFrom(fighterB.naissance)) : "—"} />
+                  <TapeRow label={t.height} a={formatHeight(fighterA.taille, lang) ?? "—"} b={formatHeight(fighterB.taille, lang) ?? "—"} va={fighterA.taille} vb={fighterB.taille} />
+                  <TapeRow label={t.reach} a={formatHeight(fighterA.allonge, lang) ?? "—"} b={formatHeight(fighterB.allonge, lang) ?? "—"} va={fighterA.allonge} vb={fighterB.allonge} />
+                  <TapeRow label={t.strikingAcc} a={pct(fighterA.striking)} b={pct(fighterB.striking)} va={fighterA.striking} vb={fighterB.striking} />
+                  <TapeRow label={t.tdAcc} a={pct(fighterA.tdAcc)} b={pct(fighterB.tdAcc)} va={fighterA.tdAcc} vb={fighterB.tdAcc} />
+                  <TapeRow label={t.tdDef} a={pct(fighterA.tdDef)} b={pct(fighterB.tdDef)} va={fighterA.tdDef} vb={fighterB.tdDef} />
+                </div>
               </div>
-            )}
-          </div>
 
-          <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {t.expertAnalysis}
+                <div className="space-y-5">
+                  <div className="relative overflow-hidden rounded-2xl border border-amber-400/30 bg-neutral-900 p-5">
+                    <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
+                    {favorite && (
+                      <div className="relative flex items-center justify-center gap-2 mb-4 text-amber-400">
+                        <Trophy className="w-4 h-4" />
+                        <span className="disp text-lg">{t.favorite(favorite.nom)}</span>
+                      </div>
+                    )}
+                    <div className="relative flex items-end justify-between mb-2">
+                      <span className="mono text-3xl sm:text-4xl text-amber-400"><CountUp value={probA} suffix="%" /></span>
+                      <span className="mono text-3xl sm:text-4xl text-neutral-300"><CountUp value={probB} suffix="%" /></span>
+                    </div>
+                    <div className="relative h-3 rounded-full bg-neutral-800 overflow-hidden flex">
+                      <div className={`h-full bg-gradient-to-r from-amber-500 to-amber-300 ${probA > probB ? "confidence-pulse" : ""}`} style={{ width: `${probA}%`, transition: "width 0.8s cubic-bezier(0.16,1,0.3,1)" }} />
+                      <div className={`h-full bg-neutral-500 ${probB > probA ? "confidence-pulse" : ""}`} style={{ width: `${probB}%` }} />
+                    </div>
+                    <div className="relative flex justify-between mt-2 text-xs text-neutral-400">
+                      <span className="truncate max-w-[45%]">{fighterA.nom}</span>
+                      <span className="truncate max-w-[45%] text-right">{fighterB.nom}</span>
+                    </div>
+                    {advantages && (
+                      <div className="relative flex items-center justify-center gap-3 pt-3 mt-4 border-t border-neutral-800">
+                        <span className="mono text-lg text-amber-400">{advantages.scoreA}</span>
+                        <span className="text-[10px] uppercase tracking-widest text-neutral-500">{t.advantages}</span>
+                        <span className="mono text-lg text-neutral-300">{advantages.scoreB}</span>
+                      </div>
+                    )}
+                    <div className="relative text-center text-[11px] text-neutral-500 mt-3">
+                      {t.probLabel(translateCategory(categorie, lang))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-3">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {t.expertAnalysis}
+                    </div>
+                    {!aiText && !aiError && (vip || dailyUsage < DAILY_LIMIT) && (
+                      <>
+                        <button
+                          onClick={genererAnalyseIA}
+                          disabled={aiLoading}
+                          className="tap text-sm px-4 py-2 rounded-lg border border-amber-400/40 text-amber-400 hover:bg-amber-400/10 disabled:opacity-50"
+                        >
+                          {aiLoading ? t.generating : t.generateAI}
+                        </button>
+                        <p className="text-[11px] text-neutral-500 mt-2">
+                          {vip ? t.vipActive : t.freeLeft(DAILY_LIMIT - dailyUsage)}
+                        </p>
+                      </>
+                    )}
+                    {!aiText && !aiError && !vip && dailyUsage >= DAILY_LIMIT && (
+                      <p className="text-sm text-neutral-400">{t.limitReached(DAILY_LIMIT)}</p>
+                    )}
+                    {aiText && <p className="text-sm text-neutral-200 leading-relaxed">{aiText}</p>}
+                    {aiError && <p className="text-sm text-neutral-400">{aiError}</p>}
+                  </div>
+                </div>
             </div>
-            {!aiText && !aiError && (vip || dailyUsage < DAILY_LIMIT) && (
-              <>
-                <button
-                  onClick={genererAnalyseIA}
-                  disabled={aiLoading}
-                  className="tap text-sm px-4 py-2 rounded-lg border border-amber-400/40 text-amber-400 hover:bg-amber-400/10 disabled:opacity-50"
-                >
-                  {aiLoading ? t.generating : t.generateAI}
-                </button>
-                <p className="text-[11px] text-neutral-500 mt-2">
-                  {vip ? t.vipActive : t.freeLeft(DAILY_LIMIT - dailyUsage)}
-                </p>
-              </>
             )}
-            {!aiText && !aiError && !vip && dailyUsage >= DAILY_LIMIT && (
-              <p className="text-sm text-neutral-400">{t.limitReached(DAILY_LIMIT)}</p>
-            )}
-            {aiText && <p className="text-sm text-neutral-200 leading-relaxed">{aiText}</p>}
-            {aiError && <p className="text-sm text-neutral-400">{aiError}</p>}
-          </div>
-        </div>
+          </>
+        )
       )}
     </div>
   );
@@ -338,28 +354,63 @@ function pct(v) {
   return v == null ? "—" : `${v}%`;
 }
 
-function StatRow({ label, a, b, winner }) {
+// Ligne du face-à-face : valeur A, barres opposées (la plus forte en doré), valeur B.
+function TapeRow({ label, a, b, va = null, vb = null }) {
+  const both = va != null && vb != null && va + vb > 0;
+  const max = both ? Math.max(va, vb) : 1;
+  const wa = both ? (va / max) * 100 : 0;
+  const wb = both ? (vb / max) * 100 : 0;
   return (
-    <div className="flex items-center justify-between text-sm">
-      <span className={`mono w-20 text-left ${winner === "a" ? "text-amber-400 font-semibold" : "text-neutral-200"}`}>
-        {a}{winner === "a" && <span className="ml-1">▲</span>}
-      </span>
-      <span className="text-neutral-500 text-xs flex-1 text-center">{label}</span>
-      <span className={`mono w-20 text-right ${winner === "b" ? "text-amber-400 font-semibold" : "text-neutral-200"}`}>
-        {winner === "b" && <span className="mr-1">▲</span>}{b}
-      </span>
+    <div>
+      <div className="flex items-center justify-between text-sm mb-1">
+        <span className={`mono ${both && va > vb ? "text-amber-400 font-semibold" : "text-neutral-200"}`}>{a}</span>
+        <span className="text-[11px] text-neutral-500 text-center px-2">{label}</span>
+        <span className={`mono text-right ${both && vb > va ? "text-amber-400 font-semibold" : "text-neutral-200"}`}>{b}</span>
+      </div>
+      {both && (
+        <div className="flex gap-1 h-1.5">
+          <div className="flex-1 flex justify-end rounded-full bg-neutral-800 overflow-hidden">
+            <div className={`bar-grow-l h-full rounded-full ${va >= vb ? "bg-amber-400" : "bg-neutral-500"}`} style={{ width: `${wa}%` }} />
+          </div>
+          <div className="flex-1 rounded-full bg-neutral-800 overflow-hidden">
+            <div className={`bar-grow-r h-full rounded-full ${vb >= va ? "bg-amber-400" : "bg-neutral-500"}`} style={{ width: `${wb}%` }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function FighterPicker({ label, fighters, value, onChange, exclude }) {
+// Coin d'un combattant : portrait, nom, bilan, et la liste déroulante (invisible, posée sur la carte) pour en changer.
+function FighterCorner({ side, fighter, photo, fighters, onChange, exclude, t, lang, animate }) {
+  const gold = side === "a";
+  const rank = fighter.rang === 0 ? t.champion : fighter.rang != null ? `#${fighter.rang}` : null;
   return (
-    <div>
-      <label className="block text-[11px] uppercase tracking-widest text-neutral-500 mb-1.5">{label}</label>
+    <label
+      className={`${animate ? (gold ? "clash-in-left" : "clash-in-right") : ""} tap relative min-w-0 cursor-pointer rounded-2xl border ${
+        gold ? "border-amber-400/40 bg-gradient-to-b from-amber-400/10 to-neutral-900" : "border-neutral-700 bg-gradient-to-b from-neutral-700/20 to-neutral-900"
+      } p-3 sm:p-5 flex flex-col items-center text-center hover:border-amber-400/70`}
+    >
+      <span className={`text-[10px] uppercase tracking-widest mb-2 ${gold ? "text-amber-400" : "text-neutral-400"}`}>
+        {gold ? t.fighter1 : t.fighter2}
+      </span>
+      <FighterAvatar name={fighter.nom} photo={photo} size={88} gold={gold} className="mb-3 sm:hidden" />
+      <FighterAvatar name={fighter.nom} photo={photo} size={120} gold={gold} className="mb-3 hidden sm:flex" />
+      <span className="disp text-base sm:text-2xl leading-tight break-words w-full">{fighter.nom}</span>
+      <span className="mono text-xs sm:text-sm text-neutral-300 mt-1">
+        {fighter.victoires}-{fighter.defaites}-{fighter.nuls}
+      </span>
+      <span className="text-[11px] text-neutral-500 mt-0.5 truncate w-full">
+        {[rank, formatStyle(fighter.style, lang).split(" · ")[0]].filter(Boolean).join(" · ")}
+      </span>
+      <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-300 border border-neutral-700 rounded-full px-2.5 py-1">
+        {t.changeFighter} <ChevronDown className="w-3 h-3" />
+      </span>
       <select
-        value={value}
+        value={fighter.id}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-neutral-800 bg-neutral-900 px-3 py-3 text-sm text-neutral-100 outline-none focus:border-amber-400/50"
+        aria-label={gold ? t.fighter1 : t.fighter2}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
       >
         {fighters.filter((f) => f.id !== exclude).map((f) => (
           <option key={f.id} value={f.id}>
@@ -367,6 +418,6 @@ function FighterPicker({ label, fighters, value, onChange, exclude }) {
           </option>
         ))}
       </select>
-    </div>
+    </label>
   );
 }
