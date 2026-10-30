@@ -31,3 +31,47 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Changement de page animé (voir goTo dans App.jsx). */
+.page-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+}
+.veil-oct {
+  width: 9rem;
+  height: 9rem;
+  filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.55));
+}
+.veil-in {
+  animation: veilIn 0.42s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+.veil-in .veil-oct {
+  animation: octIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.veil-out {
+  animation: veilOut 0.48s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+.veil-out .veil-oct {
+  animation: octOut 0.48s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+@keyframes veilIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes veilOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes octIn {
+  from { transform: scale(0.3) rotate(-45deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes octOut {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(6); opacity: 0; }
+}

@@ -36,7 +36,7 @@ const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   delay: i * 0.18,
 }));
 
-export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
+export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
   const now = useNow();
@@ -234,7 +234,7 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
             </p>
 
             <button
-              onClick={onEnter}
+              onClick={onExplore}
               className="shine-btn tap group inline-flex items-center gap-2 bg-amber-400 text-neutral-950 font-semibold text-sm px-6 py-3.5 rounded-full hover:bg-amber-300"
             >
               <span className="shine-sweep" aria-hidden />
