@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Swords, Sparkles, TrendingUp, ChevronDown, Trophy, Lock, KeyRound, Activity, Film, AlertTriangle, Target } from "lucide-react";
+import { Swords, Sparkles, TrendingUp, ChevronDown, Trophy, Lock, KeyRound, Activity, Film, AlertTriangle, Target, Share2, Download, X } from "lucide-react";
 import { useFighters } from "./useFighters.js";
 import { T, translateCategory, formatHeight, formatStyle, ageFrom, CATEGORY_ORDER } from "./i18n.js";
 import { usePhotos } from "./usePhotos.js";
@@ -7,6 +7,7 @@ import FighterAvatar from "./FighterAvatar.jsx";
 import CategoryBar from "./CategoryBar.jsx";
 import { getVipCode } from "./vip.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
+import { makeShareImage } from "./shareImage.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -261,6 +262,17 @@ export default function Simulator({ lang = "fr", vip = false }) {
             {showResult && (
             <div key={idA + idB} className="row-rise space-y-5">
             <ExpertAnalysis analysis={aiText} loading={aiLoading} error={aiError} vip={vip} left={Math.max(0, DAILY_LIMIT - dailyUsage)} fighterA={fighterA} t={t} />
+            {!aiLoading && (
+              <ShareButton
+                t={t}
+                data={{
+                  fighterA, fighterB, probA, probB, analysis: aiText,
+                  photoA: photoOf(fighterA), photoB: photoOf(fighterB),
+                  category: translateCategory(categorie, lang),
+                  text: { ...t.shareImg, favorite: t.favorite, finish: t.aiFinish, confidence: t.aiConfidence, finishLabels: t.finishLabels, confidenceLabels: t.confidenceLabels },
+                }}
+              />
+            )}
             <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
               <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-4">
@@ -318,6 +330,94 @@ export default function Simulator({ lang = "fr", vip = false }) {
         )
       )}
     </div>
+  );
+}
+
+// « Partager mon pronostic » : crée l'image, l'affiche, puis ouvre le menu de partage du téléphone
+// (WhatsApp, Insta, X...) ou la télécharge sur ordinateur.
+function ShareButton({ data, t }) {
+  const [file, setFile] = useState(null);
+  const [url, setUrl] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  useEffect(() => () => url && URL.revokeObjectURL(url), [url]);
+  useEffect(() => {
+    if (!url) return;
+    const onKey = (e) => e.key === "Escape" && setUrl(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [url]);
+
+  const create = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const f = await makeShareImage(data);
+      setFile(f);
+      setUrl(URL.createObjectURL(f));
+      window.gtag?.("event", "share_image_created");
+    } catch {
+      setError(t.shareFailed);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const canShare = file && typeof navigator !== "undefined" && navigator.canShare?.({ files: [file] });
+  const share = async () => {
+    try {
+      await navigator.share({ files: [file], title: "Octogone", text: `${t.shareText(data.fighterA.nom, data.fighterB.nom)} https://octogone.space` });
+      window.gtag?.("event", "share", { method: "share_sheet", content_type: "pronostic" });
+    } catch {
+      // Partage annulé : rien à faire.
+    }
+  };
+  const download = () => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    a.click();
+    window.gtag?.("event", "share", { method: "download", content_type: "pronostic" });
+  };
+
+  return (
+    <>
+      <button
+        onClick={create}
+        disabled={busy}
+        className="tap w-full rounded-2xl border border-amber-400/60 bg-neutral-900 text-amber-300 font-semibold text-sm py-3.5 hover:bg-amber-400/10 flex items-center justify-center gap-2 disabled:opacity-70"
+      >
+        <Share2 className="w-4 h-4" /> {busy ? t.sharePreparing : t.shareMyPick}
+      </button>
+      {error && <p className="text-xs text-neutral-400 text-center">{error}</p>}
+      {url && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.shareMyPick}
+          onClick={() => setUrl(null)}
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]"
+        >
+          <div onClick={(e) => e.stopPropagation()} className="row-rise flex flex-col items-center gap-3 max-h-full w-full max-w-sm">
+            <div className="relative min-h-0 max-w-full">
+              <img src={url} alt={t.shareMyPick} className="block max-h-[calc(100dvh-9rem)] w-auto max-w-full object-contain rounded-xl border border-neutral-800 shadow-2xl" />
+              <button onClick={() => setUrl(null)} aria-label={t.closeAction} className="tap absolute -top-3 -right-3 w-9 h-9 rounded-full bg-neutral-900 border border-neutral-700 flex items-center justify-center text-neutral-300 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex w-full gap-2 shrink-0">
+              {canShare && (
+                <button onClick={share} className="tap flex-1 rounded-xl bg-amber-400 text-neutral-950 font-semibold text-sm py-3 flex items-center justify-center gap-2 hover:bg-amber-300">
+                  <Share2 className="w-4 h-4" /> {t.shareAction}
+                </button>
+              )}
+              <button onClick={download} className={`tap flex-1 rounded-xl font-semibold text-sm py-3 flex items-center justify-center gap-2 ${canShare ? "border border-neutral-700 text-neutral-200 hover:border-amber-400/60" : "bg-amber-400 text-neutral-950 hover:bg-amber-300"}`}>
+                <Download className="w-4 h-4" /> {t.downloadAction}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
