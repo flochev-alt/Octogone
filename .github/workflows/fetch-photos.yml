@@ -56,6 +56,12 @@ jobs:
             sleep 0.3
           done < planche/list.tsv
           montage -label '%t' -geometry 160x200+4+4 -tile 10x -pointsize 11 planche/*.jpg planche/planche.jpg || true
+          # Copie aussi la planche sur la branche controle-photos (consultable sans télécharger d'artefact).
+          if [ -f planche/planche.jpg ]; then
+            cd planche && git init -q -b controle-photos && git add planche.jpg list.tsv
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Planche contact photos"
+            git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" controle-photos
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
