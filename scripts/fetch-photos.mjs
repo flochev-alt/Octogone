@@ -10,6 +10,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { FIGHTERS } from "../src/fightersData.js";
 import { UPCOMING, RECENT_CARDS } from "../src/mediaData.js";
+import { LEAGUE_FIGHTERS } from "../src/otherLeagues.js";
 
 const UA = "Octogone/1.0 (https://octogone.space)";
 // Chaque appel externe est coupé au bout de 4 s : un service lent ne doit pas bloquer toute la réponse.
@@ -221,6 +222,7 @@ async function findPhotos(names) {
 
 const names = [...new Set([
   ...FIGHTERS.map((f) => f.nom),
+  ...LEAGUE_FIGHTERS.map((f) => f.nom),
   ...[...UPCOMING, ...RECENT_CARDS].flatMap((c) => c.fighters || []),
 ])];
 const out = "public/photos.json";
