@@ -44,15 +44,6 @@
   "date": "2021-12-19",
   "width": 1920
  },
- "Alexander Volkov": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Sergei_Pavlovich_vs_Alexander_Volkov_face_off.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "Sexto Round",
-  "license": "CC BY 3.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Sergei_Pavlovich_vs_Alexander_Volkov_face_off.png",
-  "source": "Wikimedia Commons",
-  "date": "2024-06-29",
-  "width": 831
- },
  "Alexandre Pantoja": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/6/62/Pantoja_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
   "author": "Sexto Round",
@@ -70,15 +61,6 @@
   "source": "Wikimedia Commons",
   "date": "2018-09-09",
   "width": 1112
- },
- "Alonzo Menifield": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Alonzo_Menifield_Jan_20%2C_2019.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "MMAnytt",
-  "license": "CC BY 3.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Alonzo_Menifield_Jan_20,_2019.jpg",
-  "source": "Wikimedia Commons",
-  "date": "2019-01-20",
-  "width": 506
  },
  "Amanda Ribas": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Web_Summit_Rio_2023_-_6343_%2852868673328%29_%28cropped%29.jpg/1280px-Web_Summit_Rio_2023_-_6343_%2852868673328%29_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -225,13 +207,14 @@
   "width": 1001
  },
  "Charles Oliveira": {
-  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Charles_Oliveira_UFC_%2851605799370%29.jpg/1280px-Charles_Oliveira_UFC_%2851605799370%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-  "author": "Renan Silva",
-  "license": "Public domain",
-  "page": "https://commons.wikimedia.org/wiki/File:Charles_Oliveira_UFC_(51605799370).jpg",
-  "source": "Wikimedia Commons",
-  "date": "2021-10-05",
-  "width": 6000
+  "url": "https://live.staticflickr.com/65535/51605585539_d7fba6ba9f_b.jpg",
+  "width": 1024,
+  "author": "re.silva",
+  "license": "Public Domain Mark 1.0",
+  "page": "https://www.flickr.com/photos/194205937@N07/51605585539",
+  "source": "Flickr",
+  "date": "",
+  "ufc": true
  },
  "Chuck Liddell": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Chuck_Liddell_2010.jpg/1280px-Chuck_Liddell_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -350,15 +333,6 @@
   "date": "2025-04-12",
   "width": 904
  },
- "Dricus du Plessis": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/3/31/IMG-Dricus-Duplessis%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "User:Philippe3017",
-  "license": "CC0",
-  "page": "https://commons.wikimedia.org/wiki/File:IMG-Dricus-Duplessis(cropped).jpg",
-  "source": "Wikimedia Commons",
-  "date": "2023-10-26",
-  "width": 982
- },
  "Edmen Shahbazyan": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/5/59/Edmen_Shahbazyan.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
   "author": "UFS stuff",
@@ -432,13 +406,13 @@
   "width": 1192
  },
  "Islam Makhachev": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Islam_Makhachev_signature.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "Islam Makhachev",
-  "license": "Public domain",
-  "page": "https://commons.wikimedia.org/wiki/File:Islam_Makhachev_signature.png",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/9/95/Islam_Makhachev_and_Sergey_Melikov_2025_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Unknown authorUnknown author",
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Islam_Makhachev_and_Sergey_Melikov_2025_(cropped).jpg",
   "source": "Wikimedia Commons",
-  "date": "2026-05-31",
-  "width": 940
+  "date": "2025-11-25",
+  "width": 1165
  },
  "Israel Adesanya": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/1/12/Israel_Adesanya_at_UFC_230.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -493,15 +467,6 @@
   "source": "Wikimedia Commons",
   "date": "2022-06-22",
   "width": 520
- },
- "Jon Jones": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Jon_Jones_-_Supporting_Brain_Health_Study.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "Senate Democrats",
-  "license": "CC BY 2.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Jon_Jones_-_Supporting_Brain_Health_Study.jpg",
-  "source": "Wikimedia Commons",
-  "date": "2014-02-04",
-  "width": 660
  },
  "Josh Hokit": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/UFC_Freedom_250_Press_Conference_%289747953%29_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -593,24 +558,6 @@
   "date": "2022-07-03",
   "width": 1080
  },
- "Khalil Rountree Jr.": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Khalil_Rountree%2C_Jr..jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "Slsinc",
-  "license": "CC BY-SA 4.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Khalil_Rountree,_Jr..jpg",
-  "source": "Wikimedia Commons",
-  "date": "2016-04-25",
-  "width": 688
- },
- "Khamzat Chimaev": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/e/e8/ADAM_SHAMSIEV_AND_KHAMZAT_CHIMAEV.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "Adam Tunniev",
-  "license": "CC BY-SA 4.0",
-  "page": "https://commons.wikimedia.org/wiki/File:ADAM_SHAMSIEV_AND_KHAMZAT_CHIMAEV.jpg",
-  "source": "Wikimedia Commons",
-  "date": "2023-08-08",
-  "width": 1280
- },
  "Kyoji Horiguchi": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Kyoji_Horiguchi_2018.jpg/1280px-Kyoji_Horiguchi_2018.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "Bruno Massami",
@@ -701,15 +648,6 @@
   "date": "2015-02-20",
   "width": 5184
  },
- "Matt Hughes": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/1/16/Matt_Hughes_and_BJ_Penn_after_weigh-in_at_Arrowhead_Pond_of_Anaheim_%2823_09_2006%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "",
-  "license": "Public domain",
-  "page": "https://commons.wikimedia.org/wiki/File:Matt_Hughes_and_BJ_Penn_after_weigh-in_at_Arrowhead_Pond_of_Anaheim_(23_09_2006).jpg",
-  "source": "Wikimedia Commons",
-  "date": "2016-10-16",
-  "width": 1024
- },
  "Mauricio Ruffy": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/a/ad/UFC_Freedom_250_press_conference_at_the_Lincoln_Memorial_in_Washington%2C_D.C.%2C_Friday%2C_June_12%2C_2026_-_22%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
   "author": "The White House",
@@ -728,15 +666,6 @@
   "date": "2022-08-11",
   "width": 1857
  },
- "Maycee Barber": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Tina_Black_%26_Maycee_Barber_with_Maritza_Sanchez.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "Maritza Sanchez",
-  "license": "CC BY 4.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Tina_Black_%26_Maycee_Barber_with_Maritza_Sanchez.png",
-  "source": "Wikimedia Commons",
-  "date": "2025-11-13",
-  "width": 717
- },
  "Merab Dvalishvili": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Merab_Dvalishvili_at_UFC_316_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
   "author": "Margo Martin",
@@ -745,15 +674,6 @@
   "source": "Wikimedia Commons",
   "date": "2025-06-07",
   "width": 622
- },
- "Michael Morales": {
-  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/SALUDO_CON_MICHAEL_MORALES_DEPORTISTA_DE_LA_UFC._QUITO%2C_27_DE_MAYO_DEL_2025.jpg/1280px-SALUDO_CON_MICHAEL_MORALES_DEPORTISTA_DE_LA_UFC._QUITO%2C_27_DE_MAYO_DEL_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-  "author": "Presidencia de la República del Ecuador",
-  "license": "Public domain",
-  "page": "https://commons.wikimedia.org/wiki/File:SALUDO_CON_MICHAEL_MORALES_DEPORTISTA_DE_LA_UFC._QUITO,_27_DE_MAYO_DEL_2025.jpg",
-  "source": "Wikimedia Commons",
-  "date": "2025-05-27",
-  "width": 6000
  },
  "Miesha Tate": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/2/26/MCAS_Yuma_hosts_MMA_Fight_Night_with_guest_of_honor%2C_Miesha_Tate_%286%29_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
