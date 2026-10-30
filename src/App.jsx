@@ -9,6 +9,7 @@ import { useFighters } from "./useFighters.js";
 import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
 import { usePhotos, creditOf } from "./usePhotos.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
+import { LEAGUES, LEAGUE_FIGHTERS, VACANT } from "./otherLeagues.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
   formatHeight, formatDate, ageFrom, getInitialLang, setStoredLang,
@@ -197,11 +198,13 @@ export default function App() {
   const fighters = useMemo(() => {
     if (searching) {
       const q = normName(query);
-      return allFighters.filter((f) => normName(f.nom).includes(q)).sort(byRank);
+      return [...allFighters, ...LEAGUE_FIGHTERS].filter((f) => normName(f.nom).includes(q)).sort(byRank);
     }
     return allFighters.filter((f) => f.categorie === categorie).sort(byRank);
   }, [allFighters, categorie, query, searching]);
 
+  // Onglet d'une autre ligue (PFL, KSW…) : "league:PFL".
+  const league = !searching && categorie.startsWith("league:") ? categorie.slice(7) : null;
   const champion = !searching && fighters.find((f) => f.rang === 0);
   const listed = champion ? fighters.filter((f) => f !== champion) : fighters;
   const firstUnranked = searching ? -1 : listed.findIndex((f) => f.rang == null);
@@ -378,9 +381,53 @@ export default function App() {
                   {translateCategory(c, lang)}
                 </button>
               ))}
+              <span aria-hidden="true" className="w-px shrink-0 bg-neutral-800 mx-1.5 my-1" />
+              {LEAGUES.map((l) => (
+                <button
+                  key={l.id}
+                  onClick={() => { setCategorie(`league:${l.id}`); setQuery(""); }}
+                  className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border ${
+                    league === l.id
+                      ? "bg-neutral-50 text-neutral-950 border-neutral-50"
+                      : "bg-transparent text-neutral-300 border-neutral-700 hover:border-neutral-400"
+                  }`}
+                >
+                  {l.name}
+                </button>
+              ))}
             </div>
 
-            {categorie === "champions" && !searching ? (
+            {league ? (
+              <div>
+                <h2 className="disp text-2xl mb-1">{t.leagueChampions(league)}</h2>
+                <p className="text-xs text-neutral-500 mb-5">{t.otherLeaguesNote}</p>
+                <div key={league} className="grid gap-2 lg:grid-cols-2">
+                  {LEAGUE_FIGHTERS.filter((f) => f.ligue === league).map((f, i) => (
+                    <button
+                      key={f.id}
+                      onClick={() => setSelected(f)}
+                      style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
+                      className="tap row-rise w-full text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3 flex items-center gap-3"
+                    >
+                      <FighterAvatar name={f.nom} photo={photoOf(f)?.url} size={48} gold />
+                      <span className="flex-1 min-w-0 flex flex-col">
+                        <span className="mono text-[10px] uppercase tracking-widest text-amber-400 truncate">{translateCategory(f.categorie, lang)}</span>
+                        <span className="font-semibold text-[15px] truncate">{f.nom}</span>
+                        <span className="text-xs text-neutral-400 truncate">{L(f.pays, lang)}</span>
+                      </span>
+                      <span className="mono text-sm text-neutral-300 shrink-0">{formatRecord(f.victoires, f.defaites, f.nuls, f.nc)}</span>
+                    </button>
+                  ))}
+                  {VACANT.filter((v) => v.ligue === league).map((v) => (
+                    <div key={v.categorie} className="row-rise rounded-2xl border border-dashed border-neutral-800 px-4 py-3 flex flex-col">
+                      <span className="mono text-[10px] uppercase tracking-widest text-neutral-500">{translateCategory(v.categorie, lang)} · {t.vacantTitle}</span>
+                      <span className="text-sm text-neutral-300 mt-0.5">{t.vacantFight(v.fight, v.event, formatDate(v.date, lang))}</span>
+                    </div>
+                  ))}
+                </div>
+                <SearchBox query={query} setQuery={setQuery} t={t} className="mt-6" />
+              </div>
+            ) : categorie === "champions" && !searching ? (
               <div className="space-y-2">
                 {CHAMPIONS.map((c, i) => {
                   const f = allFighters.find((x) => x.nom === c.name);
@@ -468,7 +515,7 @@ export default function App() {
                         <span className="flex-1 min-w-0 flex flex-col">
                           <span className="font-semibold text-[15px] truncate">{f.nom}</span>
                           <span className="text-xs text-neutral-400 truncate">
-                            {searching ? translateCategory(f.categorie, lang) : formatStyle(f.style, lang)}
+                            {searching ? [f.ligue, translateCategory(f.categorie, lang)].filter(Boolean).join(" · ") : formatStyle(f.style, lang)}
                           </span>
                         </span>
                         <span className="mono text-sm text-neutral-300 shrink-0">
@@ -524,7 +571,11 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
   const [extra, setExtra] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Autres ligues : pas d'appel à l'API Octagon (elle ne connaît que l'UFC).
+  const ligue = fighter.ligue;
+
   useEffect(() => {
+    if (ligue) { setExtra(null); setLoading(false); return; }
     let cancelled = false;
     setLoading(true);
     setExtra(null);
@@ -533,12 +584,12 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
       .then((d) => { if (!cancelled) { setExtra(d); setLoading(false); } })
       .catch(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [fighter.nom]);
+  }, [fighter.nom, ligue]);
 
-  const recent = RECENT_FIGHTS[fighter.id];
+  const recent = fighter.recent || RECENT_FIGHTS[fighter.id];
   const age = ageFrom(fighter.naissance);
   const rankLabel = fighter.rang === 0 ? t.champion : fighter.rang != null ? `#${fighter.rang}` : null;
-  const heroRank = fighter.rang === 0 ? t.champion : fighter.rang != null ? `${lang === "fr" ? "N°" : "#"}${fighter.rang}` : null;
+  const heroRank = ligue ? t.leagueChampion(ligue, fighter.female) : fighter.rang === 0 ? t.champion : fighter.rang != null ? `${lang === "fr" ? "N°" : "#"}${fighter.rang}` : null;
 
   return (
     <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 ${closing ? "backdrop-exit" : "backdrop-enter"}`} onClick={onClose}>
@@ -593,10 +644,16 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
           </a>
         )}
         <div className="p-5 space-y-4">
-          <div className="row-rise grid grid-cols-3 gap-2">
+          <div className={`row-rise grid gap-2 ${ligue ? "grid-cols-2" : "grid-cols-3"}`}>
             <Tile value={formatRecord(fighter.victoires, fighter.defaites, fighter.nuls, fighter.nc)} label={t.proRecord} gold />
-            <Tile value={formatHeight(fighter.taille, lang)} label={t.height} />
-            <Tile value={formatHeight(fighter.allonge, lang)} label={t.reach} />
+            {ligue ? (
+              <Tile value={age != null ? t.years(age) : null} label={t.age} />
+            ) : (
+              <>
+                <Tile value={formatHeight(fighter.taille, lang)} label={t.height} />
+                <Tile value={formatHeight(fighter.allonge, lang)} label={t.reach} />
+              </>
+            )}
           </div>
           {fighter.victoires > 0 && fighter.ko + fighter.sub + fighter.dec > 0 && (
             <div className="row-rise" style={{ animationDelay: "20ms" }}>
@@ -614,10 +671,12 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
             </div>
           )}
           <Stat icon={Users} label={t.division} value={translateCategory(fighter.categorie, lang)} delay={40} />
-          <Stat icon={Medal} label={t.ranking} value={rankLabel} delay={60} />
+          {fighter.note && <p className="row-rise text-xs text-neutral-400" style={{ animationDelay: "50ms" }}>{L(fighter.note, lang)}</p>}
+          <Stat icon={Medal} label={t.ranking} value={ligue ? null : rankLabel} delay={60} />
+          <Stat icon={MapPin} label={t.country} value={ligue ? L(fighter.pays, lang) : null} delay={70} />
           <Stat icon={Swords} label={t.ufcRecord} value={fighter.ufcV != null ? formatRecord(fighter.ufcV, fighter.ufcD, fighter.ufcN, fighter.ufcNc) : null} delay={80} />
           <Stat label={t.style} value={formatStyle(fighter.style, lang)} delay={120} />
-          <Stat icon={Cake} label={t.age} value={age != null ? t.years(age) : null} delay={160} />
+          <Stat icon={Cake} label={t.age} value={!ligue && age != null ? t.years(age) : null} delay={160} />
           <Stat icon={MapPin} label={t.birthplace} value={extra?.placeOfBirth} delay={200} />
           <Stat icon={Dumbbell} label={t.trainsAt} value={extra?.trainsAt} delay={240} />
           {loading && <p className="text-xs text-neutral-500">{t.loading}</p>}
@@ -636,7 +695,10 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{fight.opponent}</div>
-                      <div className="text-[11px] text-neutral-500">{lang === "fr" ? fight.event : fight.event.replace(" : ", ": ")}</div>
+                      <div className="text-[11px] text-neutral-500">
+                        {lang === "fr" ? fight.event : fight.event.replace(" : ", ": ")}
+                        {fight.date && ` · ${formatDate(fight.date, lang)}`}
+                      </div>
                     </div>
                     <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border shrink-0 ${METHOD_COLOR[fight.method] || "text-neutral-300 border-neutral-700"}`}>
                       {translateMethod(fight.method, lang)}
