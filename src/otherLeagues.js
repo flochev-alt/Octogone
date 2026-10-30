@@ -9,6 +9,10 @@ const DU = "Décision unanime", DP = "Décision partagée", DM = "Décision majo
 export const LEAGUES = [
   { id: "PFL", name: "PFL", url: "https://pflmma.com" },
   { id: "KSW", name: "KSW", url: "https://www.kswmma.com" },
+  // Scène française : les sites des ligues ne tiennent pas de liste de champions à jour,
+  // on n'affiche que les ceintures confirmées par 2 sources (vérifié le 2026-10-30).
+  { id: "ARES", name: "ARES", url: "https://www.aresfighting.com", note: { fr: "Seules les ceintures confirmées par 2 sources sont affichées.", en: "Only belts confirmed by 2 sources are shown.", es: "Solo se muestran los cinturones confirmados por 2 fuentes." } },
+  { id: "Hexagone MMA", name: "Hexagone MMA", url: "https://hexagonemma.fr", note: { fr: "Seules les ceintures confirmées par 2 sources sont affichées.", en: "Only belts confirmed by 2 sources are shown.", es: "Solo se muestran los cinturones confirmados por 2 fuentes." } },
 ];
 
 export const LEAGUE_FIGHTERS = [
@@ -182,6 +186,65 @@ export const LEAGUE_FIGHTERS = [
       f("V", "Annabruna Radoš", DU, "FNC Knockout 1", "2025-05-03"),
       f("D", "Danielle Misteli", SUB, "Oktagon 66", "2025-02-01"),
       f("D", "Emilia Czerwińska", DU, "KSW 72", "2022-07-23"),
+    ],
+  },
+
+  // --- ARES (sources : aresfighting.com, mma-official.com, Sherdog, Fight Matrix, ESPN) ---
+  {
+    id: "ares-lessou", ligue: "ARES", nom: "Xavier Lessou", categorie: "Poids lourd", rang: 0,
+    victoires: 6, defaites: 2, nuls: 0, nc: 0, naissance: null, pays: { fr: "Cameroun", en: "Cameroon", es: "Camerún" },
+    recent: [
+      f("V", "Moreno Kacapor", DP, "ARES 37", "2026-01-09"),
+      f("V", "Paweł Biernat", SUB, "ARES 28", "2025-01-18"),
+      f("V", "Sofiane Boukichou", SUB, "ARES 24", "2024-09-05"),
+      f("V", "Rony Bouzy", "TKO", "ARES 17", "2023-11-17"),
+      f("V", "Badr Medkouri", DU, "ARES 13", "2023-03-09"),
+    ],
+  },
+  {
+    id: "ares-augen", ligue: "ARES", nom: "Virgil Augen", categorie: "Poids moyen", rang: 0,
+    victoires: 9, defaites: 0, nuls: 0, nc: 0, naissance: null, pays: { fr: "France", en: "France", es: "Francia" },
+    recent: [
+      f("V", "Henrique Shiguemoto", SUB, "ARES 37", "2026-01-09"),
+      f("V", "Moacir Rocha", SUB, "ARES 27", "2024-11-23"),
+      f("V", "Vladislav Gutu", SUB, "ARES 20", "2024-04-18"),
+      f("V", "Henrique Shiguemoto", DU, "ARES 18", "2023-12-15"),
+      f("V", "Mantas Kondratavičius", SUB, "ARES 16", "2023-06-23"),
+    ],
+  },
+
+  // --- Hexagone MMA (sources : hexagonemma.fr, mma-official.com, Sherdog, Fight Matrix, ufcalendar, combatreg) ---
+  {
+    id: "hx-goi", ligue: "Hexagone MMA", nom: "Léopold Goi", categorie: "Poids mouche", rang: 0,
+    victoires: 9, defaites: 3, nuls: 0, nc: 0, naissance: "1997-02-08", pays: { fr: "France", en: "France", es: "Francia" },
+    recent: [
+      f("V", "Samba Sima", "TKO", "Hexagone MMA 48", "2026-10-24"),
+      f("D", "Romero Reis", "KO", "Hexagone MMA 40", "2026-02-28"),
+      f("V", "Ilie Meryacre", "KO", "Hexagone MMA 30", "2025-06-07"),
+      f("V", "Maximilien Vallot", SUB, "Hexagone MMA 21", "2024-11-23"),
+      f("V", "Martin McNulty", DU, "Hexagone MMA 16", "2024-05-24"),
+    ],
+  },
+  {
+    id: "hx-kobakhidze", ligue: "Hexagone MMA", nom: "Nika Kobakhidze", categorie: "Poids plume", rang: 0,
+    victoires: 8, defaites: 3, nuls: 0, nc: 0, naissance: "1995-04-20", pays: { fr: "Géorgie", en: "Georgia", es: "Georgia" },
+    recent: [
+      f("V", "Magomed Abdulaev", SUB, "Hexagone MMA 44", "2026-05-29"),
+      f("V", "Guillaume Delattre", "TKO", "Hexagone MMA 40", "2026-02-28"),
+      f("D", "Brandon Brachet", DP, "Hexagone MMA 27", "2025-04-25"),
+      f("V", "Hasni Mohammadi", SUB, "KOF 8", "2024-10-11"),
+      f("V", "Alperen Bulut", DU, "KOF 6", "2024-06-01"),
+    ],
+  },
+  {
+    id: "hx-soares", ligue: "Hexagone MMA", nom: "Thalita Soares", categorie: "Poids mouche feminin", rang: 0, female: true,
+    victoires: 11, defaites: 5, nuls: 0, nc: 0, naissance: "1992-07-20", pays: { fr: "Brésil", en: "Brazil", es: "Brasil" },
+    recent: [
+      f("V", "Tatiane Aguiar", "TKO", "Shooto Brasil 137", "2026-05-29"),
+      f("V", "Alexandra Tekenah", "TKO", "Hexagone MMA 37", "2026-01-09"),
+      f("V", "Daiane Cardoso", DU, "Hexagone MMA 33", "2025-08-29"),
+      f("V", "Kate Bacik", SUB, "Hexagone MMA 22", "2024-12-21"),
+      f("D", "Yana Gadelha", SUB, "Shooto Brasil 125", "2024-09-20"),
     ],
   },
 ];
