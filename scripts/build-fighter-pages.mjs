@@ -86,13 +86,21 @@ function page(f) {
     `<meta property="og:title" content="${esc(title)}" />`,
     `<meta property="og:description" content="${esc(desc)}" />`,
     `<meta property="og:url" content="${url}" />`,
-    img && `<meta property="og:image" content="${esc(img)}" />`,
-    `<meta name="twitter:card" content="summary" />`,
+    `<meta property="og:locale" content="fr_FR" />`,
+    // Avec photo : petite vignette carrée ; sans photo : la grande image du site.
+    `<meta property="og:image" content="${esc(img || `${SITE}/og-image.jpg`)}" />`,
+    `<meta name="twitter:card" content="${img ? "summary" : "summary_large_image"}" />`,
+    `<meta name="twitter:title" content="${esc(title)}" />`,
+    `<meta name="twitter:description" content="${esc(desc)}" />`,
+    `<meta name="twitter:image" content="${esc(img || `${SITE}/og-image.jpg`)}" />`,
     `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>`,
   ].filter(Boolean).join("\n    ");
   return template
     .replace(/<meta name="description"[^>]*>\s*/, "")
     .replace(/<link rel="canonical"[^>]*>\s*/, "")
+    // On retire l'aperçu de la page d'accueil (og:/twitter:) avant de mettre celui du combattant.
+    .replace(/<!-- Aperçu du lien[^>]*-->\s*/, "")
+    .replace(/<meta (?:property="og:|name="twitter:)[^>]*>\s*/g, "")
     .replace(/<title>[\s\S]*?<\/title>/, head)
     .replace('<div id="root"></div>', `<div id="root">${body(f)}</div>`);
 }

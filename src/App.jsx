@@ -8,6 +8,7 @@ import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
 import { initVip } from "./vip.js";
+import { useInstall } from "./install.js";
 import { useFighters } from "./useFighters.js";
 import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
 import { usePhotos, creditOf } from "./usePhotos.js";
@@ -242,6 +243,8 @@ export default function App() {
   const [selected, setSelected] = useState(linked);
   const [closing, setClosing] = useState(false);
   const [cookiesOpen, setCookiesOpen] = useState(false);
+  const installApp = useInstall();
+  const [iosHelp, setIosHelp] = useState(false);
 
   // Une recherche porte sur toute la base (toutes catégories), sinon on affiche la catégorie choisie.
   const allFighters = useFighters();
@@ -662,6 +665,15 @@ export default function App() {
         <button onClick={() => setCookiesOpen(true)} className="tap underline hover:text-neutral-300">
           {t.cookies}
         </button>
+        {installApp.mode && (
+          <button
+            onClick={() => (installApp.mode === "prompt" ? installApp.install() : setIosHelp((v) => !v))}
+            className="tap underline text-amber-400/80 hover:text-amber-300"
+          >
+            {t.installApp}
+          </button>
+        )}
+        {iosHelp && installApp.mode === "ios" && <span className="basis-full text-neutral-400">{t.iosInstall}</span>}
       </footer>
       {banner}
     </div>
