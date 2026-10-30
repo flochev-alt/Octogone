@@ -1,4 +1,5 @@
 import { isVipCode } from "./_vip.js";
+import { duelKey, getAnalysis, saveAnalysis } from "./_analyses.js";
 
 const DAILY_LIMIT = 5;
 // Compteur par adresse IP et par jour, en mémoire du serveur. Vercel peut redémarrer ou multiplier
@@ -24,6 +25,14 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: "daily_limit" });
   }
 
+  const { fighterA, fighterB, probA, probB, lang = "fr" } = req.body;
+  if (!fighterA?.nom || !fighterB?.nom) return res.status(400).json({ error: "Combattants manquants" });
+
+  // Duel déjà analysé avec les mêmes stats : tout le monde reçoit la même analyse.
+  const key = duelKey(fighterA, fighterB, lang);
+  const known = await getAnalysis(key);
+  if (known) return res.status(200).json({ analysis: known, cached: true });
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return res.status(501).json({
@@ -31,7 +40,6 @@ export default async function handler(req, res) {
     });
   }
 
-  const { fighterA, fighterB, probA, probB, lang = "fr" } = req.body;
   const LANGUAGE_NAMES = { fr: "français", en: "anglais", es: "espagnol" };
   const language = LANGUAGE_NAMES[lang] || "français";
   const STYLE_NAMES = { jjb: "jiu-jitsu brésilien", boxe: "boxe anglaise", muaythai: "muay-thaï", corpsacorps: "combat corps à corps", kungfu: "kung-fu", mma: "formé directement au MMA" };
@@ -124,7 +132,7 @@ Remplis chaque champ :
     // La réponse peut commencer par un bloc de réflexion : on ne garde que le texte.
     const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
     if (!text) throw new Error(`Réponse vide (stop_reason: ${data.stop_reason})`);
-    res.status(200).json({ analysis: JSON.parse(text) });
+    res.status(200).json({ analysis: await saveAnalysis(key, JSON.parse(text)) });
   } catch (e) {
     console.error(e);
     res.status(502).json({ error: "Impossible de générer l'analyse pour le moment." });
