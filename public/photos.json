@@ -98,6 +98,15 @@
   "date": "2023-05-03",
   "width": 3077
  },
+ "Anderson Silva": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Chris_Weidman_knock_out_Anderson_Silva_at_UFC_162..jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Kevlar",
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File:Chris_Weidman_knock_out_Anderson_Silva_at_UFC_162..jpg",
+  "source": "Wikimedia Commons",
+  "date": "2013-07-06",
+  "width": 1278
+ },
  "Angela Hill": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Angela_Hill_victorious_at_Friday_Night_Fights.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
   "author": "Friday Night Fights MuayThai",
@@ -142,6 +151,15 @@
   "source": "Wikimedia Commons",
   "date": "2026-05-28",
   "width": 847
+ },
+ "B.J. Penn": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/2/29/B.J._Penn%2C_2019.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Chairman of the Joint Chiefs of Staff from Washington D.C, United States",
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File:B.J._Penn,_2019.jpg",
+  "source": "Wikimedia Commons",
+  "date": "2019-04-02",
+  "width": 1106
  },
  "Belal Muhammad": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/1/16/Belal_Muhammad_UFC_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -234,13 +252,23 @@
   "width": 1106
  },
  "Charles Oliveira": {
-  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e2/Charles_Oliveira_UFC_%2851604933891%29.jpg/1280px-Charles_Oliveira_UFC_%2851604933891%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
-  "author": "Renan Silva",
+  "url": "https://live.staticflickr.com/65535/51605585539_d7fba6ba9f_b.jpg",
+  "width": 1024,
+  "author": "re.silva",
+  "license": "Public Domain Mark 1.0",
+  "page": "https://www.flickr.com/photos/194205937@N07/51605585539",
+  "source": "Flickr",
+  "date": "",
+  "ufc": true
+ },
+ "Chuck Liddell": {
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Chuck_%E2%80%9CThe_Iceman%E2%80%9D_Liddell%2C_a_retired_American_mixed_martial_artist%2C_tightens_a_bolt.jpg/1280px-Chuck_%E2%80%9CThe_Iceman%E2%80%9D_Liddell%2C_a_retired_American_mixed_martial_artist%2C_tightens_a_bolt.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "author": "US Air Force",
   "license": "Public domain",
-  "page": "https://commons.wikimedia.org/wiki/File:Charles_Oliveira_UFC_(51604933891).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Chuck_%E2%80%9CThe_Iceman%E2%80%9D_Liddell,_a_retired_American_mixed_martial_artist,_tightens_a_bolt.jpg",
   "source": "Wikimedia Commons",
-  "date": "2021-10-05",
-  "width": 6000
+  "date": "2015-08-04",
+  "width": 3000
  },
  "Ciryl Gane": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/UFC_Freedom_250%2C_the_mixed_martial_arts_event_produced_by_the_Ultimate_Fighting_Championship%2C_Sunday%2C_June_14%2C_2026%2C_in_the_Grand_Foyer_of_the_White_House_-_64%28cropped%29.jpg/1280px-thumbnail.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -296,6 +324,15 @@
   "date": "2018-02-11",
   "width": 768
  },
+ "Daniel Cormier": {
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/JTF-DC_Freedom_UFC_250_Press_Conference_%289747806%29%28cropped%29.jpg/1280px-JTF-DC_Freedom_UFC_250_Press_Conference_%289747806%29%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "author": "U.S. Army National Guard photo by Spc. Shretha Broderick",
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File:JTF-DC_Freedom_UFC_250_Press_Conference_(9747806)(cropped).jpg",
+  "source": "Wikimedia Commons",
+  "date": "2026-06-12",
+  "width": 1290
+ },
  "Daniel Rodriguez": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/86/Daniel_Rodriguez_%288180778752%29.jpg/1280px-Daniel_Rodriguez_%288180778752%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "Germanna CC",
@@ -322,6 +359,15 @@
   "source": "Wikimedia Commons",
   "date": "2024-08-07",
   "width": 812
+ },
+ "Demetrious Johnson": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Demetrious_Johnson_2024.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Onlyfans",
+  "license": "CC BY 3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Demetrious_Johnson_2024.png",
+  "source": "Wikimedia Commons",
+  "date": "2024-02-20",
+  "width": 507
  },
  "Derrick Lewis": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/9/90/UFC_Freedom_250_Press_Conference_%289747952%29_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -367,6 +413,15 @@
   "source": "Wikimedia Commons",
   "date": "2019-11-04",
   "width": 669
+ },
+ "Fedor Emelianenko": {
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Fedor_Emelianenko_and_Radmir_Gabdullin.jpg/1280px-Fedor_Emelianenko_and_Radmir_Gabdullin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "author": "Aleks Fight",
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Fedor_Emelianenko_and_Radmir_Gabdullin.jpg",
+  "source": "Wikimedia Commons",
+  "date": "2019-05-06",
+  "width": 1292
  },
  "Gabriel Bonfim": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Gabriel_Bonfim_2025.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -494,6 +549,15 @@
   "date": "2015-05-30",
   "width": 5760
  },
+ "Jon Jones": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Jon_Jones_-_Supporting_Brain_Health_Study.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Senate Democrats",
+  "license": "CC BY 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Jon_Jones_-_Supporting_Brain_Health_Study.jpg",
+  "source": "Wikimedia Commons",
+  "date": "2014-02-04",
+  "width": 660
+ },
  "Josh Hokit": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/UFC_Freedom_250_Press_Conference_%289747953%29_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
   "author": "U.S. Army photo by Sgt. 1st Class Brittany Primavera",
@@ -511,6 +575,15 @@
   "source": "Wikimedia Commons",
   "date": "2026-07-19",
   "width": 610
+ },
+ "José Aldo": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Kleber_Repolho_e_Jos%C3%A9_Aldo.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Carolinerepolho",
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Kleber_Repolho_e_Jos%C3%A9_Aldo.jpg",
+  "source": "Wikimedia Commons",
+  "date": "2017-01-01",
+  "width": 1079
  },
  "Julianna Pena": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2c/Ceremonial_weigh_ins_-_Amanda_Nunes_vs_Julianna_Pe%C3%B1a_UFC_269_-_YouTube_-_0_23.jpg/1280px-Ceremonial_weigh_ins_-_Amanda_Nunes_vs_Julianna_Pe%C3%B1a_UFC_269_-_YouTube_-_0_23.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -549,19 +622,19 @@
   "width": 794
  },
  "Kayla Harrison": {
-  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ac/President_Donald_Trump_congratulates_Kayla_Harrison_after_her_victory_during_UFC_316_%2854577774044%29.jpg/1280px-President_Donald_Trump_congratulates_Kayla_Harrison_after_her_victory_during_UFC_316_%2854577774044%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/President_Donald_Trump_congratulates_Kayla_Harrison_after_her_victory_during_UFC_316_%2854577590491%29.jpg/1280px-President_Donald_Trump_congratulates_Kayla_Harrison_after_her_victory_during_UFC_316_%2854577590491%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "The White House",
   "license": "Public domain",
-  "page": "https://commons.wikimedia.org/wiki/File:President_Donald_Trump_congratulates_Kayla_Harrison_after_her_victory_during_UFC_316_(54577774044).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:President_Donald_Trump_congratulates_Kayla_Harrison_after_her_victory_during_UFC_316_(54577590491).jpg",
   "source": "Wikimedia Commons",
   "date": "2025-06-08",
   "width": 3000
  },
  "Kevin Holland": {
-  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/President_Donald_Trump_congratulates_Kevin_Holland_after_his_victory_during_UFC_316_%2854576727287%29.jpg/1280px-President_Donald_Trump_congratulates_Kevin_Holland_after_his_victory_during_UFC_316_%2854576727287%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/President_Donald_Trump_congratulates_Kevin_Holland_after_his_victory_during_UFC_316_%2854576727207%29.jpg/1280px-President_Donald_Trump_congratulates_Kevin_Holland_after_his_victory_during_UFC_316_%2854576727207%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "The White House",
   "license": "Public domain",
-  "page": "https://commons.wikimedia.org/wiki/File:President_Donald_Trump_congratulates_Kevin_Holland_after_his_victory_during_UFC_316_(54576727287).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:President_Donald_Trump_congratulates_Kevin_Holland_after_his_victory_during_UFC_316_(54576727207).jpg",
   "source": "Wikimedia Commons",
   "date": "2025-06-07",
   "width": 3000
@@ -675,13 +748,13 @@
   "width": 894
  },
  "Marlon Vera": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Marlon_Vera_LA_Fleet_Week_USS_Essex_Tour_9702269_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Marlon_Vera_LA_Fleet_Week_USS_Essex_Tour_9702269.jpg/1280px-Marlon_Vera_LA_Fleet_Week_USS_Essex_Tour_9702269.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "Mass Communication Specialist 1st Class Russell R. Rhodes Jr.",
   "license": "Public domain",
-  "page": "https://commons.wikimedia.org/wiki/File:Marlon_Vera_LA_Fleet_Week_USS_Essex_Tour_9702269_(cropped).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Marlon_Vera_LA_Fleet_Week_USS_Essex_Tour_9702269.jpg",
   "source": "Wikimedia Commons",
   "date": "2026-05-21",
-  "width": 938
+  "width": 5041
  },
  "Mateusz Gamrot": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Mateusz_Gamrot.jpg/1280px-Mateusz_Gamrot.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
@@ -691,6 +764,15 @@
   "source": "Wikimedia Commons",
   "date": "2015-02-20",
   "width": 5184
+ },
+ "Matt Hughes": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/1/16/Matt_Hughes_and_BJ_Penn_after_weigh-in_at_Arrowhead_Pond_of_Anaheim_%2823_09_2006%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "",
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File:Matt_Hughes_and_BJ_Penn_after_weigh-in_at_Arrowhead_Pond_of_Anaheim_(23_09_2006).jpg",
+  "source": "Wikimedia Commons",
+  "date": "2016-10-16",
+  "width": 1024
  },
  "Mauricio Ruffy": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/a/ad/UFC_Freedom_250_press_conference_at_the_Lincoln_Memorial_in_Washington%2C_D.C.%2C_Friday%2C_June_12%2C_2026_-_22%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -791,6 +873,15 @@
   "date": "2019-12-19",
   "width": 598
  },
+ "Nika Kobakhidze": {
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ee/Nika_Kobakhidze.jpg/1280px-Nika_Kobakhidze.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "author": "Captain Souf",
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Nika_Kobakhidze.jpg",
+  "source": "Wikimedia Commons",
+  "date": "2024-08-20",
+  "width": 3456
+ },
  "Paddy Pimblett": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/UFC_Star_Paddy_The_Baddy_Pimblett_tells_his_story.jpg/1280px-UFC_Star_Paddy_The_Baddy_Pimblett_tells_his_story.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "James English",
@@ -845,6 +936,15 @@
   "date": "2021-05-28",
   "width": 1080
  },
+ "Randy Couture": {
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Randy_Couture_-_Terry_Crews-_Vincent_A_Coglianese_-_Dolph_Lundgren_%28Marine_Corps_Base_Camp_Pendleton_for_the_premiere_of_The_Expendables_2%29.jpg/1280px-Randy_Couture_-_Terry_Crews-_Vincent_A_Coglianese_-_Dolph_Lundgren_%28Marine_Corps_Base_Camp_Pendleton_for_the_premiere_of_The_Expendables_2%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "author": "Lance Cpl. Sarah Wolff",
+  "license": "Public domain",
+  "page": "https://commons.wikimedia.org/wiki/File:Randy_Couture_-_Terry_Crews-_Vincent_A_Coglianese_-_Dolph_Lundgren_(Marine_Corps_Base_Camp_Pendleton_for_the_premiere_of_The_Expendables_2).jpg",
+  "source": "Wikimedia Commons",
+  "date": "2012-07-13",
+  "width": 5616
+ },
  "Raquel Pennington": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b5/Raquel_Pennington_MCCS_Twentynine_Palms_presents_an_action-packed_MMA_Fight_Night_Live_at_The_Combat_Center_%285%29.jpg/1280px-Raquel_Pennington_MCCS_Twentynine_Palms_presents_an_action-packed_MMA_Fight_Night_Live_at_The_Combat_Center_%285%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "Lance Cpl. Enge You",
@@ -898,6 +998,15 @@
   "source": "Wikimedia Commons",
   "date": "2024-06-29",
   "width": 1287
+ },
+ "Ronda Rousey": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/Rousey_HOF_2018_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Shared Account",
+  "license": "CC BY-SA 2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Rousey_HOF_2018_(cropped).jpg",
+  "source": "Wikimedia Commons",
+  "date": "2018-04-06",
+  "width": 1133
  },
  "Rose Namajunas": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Rose_Namajunas.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -1051,6 +1160,15 @@
   "source": "Wikimedia Commons",
   "date": "2018-09-07",
   "width": 1159
+ },
+ "Wanderlei Silva": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Marcelo_Alonso_e_Wanderlei_Silva_na_Cal%C3%A7ada_da_Fama_do_MMA.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Alan Vilhena",
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Marcelo_Alonso_e_Wanderlei_Silva_na_Cal%C3%A7ada_da_Fama_do_MMA.jpg",
+  "source": "Wikimedia Commons",
+  "date": "2024-02-16",
+  "width": 1200
  },
  "Yair Rodríguez": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Carrera_con_Yair_%22Pantera%22_Rodr%C3%ADguez_-i---i-_%2830657689682%29_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
