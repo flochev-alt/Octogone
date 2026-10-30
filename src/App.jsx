@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef, Fragment } from "react";
 import { Search, X, ChevronLeft, ChevronRight, Trophy, MapPin, Users, Swords, Instagram, Cake, Dumbbell, Medal } from "lucide-react";
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
+import Hub from "./Hub.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
@@ -179,6 +180,23 @@ export default function App() {
   const [linked] = useState(() => fighterAt(window.location.pathname));
   const [view, setView] = useState(linked ? "combattants" : "landing");
   const changeView = (v) => setView(v);
+  // Changement de page animé (accueil → page de choix → section) : un voile noir et un octogone doré
+  // couvrent l'écran, la page change dessous, puis le voile s'efface.
+  const [veil, setVeil] = useState(null);
+  const goTo = (v) => {
+    if (veil) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return setView(v);
+    setVeil("in");
+    setTimeout(() => { setView(v); setVeil("out"); }, 420);
+    setTimeout(() => setVeil(null), 900);
+  };
+  const veilEl = veil && (
+    <div aria-hidden="true" className={`page-veil ${veil === "in" ? "veil-in" : "veil-out"}`}>
+      <svg className="veil-oct" viewBox="0 0 100 100">
+        <polygon points="32,6 68,6 94,32 94,68 68,94 32,94 6,68 6,32" fill="none" stroke="#fbbf24" strokeWidth="3" />
+      </svg>
+    </div>
+  );
   const [lang, setLangState] = useState("fr");
   const t = T[lang];
 
@@ -272,13 +290,25 @@ export default function App() {
     return (
       <>
         <Landing
-          onEnter={() => setView("combattants")}
-          onEnterSimulator={() => setView("simulateur")}
-          onEnterMedia={() => setView("media")}
+          onEnter={() => goTo("combattants")}
+          onExplore={() => goTo("hub")}
+          onEnterSimulator={() => goTo("simulateur")}
+          onEnterMedia={() => goTo("media")}
           lang={lang}
           setLang={setLang}
         />
         {banner}
+        {veilEl}
+      </>
+    );
+  }
+
+  if (view === "hub") {
+    return (
+      <>
+        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} />
+        {banner}
+        {veilEl}
       </>
     );
   }
