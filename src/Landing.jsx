@@ -3,6 +3,7 @@ import { ArrowRight, Swords, Trophy, Newspaper } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 import { eventName } from "./Media.jsx";
 import { useMedia } from "./useMedia.js";
+import Cage3D from "./Cage3D.jsx";
 
 // Événements à venir, lus dans le fil Média (Supabase, sinon mediaData.js), du plus proche au plus lointain.
 // `start` (facultatif) = début de la carte principale en UTC : il active le compte à rebours à la seconde.
@@ -173,6 +174,9 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
 
         {/* Scène : l'octogone est centré sur le titre */}
         <div className="relative w-full flex items-center justify-center h-[420px] sm:h-[560px]">
+          {/* Cage octogonale 3D qui tourne derrière le titre */}
+          {mounted && <Cage3D />}
+
           {/* Fondu chaud discret, contenu dans le petit octogone */}
           <div className="absolute inset-0 m-auto w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-amber-400/40 blur-2xl pointer-events-none" />
 
