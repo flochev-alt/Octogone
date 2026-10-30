@@ -500,10 +500,13 @@ export default function App() {
                       <FighterAvatar name={f.nom} photo={photoOf(f)?.url} size={48} gold />
                       <span className="flex-1 min-w-0 flex flex-col">
                         <span className="mono text-[10px] uppercase tracking-widest text-amber-400 truncate">{translateCategory(f.categorie, lang)}</span>
-                        <span className="font-semibold text-[15px] truncate">{f.nom}</span>
+                        <span className="font-semibold text-[15px] leading-tight break-words">{f.nom}</span>
                         <span className="text-xs text-neutral-400 truncate">{L(f.pays, lang)}</span>
                       </span>
-                      <span className="mono text-sm text-neutral-300 shrink-0">{formatRecord(f.victoires, f.defaites, f.nuls, f.nc)}</span>
+                      <span className="mono text-sm text-neutral-300 shrink-0 text-right">
+                        {formatRecord(f.victoires, f.defaites, f.nuls)}
+                        {f.nc > 0 && <span className="block text-[10px] text-neutral-500">{f.nc} NC</span>}
+                      </span>
                     </button>
                   ))}
                   {VACANT.filter((v) => v.ligue === league).map((v) => (
@@ -596,12 +599,15 @@ export default function App() {
                         style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
                         className="tap row-rise w-full min-w-0 text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-2.5 flex items-center gap-3"
                       >
-                        <span className={`mono text-sm w-6 shrink-0 ${f.rang === 0 || f.rang === 1 ? "text-amber-400" : "text-neutral-500"}`}>
-                          {f.rang === 0 ? "C" : f.rang != null ? f.rang : "–"}
-                        </span>
+                        {/* Pas de colonne de classement chez les légendes (aucune n'est classée). */}
+                        {(searching || categorie !== "Legendes") && (
+                          <span className={`mono text-sm w-6 shrink-0 ${f.rang === 0 || f.rang === 1 ? "text-amber-400" : "text-neutral-500"}`}>
+                            {f.rang === 0 ? "C" : f.rang != null ? f.rang : "–"}
+                          </span>
+                        )}
                         <FighterAvatar name={f.nom} photo={photoOf(f)?.url} size={44} gold={f.rang === 0 || f.rang === 1} />
                         <span className="flex-1 min-w-0 flex flex-col">
-                          <span className="font-semibold text-[15px] truncate">{f.nom}</span>
+                          <span className="font-semibold text-[15px] leading-tight break-words">{f.nom}</span>
                           <span className="text-xs text-neutral-400 truncate">
                             {searching ? [f.ligue, translateCategory(f.categorie, lang)].filter(Boolean).join(" · ") : formatStyle(f.style, lang)}
                           </span>
@@ -742,7 +748,7 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
         )}
         <div className="p-5 space-y-4">
           <div className={`row-rise grid gap-2 ${ligue ? "grid-cols-2" : "grid-cols-3"}`}>
-            <Tile value={formatRecord(fighter.victoires, fighter.defaites, fighter.nuls, fighter.nc)} label={t.proRecord} gold />
+            <Tile value={formatRecord(fighter.victoires, fighter.defaites, fighter.nuls)} sub={fighter.nc > 0 ? `${fighter.nc} NC` : null} label={t.proRecord} gold />
             {ligue ? (
               <Tile value={age != null ? t.years(age) : null} label={t.age} />
             ) : (
@@ -882,11 +888,14 @@ function CategoryBar({ active, children }) {
   );
 }
 
-function Tile({ value, label, gold = false }) {
+// sub : précision ajoutée à la légende (ex. « 1 NC » sous le bilan), pour ne pas couper la valeur sur téléphone.
+function Tile({ value, label, gold = false, sub = null }) {
   return (
     <div className="rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2.5 min-w-0">
-      <div className={`mono tracking-tight truncate ${String(value || "").length > 8 ? "text-sm sm:text-base" : "text-base sm:text-lg"} ${gold ? "text-amber-400" : "text-neutral-100"}`}>{value || "–"}</div>
-      <div className="text-[10px] text-neutral-500 mt-0.5 leading-tight">{label}</div>
+      <div className={`mono tracking-tight truncate ${String(value || "").length > 8 ? "text-sm sm:text-base" : "text-base sm:text-lg"} ${gold ? "text-amber-400" : "text-neutral-100"}`}>
+        {value || "–"}
+      </div>
+      <div className="text-[10px] text-neutral-500 mt-0.5 leading-tight">{sub ? `${label} · ${sub}` : label}</div>
     </div>
   );
 }
