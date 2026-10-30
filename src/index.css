@@ -75,3 +75,78 @@ body {
   from { transform: scale(1); opacity: 1; }
   to { transform: scale(6); opacity: 0; }
 }
+
+/* Cage octogonale 3D de l'accueil (src/Cage3D.jsx). --r : rayon ; côté = 0,828 × r ; apothème = 0,924 × r. */
+.cage-stage {
+  --r: 150px;
+  --side: calc(var(--r) * 0.8284);
+  --apothem: calc(var(--r) * 0.9239);
+  --h: calc(var(--r) * 0.5);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 900px;
+  pointer-events: none;
+}
+@media (min-width: 640px) {
+  .cage-stage { --r: 215px; perspective: 1200px; }
+}
+.cage-tilt,
+.cage-view,
+.cage-spin {
+  position: absolute;
+  transform-style: preserve-3d;
+}
+.cage-tilt { will-change: transform; }
+.cage-view { transform: rotateX(62deg); } /* vue plongeante, comme une caméra au-dessus de la cage */
+.cage-spin { animation: cageSpin 40s linear infinite; }
+/* L'entrée (fondu) se fait sur le conteneur plat : une opacité sur un élément 3D l'aplatirait. */
+.cage-stage { animation: cageIn 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both; }
+.cage-side {
+  position: absolute;
+  left: calc(var(--side) / -2);
+  top: calc(var(--h) / -1);
+  width: var(--side);
+  height: var(--h);
+  backface-visibility: visible;
+  border-top: 2px solid rgba(251, 191, 36, 0.55);
+  border-bottom: 1px solid rgba(251, 191, 36, 0.35);
+  /* Grillage en losanges */
+  background:
+    repeating-linear-gradient(45deg, rgba(251, 191, 36, 0.16) 0 1px, transparent 1px 12px),
+    repeating-linear-gradient(-45deg, rgba(251, 191, 36, 0.16) 0 1px, transparent 1px 12px),
+    linear-gradient(to top, rgba(251, 191, 36, 0.08), transparent 70%);
+}
+.cage-post {
+  position: absolute;
+  left: -2px;
+  top: -6px;
+  bottom: 0;
+  width: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to bottom, #fef3c7, #fbbf24 30%, rgba(251, 191, 36, 0.3));
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+.cage-floor {
+  position: absolute;
+  left: calc(var(--r) * -1);
+  top: calc(var(--r) * -1);
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  transform: rotateX(90deg);
+  clip-path: polygon(30.9% 3.9%, 69.1% 3.9%, 96.1% 30.9%, 96.1% 69.1%, 69.1% 96.1%, 30.9% 96.1%, 3.9% 69.1%, 3.9% 30.9%);
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.22), rgba(251, 191, 36, 0.05) 60%, rgba(251, 191, 36, 0.12));
+}
+@keyframes cageSpin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+@keyframes cageIn {
+  from { opacity: 0; scale: 0.6; }
+  to { opacity: 1; scale: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cage-spin { animation: none; transform: rotateY(22.5deg); }
+}
