@@ -1,17 +1,19 @@
-// GET /api/photos?names=Ilia Topuria|Justin Gaethje (25 noms max)
+// GET /api/photos?names=Ilia Topuria|Justin Gaethje (10 noms max)
 // Cherche une photo libre de droits de chaque combattant, parmi : la photo de son infobox Wikipédia
 // (en, puis fr), les fichiers Commons portant son nom complet, ceux de sa catégorie Commons,
 // et, si Commons n'a rien de récent, les photos libres trouvées par Openverse (Flickr notamment). On garde la plus récente (puis prise en événement UFC, puis la plus grande).
 // Les photos trop petites (< 500 px de large) sont écartées. Renvoie une version HD (1200 px),
 // l'auteur et la licence pour le crédit affiché sur le site. Réponse mise en cache 7 jours par Vercel.
 const UA = "Octogone/1.0 (https://octogone.space)";
+// Chaque appel externe est coupé au bout de 4 s : un service lent ne doit pas bloquer toute la réponse.
+const TIMEOUT = 4000;
 
 // La page doit bien parler d'un combattant (évite les homonymes : chanteur, footballeur…).
 const FIGHTER = /mixed martial|martial art|\bMMA\b|fighter|wrestler|kickbox|boxer|judoka|sambo|arts martiaux|combattant|lutteur|boxeur/i;
 
 const api = async (host, params) => {
   const r = await fetch(`https://${host}/w/api.php?` + new URLSearchParams({ format: "json", formatversion: "2", ...params }), {
-    headers: { "User-Agent": UA },
+    headers: { "User-Agent": UA }, signal: AbortSignal.timeout(TIMEOUT),
   });
   if (!r.ok) throw new Error(`${host} ${r.status}`);
   return r.json();
@@ -53,7 +55,7 @@ async function commonsInfo(files) {
     const data = await api("commons.wikimedia.org", {
       action: "query", titles: unique.slice(i, i + 50).map((f) => `File:${f}`).join("|"),
       prop: "imageinfo", iiprop: "url|size|extmetadata", iiurlwidth: "1200",
-    });
+    }).catch(() => ({}));
     pages.push(...(data.query?.pages || []));
   }
   for (const p of pages) {
@@ -66,6 +68,7 @@ async function commonsInfo(files) {
       author: stripHtml(meta.Artist?.value),
       license: stripHtml(meta.LicenseShortName?.value) || "",
       page: ii.descriptionurl,
+      source: "Wikimedia Commons",
       date: stripHtml(meta.DateTimeOriginal?.value || meta.DateTime?.value).slice(0, 10),
       width: ii.width,
     };
@@ -101,7 +104,7 @@ const LICENSE_NAMES = { by: "CC BY", "by-sa": "CC BY-SA", cc0: "CC0", pdm: "Publ
 async function openverseSearch(name) {
   const r = await fetch("https://api.openverse.org/v1/images/?" + new URLSearchParams({
     q: `"${name}"`, license: "by,by-sa,cc0,pdm", category: "photograph", page_size: "20", mature: "false",
-  }), { headers: { "User-Agent": UA } });
+  }), { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(TIMEOUT) });
   if (!r.ok) return [];
   const n = norm(name);
   return ((await r.json()).results || [])
@@ -119,6 +122,7 @@ async function openverseSearch(name) {
       author: p.creator || "",
       license: [LICENSE_NAMES[p.license] || p.license?.toUpperCase(), p.license_version].filter(Boolean).join(" "),
       page: p.foreign_landing_url,
+      source: p.source === "flickr" ? "Flickr" : p.provider || p.source || "Openverse",
       date: "",
       ufc: /ufc/i.test(`${p.title} ${(p.tags || []).map((t) => t.name).join(" ")}`),
     }))
@@ -131,29 +135,25 @@ const best = (list) =>
   list.filter(Boolean).sort((a, b) => (b.date || "0").localeCompare(a.date || "0") || ufc(b) - ufc(a) || b.width - a.width)[0];
 
 export default async function handler(req, res) {
-  const names = String(req.query.names || "").split("|").map((n) => n.trim()).filter(Boolean).slice(0, 25);
+  const names = String(req.query.names || "").split("|").map((n) => n.trim()).filter(Boolean).slice(0, 10);
   if (!names.length) return res.status(400).json({ error: "names manquant" });
   try {
     // Photo de l'infobox (en, puis fr) + recherches Commons, pour chaque combattant.
-    const infobox = await infoboxFiles("en", names);
+    // Une étape qui échoue n'annule pas les autres : on renvoie ce qu'on a trouvé.
+    const [infobox, found] = await Promise.all([
+      infoboxFiles("en", names).catch(() => ({})),
+      Promise.all(names.map((n) => commonsSearch(n).catch(() => []))),
+    ]);
     const missing = names.filter((n) => !infobox[n]);
-    if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing));
-    const found = [];
-    for (let i = 0; i < names.length; i += 5) {
-      // 5 combattants à la fois, pour rester poli avec l'API Wikimedia.
-      found.push(...(await Promise.all(names.slice(i, i + 5).map((n) => commonsSearch(n).catch(() => [])))));
-    }
+    if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing).catch(() => ({})));
     const files = names.map((n, k) => [...new Set([infobox[n], ...found[k]].filter(Boolean))]);
     const info = await commonsInfo(files.flat());
     // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
     const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
-    const others = [];
-    for (let i = 0; i < names.length; i += 5) {
-      others.push(...(await Promise.all(names.slice(i, i + 5).map((n, j) => {
-        const fromCommons = best(files[i + j].map((f) => info[f.replace(/ /g, "_")]));
-        return fromCommons?.date >= recent ? [] : openverseSearch(n).catch(() => []);
-      }))));
-    }
+    const others = await Promise.all(names.map((n, k) => {
+      const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
+      return fromCommons?.date >= recent ? [] : openverseSearch(n).catch(() => []);
+    }));
     const photos = {};
     names.forEach((name, k) => {
       // Openverse n'a pas de date : on préfère sa photo d'événement UFC à une photo Commons ancienne.
@@ -162,7 +162,9 @@ export default async function handler(req, res) {
       const pick = fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
       if (pick) photos[name] = pick;
     });
-    res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=86400");
+    // Réponse vide (services injoignables) : cache court, pour réessayer vite.
+    const found_ = Object.keys(photos).length;
+    res.setHeader("Cache-Control", found_ ? "s-maxage=604800, stale-while-revalidate=86400" : "s-maxage=60");
     res.status(200).json(photos);
   } catch (e) {
     res.status(502).json({ error: "Photos indisponibles." });
