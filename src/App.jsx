@@ -7,6 +7,7 @@ import CategoryBar from "./CategoryBar.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
+import { initVip } from "./vip.js";
 import { useFighters } from "./useFighters.js";
 import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
 import { usePhotos, creditOf } from "./usePhotos.js";
@@ -213,6 +214,19 @@ export default function App() {
     setLangState(getInitialLang());
   }, []);
 
+  // Accès VIP vérifié dès l'arrivée sur le site (lien octogone.space/?vip=CODE), quelle que soit la page.
+  const [vip, setVip] = useState(false);
+  const [vipToast, setVipToast] = useState(null);
+  useEffect(() => {
+    initVip().then(({ vip, tried }) => {
+      setVip(vip);
+      if (tried) {
+        setVipToast(vip ? "on" : "bad");
+        setTimeout(() => setVipToast(null), 5000);
+      }
+    });
+  }, []);
+
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
@@ -287,12 +301,19 @@ export default function App() {
   const shown = selected && (allFighters.find((f) => f.id === selected.id) || selected);
 
   const banner = (
+    <>
+    {vipToast && (
+      <div role="status" className="fixed z-[60] bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full text-sm font-semibold shadow-lg border bg-neutral-900 border-amber-400/60 text-amber-300 whitespace-nowrap">
+        {vipToast === "on" ? t.vipOn : t.vipBad}
+      </div>
+    )}
     <ConsentBanner
       lang={lang}
       forceOpen={cookiesOpen}
       onClose={() => setCookiesOpen(false)}
       onLegal={() => setView("mentions")}
     />
+    </>
   );
 
   if (view === "landing") {
@@ -433,7 +454,7 @@ export default function App() {
       </header>
 
       {view === "simulateur" ? (
-        <Simulator lang={lang} />
+        <Simulator lang={lang} vip={vip} />
       ) : view === "media" ? (
         <Media lang={lang} />
       ) : view === "mentions" ? (

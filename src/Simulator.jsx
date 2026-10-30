@@ -5,7 +5,7 @@ import { T, translateCategory, formatHeight, formatStyle, ageFrom, CATEGORY_ORDE
 import { usePhotos } from "./usePhotos.js";
 import FighterAvatar from "./FighterAvatar.jsx";
 import CategoryBar from "./CategoryBar.jsx";
-import { initVip, getVipCode } from "./vip.js";
+import { getVipCode } from "./vip.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -37,7 +37,7 @@ function computeScore(f) {
   return winRate * 0.45 + striking * 0.2 + tdAcc * 0.1 + tdDef * 0.15 + finishRate * 0.1;
 }
 
-export default function Simulator({ lang = "fr" }) {
+export default function Simulator({ lang = "fr", vip = false }) {
   const t = T[lang];
   const fighters = useFighters();
   // Toutes les catégories de la base, dans l'ordre du plus léger au plus lourd (puis femmes et légendes).
@@ -61,11 +61,9 @@ export default function Simulator({ lang = "fr" }) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
   const [dailyUsage, setDailyUsage] = useState(0);
-  const [vip, setVip] = useState(false);
 
   useEffect(() => {
     setDailyUsage(getDailyUsage());
-    initVip().then(setVip);
   }, []);
 
   useEffect(() => {
