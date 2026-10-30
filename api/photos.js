@@ -7,6 +7,9 @@
 const UA = "Octogone/1.0 (https://octogone.space)";
 // Chaque appel externe est coupé au bout de 4 s : un service lent ne doit pas bloquer toute la réponse.
 const TIMEOUT = 4000;
+// Erreurs rencontrées pendant la requête, visibles avec ?debug=1 (diagnostic).
+let errors = [];
+const note = (where) => (e) => { errors.push(`${where}: ${e?.message || e}`); };
 
 // La page doit bien parler d'un combattant (évite les homonymes : chanteur, footballeur…).
 const FIGHTER = /mixed martial|martial art|\bMMA\b|fighter|wrestler|kickbox|boxer|judoka|sambo|arts martiaux|combattant|lutteur|boxeur/i;
@@ -15,7 +18,7 @@ const api = async (host, params) => {
   const r = await fetch(`https://${host}/w/api.php?` + new URLSearchParams({ format: "json", formatversion: "2", ...params }), {
     headers: { "User-Agent": UA }, signal: AbortSignal.timeout(TIMEOUT),
   });
-  if (!r.ok) throw new Error(`${host} ${r.status}`);
+  if (!r.ok) throw new Error(`${host} ${r.status} ${(await r.text()).slice(0, 200)}`);
   return r.json();
 };
 
@@ -55,7 +58,7 @@ async function commonsInfo(files) {
     const data = await api("commons.wikimedia.org", {
       action: "query", titles: unique.slice(i, i + 50).map((f) => `File:${f}`).join("|"),
       prop: "imageinfo", iiprop: "url|size|extmetadata", iiurlwidth: "1200",
-    }).catch(() => ({}));
+    }).catch((e) => (note("commonsInfo")(e), {}));
     pages.push(...(data.query?.pages || []));
   }
   for (const p of pages) {
@@ -85,7 +88,7 @@ async function commonsSearch(name) {
   const search = (srsearch) =>
     api("commons.wikimedia.org", { action: "query", list: "search", srnamespace: "6", srlimit: "20", srsearch })
       .then((d) => (d.query?.search || []).map((r) => r.title.replace(/^File:/, "")))
-      .catch(() => []);
+      .catch((e) => (note("commonsSearch")(e), []));
   const [byTitle, byCategory] = await Promise.all([
     search(`intitle:"${name}" filetype:bitmap`),
     search(`incategory:"${name}" filetype:bitmap`),
@@ -105,7 +108,7 @@ async function openverseSearch(name) {
   const r = await fetch("https://api.openverse.org/v1/images/?" + new URLSearchParams({
     q: `"${name}"`, license: "by,by-sa,cc0,pdm", category: "photograph", page_size: "20", mature: "false",
   }), { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(TIMEOUT) });
-  if (!r.ok) return [];
+  if (!r.ok) throw new Error(`openverse ${r.status} ${(await r.text()).slice(0, 200)}`);
   const n = norm(name);
   return ((await r.json()).results || [])
     .filter((p) => p.source !== "wikimedia") // Commons est déjà interrogé directement
@@ -137,22 +140,23 @@ const best = (list) =>
 export default async function handler(req, res) {
   const names = String(req.query.names || "").split("|").map((n) => n.trim()).filter(Boolean).slice(0, 10);
   if (!names.length) return res.status(400).json({ error: "names manquant" });
+  errors = [];
   try {
     // Photo de l'infobox (en, puis fr) + recherches Commons, pour chaque combattant.
     // Une étape qui échoue n'annule pas les autres : on renvoie ce qu'on a trouvé.
     const [infobox, found] = await Promise.all([
-      infoboxFiles("en", names).catch(() => ({})),
+      infoboxFiles("en", names).catch((e) => (note("infobox en")(e), {})),
       Promise.all(names.map((n) => commonsSearch(n).catch(() => []))),
     ]);
     const missing = names.filter((n) => !infobox[n]);
-    if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing).catch(() => ({})));
+    if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing).catch((e) => (note("infobox fr")(e), {})));
     const files = names.map((n, k) => [...new Set([infobox[n], ...found[k]].filter(Boolean))]);
     const info = await commonsInfo(files.flat());
     // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
     const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
     const others = await Promise.all(names.map((n, k) => {
       const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
-      return fromCommons?.date >= recent ? [] : openverseSearch(n).catch(() => []);
+      return fromCommons?.date >= recent ? [] : openverseSearch(n).catch((e) => (note("openverse")(e), []));
     }));
     const photos = {};
     names.forEach((name, k) => {
@@ -165,8 +169,9 @@ export default async function handler(req, res) {
     // Réponse vide (services injoignables) : cache court, pour réessayer vite.
     const found_ = Object.keys(photos).length;
     res.setHeader("Cache-Control", found_ ? "s-maxage=604800, stale-while-revalidate=86400" : "s-maxage=60");
+    if (req.query.debug) return res.status(200).json({ photos, errors: [...new Set(errors)].slice(0, 20) });
     res.status(200).json(photos);
   } catch (e) {
-    res.status(502).json({ error: "Photos indisponibles." });
+    res.status(502).json(req.query.debug ? { error: String(e?.message || e), errors } : { error: "Photos indisponibles." });
   }
 }
