@@ -129,7 +129,7 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
 
       {/* Hero */}
       <section
-        className="relative min-h-screen min-h-[100dvh] flex flex-col items-center justify-center px-5 text-center"
+        className="relative min-h-screen min-h-[100dvh] flex flex-col items-center justify-center px-5 pb-16 text-center"
         onMouseMove={spawnParticle}
         onTouchMove={spawnParticle}
       >
@@ -140,50 +140,6 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
             style={{ left: p.x, top: p.y, boxShadow: "0 0 8px 2px rgba(251,191,36,0.6)" }}
           />
         ))}
-        {/* Fondu chaud discret, contenu dans le petit octogone */}
-        <div className="absolute inset-0 m-auto w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-amber-400/40 blur-2xl pointer-events-none" />
-
-        {/* Étincelles discrètes */}
-        {mounted && (
-          <div className="absolute w-2 h-2" aria-hidden>
-            {SPARKS.map((s, i) => (
-              <div
-                key={i}
-                className="spark absolute w-1 h-1 rounded-full bg-amber-300"
-                style={{ "--a": `${s.angle}deg`, animationDelay: `${1.6 + s.delay}s` }}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Octogone : anneau extérieur épais fixe + anneau intérieur fin qui tourne */}
-        {mounted && (
-          <svg
-            className="octo-in absolute w-[420px] h-[420px] sm:w-[620px] sm:h-[620px]"
-            viewBox="0 0 100 100"
-            style={{ animationDelay: "0ms" }}
-          >
-            <polygon
-              className="octo-outer"
-              points="30,4 70,4 96,30 96,70 70,96 30,96 4,70 4,30"
-              fill="none"
-              stroke="#fbbf24"
-              strokeOpacity="0.5"
-              strokeWidth="3.4"
-            />
-            <polygon
-              className="octo-inner"
-              points="30,4 70,4 96,30 96,70 70,96 30,96 4,70 4,30"
-              fill="none"
-              stroke="#fbbf24"
-              strokeOpacity="0.28"
-              strokeWidth="1.2"
-              transform="scale(0.8)"
-              style={{ transformOrigin: "50% 50%" }}
-            />
-          </svg>
-        )}
-
         {/* Logo, en haut à gauche */}
         <div className="rise absolute top-5 left-5 z-20 w-14 h-14 flex items-center justify-center">
           <svg width="56" height="56" viewBox="0 0 100 100">
@@ -208,33 +164,86 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
           ))}
         </div>
 
-        <div className="blur-in relative z-10" style={{ animationDelay: "150ms" }}>
-          {nextEvent && <NextEventCard e={nextEvent} now={now} lang={lang} t={t} onClick={onEnterMedia} />}
-          <div className="flex items-center justify-center gap-2 mb-5">
-            <div className="w-2 h-2 rounded-full bg-amber-400" />
-            <span className="mono text-xs uppercase tracking-[0.2em] text-neutral-400">{t.landingKicker}</span>
+        {/* Prochain événement, au-dessus de l'octogone (dans le flux, pour ne jamais le chevaucher) */}
+        {nextEvent && (
+          <div className="blur-in relative z-20 w-full pt-24 sm:pt-20" style={{ animationDelay: "150ms" }}>
+            <NextEventCard e={nextEvent} now={now} lang={lang} t={t} onClick={onEnterMedia} />
           </div>
+        )}
 
-          <h1 className="disp text-5xl sm:text-7xl leading-[0.95] mb-5">
-            {t.landingTitle1}
-            <br />
-            <span className="shimmer-text">{t.landingTitle2}</span>
-          </h1>
+        {/* Scène : l'octogone est centré sur le titre */}
+        <div className="relative w-full flex items-center justify-center h-[420px] sm:h-[560px]">
+          {/* Fondu chaud discret, contenu dans le petit octogone */}
+          <div className="absolute inset-0 m-auto w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-amber-400/40 blur-2xl pointer-events-none" />
 
-          <p className="text-neutral-400 text-sm sm:text-base max-w-md mx-auto mb-8">
-            {t.landingSubtitle}
-          </p>
+          {/* Étincelles discrètes */}
+          {mounted && (
+            <div className="absolute w-2 h-2" aria-hidden>
+              {SPARKS.map((s, i) => (
+                <div
+                  key={i}
+                  className="spark absolute w-1 h-1 rounded-full bg-amber-300"
+                  style={{ "--a": `${s.angle}deg`, animationDelay: `${1.6 + s.delay}s` }}
+                />
+              ))}
+            </div>
+          )}
 
-          <button
-            onClick={onEnter}
-            className="shine-btn tap group inline-flex items-center gap-2 bg-amber-400 text-neutral-950 font-semibold text-sm px-6 py-3.5 rounded-full hover:bg-amber-300"
-          >
-            <span className="shine-sweep" aria-hidden />
-            <span className="relative z-10 flex items-center gap-2">
-              {t.landingCta}
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </button>
+          {/* Octogone : anneau extérieur épais fixe + anneau intérieur fin qui tourne */}
+          {mounted && (
+            <svg
+              className="octo-in absolute w-[400px] h-[400px] sm:w-[560px] sm:h-[560px]"
+              viewBox="0 0 100 100"
+              style={{ animationDelay: "0ms" }}
+            >
+              <polygon
+                className="octo-outer"
+                points="30,4 70,4 96,30 96,70 70,96 30,96 4,70 4,30"
+                fill="none"
+                stroke="#fbbf24"
+                strokeOpacity="0.5"
+                strokeWidth="3.4"
+              />
+              <polygon
+                className="octo-inner"
+                points="30,4 70,4 96,30 96,70 70,96 30,96 4,70 4,30"
+                fill="none"
+                stroke="#fbbf24"
+                strokeOpacity="0.28"
+                strokeWidth="1.2"
+                transform="scale(0.8)"
+                style={{ transformOrigin: "50% 50%" }}
+              />
+            </svg>
+          )}
+
+          <div className="blur-in relative z-10" style={{ animationDelay: "150ms" }}>
+            <div className="flex items-center justify-center gap-2 mb-5">
+              <div className="w-2 h-2 rounded-full bg-amber-400" />
+              <span className="mono text-xs uppercase tracking-[0.2em] text-neutral-400">{t.landingKicker}</span>
+            </div>
+
+            <h1 className="disp text-5xl sm:text-7xl leading-[0.95] mb-5">
+              {t.landingTitle1}
+              <br />
+              <span className="shimmer-text">{t.landingTitle2}</span>
+            </h1>
+
+            <p className="text-neutral-400 text-sm sm:text-base max-w-md mx-auto mb-8">
+              {t.landingSubtitle}
+            </p>
+
+            <button
+              onClick={onEnter}
+              className="shine-btn tap group inline-flex items-center gap-2 bg-amber-400 text-neutral-950 font-semibold text-sm px-6 py-3.5 rounded-full hover:bg-amber-300"
+            >
+              <span className="shine-sweep" aria-hidden />
+              <span className="relative z-10 flex items-center gap-2">
+                {t.landingCta}
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Ticker */}
@@ -273,7 +282,7 @@ function NextEventCard({ e, now, lang, t, onClick }) {
     : null;
 
   return (
-    <button onClick={onClick} className="tap event-card group relative mx-auto mb-6 block w-full max-w-sm overflow-hidden rounded-2xl p-[1.5px] text-left">
+    <button onClick={onClick} className="tap event-card group relative mx-auto block w-full max-w-sm overflow-hidden rounded-2xl p-[1.5px] text-left">
       <span className="event-border absolute -inset-full" aria-hidden />
       <span className="relative block rounded-2xl bg-neutral-950/95 px-4 py-3.5 sm:px-5 sm:py-4">
         <span className="flex items-center justify-between gap-3">
