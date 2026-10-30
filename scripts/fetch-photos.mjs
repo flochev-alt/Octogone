@@ -140,7 +140,20 @@ async function commonsSearch(name) {
 // ou les tags contiennent le nom complet du combattant. Openverse ne donne pas la date de prise de vue.
 const AGENCY = /getty|zuffa|usa ?today|imagn|reuters|\bafp\b|associated ?press|\bap photo|shutterstock|alamy/i;
 const LICENSE_NAMES = { by: "CC BY", "by-sa": "CC BY-SA", cc0: "CC0", pdm: "Public Domain Mark" };
+// Si Openverse ne répond pas 3 fois de suite, on arrête de l'interroger pour cette fois.
+let openverseFailures = 0;
 async function openverseSearch(name) {
+  if (openverseFailures >= 3) return [];
+  try {
+    const found = await openverseQuery(name);
+    openverseFailures = 0;
+    return found;
+  } catch (e) {
+    openverseFailures++;
+    throw e;
+  }
+}
+async function openverseQuery(name) {
   const r = await get("https://api.openverse.org/v1/images/?" + new URLSearchParams({
     q: `"${name}"`, license: "by,by-sa,cc0,pdm", category: "photograph", page_size: "20", mature: "false",
   }), 30000);
