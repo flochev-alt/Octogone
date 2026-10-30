@@ -220,9 +220,10 @@ export default function App() {
   useEffect(() => {
     initVip().then(({ vip, tried }) => {
       setVip(vip);
-      if (tried) {
+      // La couronne s'affiche à chaque arrivée d'un VIP ; « code incorrect » seulement si un code vient d'être tapé.
+      if (vip || tried) {
         setVipToast(vip ? "on" : "bad");
-        setTimeout(() => setVipToast(null), 5000);
+        setTimeout(() => setVipToast(null), 4000);
       }
     });
   }, []);
