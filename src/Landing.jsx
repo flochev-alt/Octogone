@@ -141,15 +141,15 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
           />
         ))}
         {/* Logo, en haut à gauche */}
-        <div className="rise absolute top-5 left-5 z-20 w-14 h-14 flex items-center justify-center">
+        <div className="rise absolute top-5 left-5 z-40 w-14 h-14 flex items-center justify-center">
           <svg width="56" height="56" viewBox="0 0 100 100">
             <polygon points="32,10 68,10 90,32 90,68 68,90 32,90 10,68 10,32" fill="none" stroke="#fbbf24" strokeWidth="9" />
             <text x="50" y="66" textAnchor="middle" fontFamily="Archivo, sans-serif" fontWeight="800" fontSize="48" fill="white">O<tspan fill="#fbbf24">.</tspan></text>
           </svg>
         </div>
 
-        {/* Sélecteur de langue */}
-        <div className="rise absolute top-5 right-5 z-20 flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
+        {/* Sélecteur de langue : au-dessus de la carte du prochain événement, qui occupe le haut de l'écran. */}
+        <div className="rise absolute top-5 right-5 z-40 flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
           {LANGUAGES.map((l) => (
             <button
               key={l.code}
@@ -259,8 +259,8 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
         </div>
       </section>
 
-      {/* Navigation vers les sections */}
-      <section className="max-w-4xl mx-auto px-5 pb-20 grid sm:grid-cols-3 gap-3">
+      {/* Navigation vers les sections : iPad et PC seulement (sur téléphone, en portrait comme en paysage, on passe par « Explorer le site »). */}
+      <section className="hidden sm:grid [@media(max-height:500px)]:hidden max-w-4xl mx-auto px-5 pb-20 grid-cols-3 gap-3">
         <NavCard icon={Trophy} title={t.navCombattants} desc={t.navCardCombattantsDesc} onClick={onEnter} />
         <NavCard icon={Swords} title={t.navSimulateur} desc={t.navCardSimulateurDesc} onClick={onEnterSimulator} />
         <NavCard icon={Newspaper} title={t.navMedia} desc={t.navCardMediaDesc} onClick={onEnterMedia} />

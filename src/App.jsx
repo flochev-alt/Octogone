@@ -252,6 +252,10 @@ export default function App() {
   useEffect(() => {
     document.title = selected ? fighterTitle(selected) : SITE_TITLE;
   }, [selected]);
+  // Changement de page (« Explorer le site », onglets) : on repart du haut, pas de la position de défilement de l'accueil.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [view]);
   // Données à jour (Supabase) pour la fiche ouverte.
   const shown = selected && (allFighters.find((f) => f.id === selected.id) || selected);
 
