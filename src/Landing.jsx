@@ -1,37 +1,47 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Swords, Trophy, Newspaper, Radio } from "lucide-react";
+import { ArrowRight, Swords, Trophy, Newspaper } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 import { eventName } from "./Media.jsx";
-import { UPCOMING } from "./mediaData.js";
-import { useFighters } from "./useFighters.js";
+import { useMedia } from "./useMedia.js";
 
-// Bandeau défilant : les bilans sont lus dans la base (Supabase, sinon fightersData.js) pour rester à jour.
-const TICKER_NAMES = ["Islam Makhachev", "Alex Pereira", "Ciryl Gane", "Alexandre Pantoja", "Justin Gaethje", "Khamzat Chimaev"];
-const tickerFrom = (fighters) => TICKER_NAMES
-  .map((nom) => fighters.find((f) => f.nom === nom))
-  .filter(Boolean)
-  .map((f) => ({ nom: f.nom, record: `${f.victoires}-${f.defaites}-${f.nuls}` }));
+// Événements à venir, lus dans le fil Média (Supabase, sinon mediaData.js), du plus proche au plus lointain.
+// `start` (facultatif) = début de la carte principale en UTC : il active le compte à rebours à la seconde.
+// Un événement reste « en cours » 6 h après son début, sinon jusqu'à la fin de sa journée (heure de Paris).
+const parisDay = (d) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(d);
+const LIVE_HOURS = 6;
+function upcomingEvents(items, now) {
+  return items
+    .filter((p) => p.type === "upcoming")
+    .map((p) => p.data)
+    .filter((e) => (e.start ? now - Date.parse(e.start) < LIVE_HOURS * 3600e3 : e.iso >= parisDay(now)))
+    .sort((a, b) => (a.start || a.iso).localeCompare(b.start || b.iso));
+}
+const LOCALES = { fr: "fr-FR", en: "en-US", es: "es-ES" };
+const shortDate = (iso, lang) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString(LOCALES[lang], { day: "2-digit", month: "2-digit", year: "numeric" });
+const lastName = (n) => n.split(" ").slice(-1)[0];
+
+// Heure courante, rafraîchie chaque seconde (pour le compte à rebours).
+function useNow() {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
 
 const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   angle: (360 / 12) * i,
   delay: i * 0.18,
 }));
 
-// Mode "carte du jour" : si un événement UPCOMING tombe aujourd'hui ou demain, on le met en avant.
-function getTodayHighlight() {
-  const now = new Date();
-  const today = now.toISOString().slice(0, 10);
-  const tomorrow = new Date(now.getTime() + 86400000).toISOString().slice(0, 10);
-  const event = UPCOMING.find((e) => e.iso === today || e.iso === tomorrow);
-  if (!event) return null;
-  return { ...event, isToday: event.iso === today };
-}
-
 export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
-  const tickerFighters = tickerFrom(useFighters());
-  const todayHighlight = getTodayHighlight();
+  const now = useNow();
+  const events = upcomingEvents(useMedia(), now);
+  const nextEvent = events[0];
   const [particles, setParticles] = useState([]);
   const lastSpawn = useRef(0);
 
@@ -82,6 +92,12 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
         .particle-dot { animation: particleFloat 0.9s ease-out forwards; }
         @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .live-dot { animation: livePulse 1.2s ease-in-out infinite; }
+        @keyframes borderSpin { to { transform: rotate(360deg); } }
+        .event-border {
+          background: conic-gradient(from 0deg, transparent 0 62%, rgba(251,191,36,0.35) 72%, #fbbf24 86%, #fef3c7 90%, transparent 96%);
+          animation: borderSpin 4s linear infinite;
+        }
+        .event-card { box-shadow: 0 0 40px -10px rgba(251,191,36,0.45); }
 
         /* Les deux anneaux restent fixes après leur entrée, pour garder un alignement parfait comme sur la photo de référence */
         .octo-outer { }
@@ -193,21 +209,7 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
         </div>
 
         <div className="blur-in relative z-10" style={{ animationDelay: "150ms" }}>
-          {todayHighlight && (
-            <button
-              onClick={onEnterMedia}
-              className="tap mx-auto mb-5 flex items-center gap-2 bg-amber-400/10 border border-amber-400/40 rounded-full px-4 py-2 hover:bg-amber-400/20"
-            >
-              {todayHighlight.isToday ? (
-                <span className="live-dot w-2 h-2 rounded-full bg-red-500 shrink-0" />
-              ) : (
-                <Radio className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              )}
-              <span className="text-xs font-semibold text-amber-300">
-                {todayHighlight.isToday ? t.today : t.tomorrow} · {eventName(todayHighlight.name, lang)}
-              </span>
-            </button>
-          )}
+          {nextEvent && <NextEventCard e={nextEvent} now={now} lang={lang} t={t} onClick={onEnterMedia} />}
           <div className="flex items-center justify-center gap-2 mb-5">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="mono text-xs uppercase tracking-[0.2em] text-neutral-400">{t.landingKicker}</span>
@@ -238,9 +240,10 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
         {/* Ticker */}
         <div className="rise absolute bottom-8 left-0 right-0 overflow-hidden" style={{ animationDelay: "700ms" }}>
           <div className="flex whitespace-nowrap ticker-track">
-            {[...tickerFighters, ...tickerFighters, ...tickerFighters].map((f, i) => (
-              <span key={i} className="mono text-xs text-neutral-600 mx-6 flex items-center gap-2">
-                {f.nom} <span className="text-amber-400/60">{f.record}</span>
+            {/* Prochains événements : « UFC 334 le 14/11/2026 » */}
+            {[...events, ...events, ...events].map((e, i) => (
+              <span key={i} className="mono text-xs text-neutral-500 mx-6 flex items-center gap-2">
+                {eventName(e.name, lang)} <span className="text-amber-400/70">{t.onDate(shortDate(e.iso, lang))}</span>
               </span>
             ))}
           </div>
@@ -254,6 +257,51 @@ export default function Landing({ onEnter = () => {}, onEnterSimulator = () => {
         <NavCard icon={Newspaper} title={t.navMedia} desc={t.navCardMediaDesc} onClick={onEnterMedia} />
       </section>
     </div>
+  );
+}
+
+// Carte du prochain événement : bordure dorée animée, affiche du combat et compte à rebours.
+function NextEventCard({ e, now, lang, t, onClick }) {
+  const start = e.start ? Date.parse(e.start) : null;
+  const live = start != null && now >= start;
+  const daysLeft = Math.round((Date.parse(e.iso) - Date.parse(parisDay(now))) / 864e5);
+  const label = live ? t.liveNow : !start && daysLeft <= 0 ? t.tonight : t.nextEvent;
+  const headline = e.fighters?.length === 2 ? `${lastName(e.fighters[0])} vs. ${lastName(e.fighters[1])}` : eventName(e.name, lang);
+  const left = start != null && !live ? start - now : null;
+  const parts = left != null
+    ? [Math.floor(left / 864e5), Math.floor(left / 36e5) % 24, Math.floor(left / 6e4) % 60, Math.floor(left / 1e3) % 60]
+    : null;
+
+  return (
+    <button onClick={onClick} className="tap event-card group relative mx-auto mb-6 block w-full max-w-sm overflow-hidden rounded-2xl p-[1.5px] text-left">
+      <span className="event-border absolute -inset-full" aria-hidden />
+      <span className="relative block rounded-2xl bg-neutral-950/95 px-4 py-3.5 sm:px-5 sm:py-4">
+        <span className="flex items-center justify-between gap-3">
+          <span className="flex items-center gap-2">
+            <span className={`live-dot w-2 h-2 rounded-full shrink-0 ${live ? "bg-red-500" : "bg-amber-400"}`} />
+            <span className={`mono text-[10px] uppercase tracking-[0.2em] ${live ? "text-red-400" : "text-amber-400"}`}>{label}</span>
+          </span>
+          <span className="mono text-[10px] text-neutral-500">{shortDate(e.iso, lang)}</span>
+        </span>
+        <span className="disp block text-2xl sm:text-3xl leading-tight mt-2 truncate group-hover:text-amber-300 transition-colors">{headline}</span>
+        <span className="block text-xs text-neutral-400 truncate mt-0.5">{eventName(e.name, lang)}</span>
+        {parts && (
+          <span className="mt-3 grid grid-cols-4 gap-1.5">
+            {parts.map((v, i) => (
+              <span key={i} className="rounded-lg bg-neutral-900 border border-neutral-800 py-1.5 text-center">
+                <span className="mono block text-lg leading-none text-amber-300">{String(v).padStart(2, "0")}</span>
+                <span className="mono block text-[9px] uppercase text-neutral-500 mt-1">{t.countdownUnits[i]}</span>
+              </span>
+            ))}
+          </span>
+        )}
+        {!parts && !live && daysLeft > 0 && (
+          <span className="mono mt-2 inline-block rounded-md bg-amber-400/10 px-2 py-1 text-xs text-amber-300">
+            {`${t.countdownUnits[0].toUpperCase()}-${daysLeft}`}
+          </span>
+        )}
+      </span>
+    </button>
   );
 }
 
