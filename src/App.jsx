@@ -399,8 +399,10 @@ export default function App() {
 
             {league ? (
               <div>
-                <h2 className="disp text-2xl mb-1">{t.leagueChampions(league)}</h2>
-                <p className="text-xs text-neutral-500 mb-5">{t.otherLeaguesNote}</p>
+                <h2 className="disp text-2xl mb-1">{t.leagueChampions(LEAGUES.find((l) => l.id === league)?.name)}</h2>
+                <p className="text-xs text-neutral-500 mb-5">
+                  {t.otherLeaguesNote} {L(LEAGUES.find((l) => l.id === league)?.note, lang)}
+                </p>
                 <div key={league} className="grid gap-2 lg:grid-cols-2">
                   {LEAGUE_FIGHTERS.filter((f) => f.ligue === league).map((f, i) => (
                     <button
