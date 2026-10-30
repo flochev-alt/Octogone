@@ -23,3 +23,11 @@ body {
   -webkit-mask-image: radial-gradient(ellipse 75% 85% at 50% 30%, #000 50%, transparent 100%);
   mask-image: radial-gradient(ellipse 75% 85% at 50% 30%, #000 50%, transparent 100%);
 }
+
+/* Barre qui défile sans barre de défilement visible (la barre des catégories a ses propres flèches). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, Fragment } from "react";
-import { Search, X, ChevronRight, Trophy, MapPin, Users, Swords, Instagram, Cake, Dumbbell, Medal } from "lucide-react";
+import { useState, useEffect, useMemo, useRef, Fragment } from "react";
+import { Search, X, ChevronLeft, ChevronRight, Trophy, MapPin, Users, Swords, Instagram, Cake, Dumbbell, Medal } from "lucide-react";
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Media from "./Media.jsx";
@@ -398,8 +398,9 @@ export default function App() {
       ) : (
         <>
           <main className="w-full max-w-5xl mx-auto px-5 py-8">
-            <div className="flex gap-1.5 overflow-x-auto pb-4 mb-6 -mx-1 px-1">
+            <CategoryBar active={searching ? null : categorie}>
               <button
+                data-cat="champions"
                 onClick={() => { setCategorie("champions"); setQuery(""); }}
                 className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border flex items-center gap-1.5 ${
                   categorie === "champions"
@@ -412,6 +413,7 @@ export default function App() {
               {categories.map((c) => (
                 <button
                   key={c}
+                  data-cat={c}
                   onClick={() => { setCategorie(c); setQuery(""); }}
                   className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border ${
                     categorie === c && !searching
@@ -426,6 +428,7 @@ export default function App() {
               {LEAGUES.map((l) => (
                 <button
                   key={l.id}
+                  data-cat={`league:${l.id}`}
                   onClick={() => { setCategorie(`league:${l.id}`); setQuery(""); }}
                   className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border ${
                     league === l.id
@@ -436,7 +439,7 @@ export default function App() {
                   {l.name}
                 </button>
               ))}
-            </div>
+            </CategoryBar>
 
             {league ? (
               <div>
@@ -613,6 +616,9 @@ function SearchBox({ query, setQuery, t, className = "" }) {
 function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
   const [extra, setExtra] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Photo qui ne charge pas : on affiche le médaillon à la place d'un cadre vide.
+  const [photoFailed, setPhotoFailed] = useState(null);
+  const showPhoto = photo && photoFailed !== photo.url;
 
   // Autres ligues : pas d'appel à l'API Octagon (elle ne connaît que l'UFC).
   const ligue = fighter.ligue;
@@ -638,14 +644,15 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
   return (
     <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 ${closing ? "backdrop-exit" : "backdrop-enter"}`} onClick={onClose}>
       <div
-        className={`bg-neutral-900 border border-neutral-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[85vh] [@media(max-height:500px)]:max-h-[94vh] overflow-y-auto ${closing ? "sheet-exit" : "sheet-enter"}`}
+        className={`bg-neutral-900 border border-neutral-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm lg:max-w-4xl max-h-[85vh] [@media(max-height:500px)]:max-h-[94vh] relative overflow-y-auto lg:overflow-hidden lg:flex ${closing ? "sheet-exit" : "sheet-enter"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative h-80 [@media(max-height:500px)]:h-52 overflow-hidden bg-neutral-950 flex items-center justify-center">
+        {/* Sur PC (lg) : portrait à gauche sur toute la hauteur, informations à droite. */}
+        <div className="relative h-80 [@media(max-height:500px)]:h-52 lg:h-auto lg:min-h-[560px] lg:w-[42%] lg:shrink-0 overflow-hidden bg-neutral-950 flex items-center justify-center">
           <div className="panel-flash absolute inset-0 bg-white z-10 pointer-events-none" />
-          {photo ? (
+          {showPhoto ? (
             <div className="walkout absolute inset-0">
-              <img src={photo.url} alt={fighter.nom} onError={(e) => { e.currentTarget.style.display = "none"; }} className="photo-fade w-full h-full object-cover object-top" />
+              <img src={photo.url} alt={fighter.nom} onError={() => setPhotoFailed(photo.url)} className="photo-fade w-full h-full object-cover object-top" />
             </div>
           ) : (
             <>
@@ -657,7 +664,7 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
             </>
           )}
           <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-neutral-900 via-neutral-900/70 to-transparent" />
-          <button onClick={onClose} aria-label="Fermer" className="tap absolute top-4 right-4 bg-neutral-950/60 backdrop-blur rounded-full p-1.5 text-neutral-200 hover:text-white">
+          <button onClick={onClose} aria-label="Fermer" className="tap lg:hidden absolute top-4 right-4 bg-neutral-950/60 backdrop-blur rounded-full p-1.5 text-neutral-200 hover:text-white">
             <X className="w-4 h-4" />
           </button>
           <div className="absolute left-5 right-5 bottom-4">
@@ -682,7 +689,11 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
           </div>
         </div>
 
-        {photo?.page && (
+        <button onClick={onClose} aria-label="Fermer" className="tap hidden lg:flex absolute top-4 right-4 z-20 bg-neutral-800 rounded-full p-1.5 text-neutral-200 hover:text-white">
+          <X className="w-4 h-4" />
+        </button>
+        <div className="lg:flex-1 lg:min-w-0 lg:overflow-y-auto lg:max-h-[85vh] lg:pt-12">
+        {showPhoto && photo.page && (
           <a href={photo.page} target="_blank" rel="noopener noreferrer" className="block px-5 pt-2 text-[10px] text-neutral-500 hover:text-neutral-300 truncate">
             {t.photoBy} {creditOf(photo)}
           </a>
@@ -776,7 +787,55 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
             </div>
           )}
         </div>
+        </div>
       </div>
+    </div>
+  );
+}
+
+// Barre des catégories qui défile : fondu et flèches sur les bords quand il reste des catégories cachées,
+// et la catégorie choisie (ou ouverte depuis un lien) est ramenée dans le champ.
+function CategoryBar({ active, children }) {
+  const ref = useRef(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+  const update = () => {
+    const el = ref.current;
+    if (!el) return;
+    setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+  };
+  useEffect(() => {
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  useEffect(() => {
+    const el = ref.current;
+    const pill = active && el?.querySelector(`[data-cat="${CSS.escape(active)}"]`);
+    if (!pill) return;
+    const left = pill.offsetLeft - (el.clientWidth - pill.offsetWidth) / 2;
+    el.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [active]);
+  const scrollBy = (dir) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.7, behavior: "smooth" });
+  return (
+    <div className="relative mb-6">
+      <div ref={ref} onScroll={update} className="no-scrollbar flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+        {children}
+      </div>
+      {[["left", -1, ChevronLeft], ["right", 1, ChevronRight]].map(([side, dir, Icon]) => (
+        <div
+          key={side}
+          className={`pointer-events-none absolute top-0 bottom-1 w-14 flex items-center ${side === "left" ? "left-0 justify-start bg-gradient-to-r" : "right-0 justify-end bg-gradient-to-l"} from-neutral-950 via-neutral-950/80 to-transparent transition-opacity duration-200 ${edges[side] ? "opacity-100" : "opacity-0"}`}
+        >
+          <button
+            onClick={() => scrollBy(dir)}
+            aria-label={side === "left" ? "←" : "→"}
+            tabIndex={edges[side] ? 0 : -1}
+            className={`tap hidden sm:flex w-8 h-8 rounded-full bg-neutral-900 border border-neutral-700 items-center justify-center text-neutral-200 hover:border-amber-400 hover:text-amber-400 ${edges[side] ? "pointer-events-auto" : ""}`}
+          >
+            <Icon className="w-4 h-4" />
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
