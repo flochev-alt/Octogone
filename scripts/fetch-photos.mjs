@@ -79,7 +79,7 @@ function titleMatches(file, n) {
 const GROUP = /\b(and|et|e|y|with|avec|com|vs|v|x|knock|knocks|knocked|defeats|def|against)\b|&|,|\s[-–]\s?/i;
 // Une version « cropped » a été recadrée sur une personne : seule la mise en scène d'un KO ou d'une poignée de main
 // avec un tiers (« knock », « congratulates », « Trump ») reste écartée.
-const STAGED = /\b(knock|knocks|knocked|congratulates|trump)\b/i;
+const STAGED = /\b(knock|knocks|knocked|congratulates|trump|signature|autograph|logo)\b/i;
 const solo = (file) => {
   const t = file.replace(/^File:/i, "").replace(/\.[a-z]+$/i, "").replace(/_/g, " ");
   return !STAGED.test(t) && (/cropped/i.test(t) || !GROUP.test(t));
@@ -108,6 +108,8 @@ const REJECTED = new Set([
   "Blue_Angels'_VIP_Rider_Max_Holloway_(1).jpg", "Wanderlei_Silva_2013.jpg", "Song_Yadong_at_UFC_Macau.jpg",
   "Raquel_Pennington_MCCS_Twentynine_Palms_presents_an_action-packed_MMA_Fight_Night_Live_at_The_Combat_Center_(5).jpg",
 ]);
+// Nom du fichier d'une photo déjà choisie (photos.json garde le lien vers sa page Commons ou Openverse).
+const pageFile = (v) => decodeURIComponent(v.page.split("File:")[1] || v.page.split("/").pop());
 const accepted = (file) => solo(file) && !REJECTED.has(file.replace(/^File:/i, "").replace(/ /g, "_"));
 // Photos choisies par Flo : « infobox » garde la photo de la page Wikipédia du combattant.
 const PINNED = { "Joshua Van": "infobox" };
@@ -251,7 +253,7 @@ async function findPhotos(names) {
     const fromOpenverse = best(others[k]);
     const pinned = PINNED[name] === "infobox" && infobox[name] && info[infobox[name].replace(/ /g, "_")];
     const pick = pinned || fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
-    if (pick && !NO_PHOTO.has(name)) photos[name] = pick;
+    if (pick && !NO_PHOTO.has(name) && (pinned || accepted(pageFile(pick)))) photos[name] = pick;
   });
   return photos;
 }
@@ -269,7 +271,7 @@ for (let i = 0; i < names.length; i += 5) {
   Object.assign(photos, await findPhotos(names.slice(i, i + 5)));
   await sleep(1000);
 }
-for (const n of names) if (!NO_PHOTO.has(n) && !photos[n] && previous[n]) photos[n] = previous[n];
+for (const n of names) if (!NO_PHOTO.has(n) && !photos[n] && previous[n] && accepted(pageFile(previous[n]))) photos[n] = previous[n];
 const sorted = Object.fromEntries(Object.keys(photos).sort().map((n) => [n, photos[n]]));
 writeFileSync(out, JSON.stringify(sorted, null, 1) + "\n");
 console.log(`${Object.keys(photos).length}/${names.length} combattants avec photo.`);
