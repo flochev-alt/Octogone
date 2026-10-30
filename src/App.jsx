@@ -10,6 +10,7 @@ import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
 import { usePhotos, creditOf } from "./usePhotos.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
 import { LEAGUES, LEAGUE_FIGHTERS, VACANT } from "./otherLeagues.js";
+import { LEGENDS } from "./legends.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
   formatHeight, formatDate, ageFrom, getInitialLang, setStoredLang,
@@ -207,7 +208,7 @@ export default function App() {
   const league = !searching && categorie.startsWith("league:") ? categorie.slice(7) : null;
   const champion = !searching && fighters.find((f) => f.rang === 0);
   const listed = champion ? fighters.filter((f) => f !== champion) : fighters;
-  const firstUnranked = searching ? -1 : listed.findIndex((f) => f.rang == null);
+  const firstUnranked = searching || categorie === "Legendes" ? -1 : listed.findIndex((f) => f.rang == null);
 
   const closePanel = () => {
     setClosing(true);
@@ -409,7 +410,7 @@ export default function App() {
                       key={f.id}
                       onClick={() => setSelected(f)}
                       style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
-                      className="tap row-rise w-full text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3 flex items-center gap-3"
+                      className="tap row-rise w-full min-w-0 text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3 flex items-center gap-3"
                     >
                       <FighterAvatar name={f.nom} photo={photoOf(f)?.url} size={48} gold />
                       <span className="flex-1 min-w-0 flex flex-col">
@@ -508,7 +509,7 @@ export default function App() {
                       <button
                         onClick={() => setSelected(f)}
                         style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
-                        className="tap row-rise w-full text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-2.5 flex items-center gap-3"
+                        className="tap row-rise w-full min-w-0 text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-2.5 flex items-center gap-3"
                       >
                         <span className={`mono text-sm w-6 shrink-0 ${f.rang === 0 || f.rang === 1 ? "text-amber-400" : "text-neutral-500"}`}>
                           {f.rang === 0 ? "C" : f.rang != null ? f.rang : "–"}
@@ -589,6 +590,7 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
   }, [fighter.nom, ligue]);
 
   const recent = fighter.recent || RECENT_FIGHTS[fighter.id];
+  const legend = fighter.categorie === "Legendes" ? LEGENDS[fighter.nom] : null;
   const age = ageFrom(fighter.naissance);
   const rankLabel = fighter.rang === 0 ? t.champion : fighter.rang != null ? `#${fighter.rang}` : null;
   const heroRank = ligue ? t.leagueChampion(ligue, fighter.female) : fighter.rang === 0 ? t.champion : fighter.rang != null ? `${lang === "fr" ? "N°" : "#"}${fighter.rang}` : null;
@@ -657,6 +659,29 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
               </>
             )}
           </div>
+          {legend && (
+            <div className="row-rise space-y-3" style={{ animationDelay: "10ms" }}>
+              <p className="text-sm text-neutral-300 leading-relaxed">{L(legend.bio, lang)}</p>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-xs uppercase tracking-widest text-neutral-400">{t.palmares}</span>
+                </div>
+                <ul className="space-y-1.5">
+                  {legend.titles.map((x, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-neutral-200">
+                      <span className="text-amber-400 shrink-0">•</span>
+                      <span>{L(x, lang)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-amber-400/25 bg-amber-400/5 px-3 py-2.5">
+                <div className="text-[10px] uppercase tracking-widest text-amber-400 mb-0.5">{t.retirement}</div>
+                <div className="text-sm text-neutral-100">{legend.retired ? L(legend.retired, lang) : t.stillActive}</div>
+              </div>
+            </div>
+          )}
           {fighter.victoires > 0 && fighter.ko + fighter.sub + fighter.dec > 0 && (
             <div className="row-rise" style={{ animationDelay: "20ms" }}>
               <div className="text-[10px] uppercase tracking-widest text-neutral-500 mb-2">{t.winsBy}</div>
