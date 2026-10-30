@@ -54,7 +54,12 @@ export default async function handler(req, res) {
 - 5 derniers combats (du plus récent au plus ancien) : ${recent.length ? recent.join(" ; ") : "non renseignés"}`;
   };
 
-  const prompt = `Tu es un analyste MMA reconnu, qui écrit pour des fans exigeants et des parieurs qui veulent comprendre un combat avant de se faire leur propre avis. Rédige en ${language} l'analyse de ce duel hypothétique, en t'appuyant UNIQUEMENT sur les données ci-dessous : n'invente aucun fait, combat, blessure ou statistique. Si une donnée manque (« ? »), n'en parle pas.
+  const prompt = `Tu es le meilleur analyste MMA francophone, celui que les fans et les parieurs lisent avant chaque gros combat. Ton style : vivant, tranchant, concret, comme un consultant TV qui a regardé toutes les vidéos. Chaque affirmation s'appuie sur un chiffre ci-dessous, et tu compares toujours les deux combattants chiffre contre chiffre. Le lecteur doit finir en se disant « heureusement que j'ai lu ça avant de me décider ».
+
+Règles strictes :
+- Écris en ${language}.
+- Utilise UNIQUEMENT les données ci-dessous. N'invente aucun combat, blessure, déclaration, camp d'entraînement ou statistique. Si une donnée vaut « ? », ignore-la.
+- Ne cite jamais de cotes, de bookmaker, de montant de mise ni de conseil de pari, et ne présente jamais un résultat comme certain.
 
 ${card(fighterA)}
 
@@ -62,14 +67,41 @@ ${card(fighterB)}
 
 Probabilité calculée par notre modèle : ${fighterA.nom} ${probA}% / ${fighterB.nom} ${probB}%.
 
-Format attendu, en texte simple (pas de Markdown, pas de titres avec #), chaque partie commence par son intitulé suivi de deux-points, une ligne vide entre les parties :
-Les clés du combat : les 2 ou 3 facteurs qui vont décider de l'issue (distance et allonge, lutte contre striking, cardio et âge, forme récente), chiffres à l'appui.
-Forme du moment : ce que disent les 5 derniers combats de chacun (série, qualité de l'opposition, façon de gagner ou de perdre).
-Scénario le plus probable : comment le combat devrait se dérouler, et la tendance de fin qui ressort des chiffres (plutôt KO, soumission ou décision), en expliquant pourquoi.
-Le piège : le scénario qui ferait mentir le favori.
-Notre avis : une phrase claire qui dit qui part favori, avec quel niveau de confiance (faible, moyen ou fort), et pourquoi.
+Remplis chaque champ :
+- accroche : une phrase choc (20 mots max) qui résume l'enjeu du duel.
+- cles : les 3 facteurs qui vont décider du combat. Pour chacun, un titre court (3 à 6 mots) et un détail de 1 à 2 phrases avec les chiffres des deux combattants.
+- forme : 2 phrases sur la dynamique récente de chacun d'après leurs 5 derniers combats (séries, façon de gagner ou de perdre, niveau des adversaires).
+- scenario : 2 à 3 phrases qui racontent le déroulé le plus probable du combat, round après round si utile.
+- tendance : comment ce combat a le plus de chances de se terminer d'après les chiffres (ko, soumission ou decision).
+- piege : 1 à 2 phrases sur le scénario qui ferait tomber le favori.
+- favori : le nom exact du combattant que tu donnes favori.
+- confiance : ton niveau de confiance dans ce favori (faible, moyenne ou forte), cohérent avec les chiffres.
+- verdict : 1 à 2 phrases percutantes qui tranchent et justifient le choix.`;
 
-Reste concis (180 à 250 mots au total). Ne cite jamais de cotes, de bookmaker, de montant de mise ni de conseil de pari, et n'affirme jamais qu'un résultat est sûr.`;
+  const schema = {
+    type: "object",
+    additionalProperties: false,
+    required: ["accroche", "cles", "forme", "scenario", "tendance", "piege", "favori", "confiance", "verdict"],
+    properties: {
+      accroche: { type: "string" },
+      cles: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["titre", "detail"],
+          properties: { titre: { type: "string" }, detail: { type: "string" } },
+        },
+      },
+      forme: { type: "string" },
+      scenario: { type: "string" },
+      tendance: { type: "string", enum: ["ko", "soumission", "decision"] },
+      piege: { type: "string" },
+      favori: { type: "string" },
+      confiance: { type: "string", enum: ["faible", "moyenne", "forte"] },
+      verdict: { type: "string" },
+    },
+  };
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -80,17 +112,21 @@ Reste concis (180 à 250 mots au total). Ne cite jamais de cotes, de bookmaker, 
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-5",
-        max_tokens: 1200,
+        model: "claude-sonnet-5-5",
+        max_tokens: 8000,
+        output_config: { effort: "medium", format: { type: "json_schema", schema } },
         messages: [{ role: "user", content: prompt }],
       }),
     });
 
-    if (!response.ok) throw new Error("Anthropic API error");
+    if (!response.ok) throw new Error(`Anthropic API error ${response.status}: ${await response.text()}`);
     const data = await response.json();
-    const analysis = data.content?.[0]?.text || "—";
-    res.status(200).json({ analysis });
+    // La réponse peut commencer par un bloc de réflexion : on ne garde que le texte.
+    const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
+    if (!text) throw new Error(`Réponse vide (stop_reason: ${data.stop_reason})`);
+    res.status(200).json({ analysis: JSON.parse(text) });
   } catch (e) {
+    console.error(e);
     res.status(502).json({ error: "Impossible de générer l'analyse pour le moment." });
   }
 }

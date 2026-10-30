@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from "react";
-import { Swords, Sparkles, TrendingUp, ChevronDown, Trophy } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Swords, Sparkles, TrendingUp, ChevronDown, Trophy, Lock, KeyRound, Activity, Film, AlertTriangle, Target } from "lucide-react";
 import { useFighters } from "./useFighters.js";
 import { T, translateCategory, formatHeight, formatStyle, ageFrom, CATEGORY_ORDER } from "./i18n.js";
 import { usePhotos } from "./usePhotos.js";
 import FighterAvatar from "./FighterAvatar.jsx";
+import CategoryBar from "./CategoryBar.jsx";
 import { initVip, getVipCode } from "./vip.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
 
@@ -72,6 +73,8 @@ export default function Simulator({ lang = "fr" }) {
     setIdB(fightersInCategorie[1]?.id ?? fightersInCategorie[0]?.id);
     setShowResult(false);
     setAiText(null);
+    setLimitHit(false);
+    requestId.current++;
   }, [fightersInCategorie]);
 
   const fighterA = fightersInCategorie.find((f) => f.id === idA);
@@ -95,43 +98,61 @@ export default function Simulator({ lang = "fr" }) {
 
   const [clashing, setClashing] = useState(false);
 
+  const [limitHit, setLimitHit] = useState(false);
+  const requestId = useRef(0);
+
+  // Changer de combattant efface le résultat précédent : il faut relancer l'analyse.
+  const pickA = (id) => { setIdA(id); setShowResult(false); setLimitHit(false); requestId.current++; };
+  const pickB = (id) => { setIdB(id); setShowResult(false); setLimitHit(false); requestId.current++; };
+
+  // Chaque clic sur « Analyser le duel » compte pour une des analyses du jour (sauf VIP).
+  // Une fois la limite atteinte, on n'affiche plus ni stats ni pronostic, seulement le message de limite.
   const analyser = () => {
     setShowResult(false);
     setAiText(null);
     setAiError(null);
+    if (!vip && dailyUsage >= DAILY_LIMIT) {
+      setLimitHit(true);
+      return;
+    }
+    setLimitHit(false);
+    if (!vip) setDailyUsage(incrementDailyUsage());
     setClashing(true);
     setTimeout(() => {
       setClashing(false);
       setShowResult(true);
     }, 900);
-    // L'analyse IA part en même temps, tant qu'il reste des analyses aujourd'hui.
-    if (vip || dailyUsage < DAILY_LIMIT) genererAnalyseIA();
+    genererAnalyseIA();
   };
 
   // Les 5 derniers combats donnent à l'IA la forme du moment.
   const withRecent = (f) => ({ ...f, recent: f.recent || RECENT_FIGHTS[f.id] || [] });
 
   async function genererAnalyseIA() {
+    const id = ++requestId.current;
     setAiLoading(true);
-    setAiError(null);
     try {
       const r = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-vip-code": vip ? getVipCode() || "" : "" },
         body: JSON.stringify({ fighterA: withRecent(fighterA), fighterB: withRecent(fighterB), probA, probB, lang }),
       });
+      if (id !== requestId.current) return;
       if (r.status === 429) {
         setDailyUsage(DAILY_LIMIT);
+        setShowResult(false);
+        setLimitHit(true);
         return;
       }
       if (!r.ok) throw new Error("failed");
       const data = await r.json();
+      if (id !== requestId.current) return;
+      if (!data.analysis || typeof data.analysis !== "object") throw new Error("empty");
       setAiText(data.analysis);
-      setDailyUsage(incrementDailyUsage());
     } catch (e) {
-      setAiError(t.aiUnavailable);
+      if (id === requestId.current) setAiError(t.aiFailed);
     } finally {
-      setAiLoading(false);
+      if (id === requestId.current) setAiLoading(false);
     }
   }
 
@@ -187,10 +208,11 @@ export default function Simulator({ lang = "fr" }) {
       </div>
 
       {/* Catégories */}
-      <div className="no-scrollbar flex gap-1.5 overflow-x-auto pb-1 mb-6 -mx-1 px-1 sm:flex-wrap sm:justify-center">
+      <CategoryBar active={categorie}>
         {CATEGORIES.map((c) => (
           <button
             key={c}
+            data-cat={c}
             onClick={() => setCategorie(c)}
             className={`tap text-xs font-semibold px-3.5 py-2 rounded-full whitespace-nowrap border ${
               categorie === c
@@ -201,7 +223,7 @@ export default function Simulator({ lang = "fr" }) {
             {translateCategory(c, lang)}
           </button>
         ))}
-      </div>
+      </CategoryBar>
 
       {notEnoughFighters ? (
         <p className="text-sm text-neutral-400 mb-6 text-center">{t.notEnoughFighters}</p>
@@ -210,7 +232,7 @@ export default function Simulator({ lang = "fr" }) {
           <>
             {/* Face-à-face : les deux coins de l'octogone */}
             <div className={`relative grid grid-cols-[1fr_auto_1fr] items-stretch gap-2 sm:gap-4 mb-5 ${clashing ? "clash-shake" : ""}`}>
-              <FighterCorner side="a" fighter={fighterA} photo={photoOf(fighterA)} fighters={fightersInCategorie} onChange={setIdA} exclude={idB} t={t} lang={lang} animate={clashing} />
+              <FighterCorner side="a" fighter={fighterA} photo={photoOf(fighterA)} fighters={fightersInCategorie} onChange={pickA} exclude={idB} t={t} lang={lang} animate={clashing} />
               <div className="relative flex items-center justify-center w-12 sm:w-20">
                 {clashing && <div className="clash-flash absolute w-24 h-24 rounded-full bg-amber-300" />}
                 <svg viewBox="0 0 100 100" className="relative w-12 h-12 sm:w-16 sm:h-16" aria-hidden="true">
@@ -218,7 +240,7 @@ export default function Simulator({ lang = "fr" }) {
                   <text x="50" y="62" textAnchor="middle" fontFamily="Archivo, sans-serif" fontWeight="800" fontSize="34" fill="#fbbf24">VS</text>
                 </svg>
               </div>
-              <FighterCorner side="b" fighter={fighterB} photo={photoOf(fighterB)} fighters={fightersInCategorie} onChange={setIdB} exclude={idA} t={t} lang={lang} animate={clashing} />
+              <FighterCorner side="b" fighter={fighterB} photo={photoOf(fighterB)} fighters={fightersInCategorie} onChange={pickB} exclude={idA} t={t} lang={lang} animate={clashing} />
             </div>
 
             <button
@@ -230,8 +252,18 @@ export default function Simulator({ lang = "fr" }) {
             </button>
 
             {/* Face-à-face et résultat, après « Analyser le duel » */}
+            {limitHit && (
+              <div className="row-rise rounded-2xl border border-amber-400/30 bg-neutral-900 p-6 text-center">
+                <Lock className="w-6 h-6 text-amber-400 mx-auto mb-3" />
+                <div className="disp text-lg mb-2">{t.limitTitle}</div>
+                <p className="text-sm text-neutral-400 max-w-md mx-auto">{t.limitReached(DAILY_LIMIT)}</p>
+              </div>
+            )}
+
             {showResult && (
-            <div key={idA + idB} className="row-rise grid gap-5 lg:grid-cols-2 lg:items-start">
+            <div key={idA + idB} className="row-rise space-y-5">
+            <ExpertAnalysis analysis={aiText} loading={aiLoading} error={aiError} vip={vip} left={Math.max(0, DAILY_LIMIT - dailyUsage)} fighterA={fighterA} t={t} />
+            <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
               <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-4">
                   <TrendingUp className="w-3.5 h-3.5" /> {t.taleOfTape}
@@ -280,46 +312,93 @@ export default function Simulator({ lang = "fr" }) {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-3">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {t.expertAnalysis}
-                    </div>
-                    {aiLoading && (
-                      <div className="space-y-2" aria-live="polite">
-                        <div className="ai-shimmer h-3 rounded-full w-full" />
-                        <div className="ai-shimmer h-3 rounded-full w-11/12" />
-                        <div className="ai-shimmer h-3 rounded-full w-4/6" />
-                        <p className="text-[11px] text-neutral-500 pt-1">{t.generating}</p>
-                      </div>
-                    )}
-                    {!aiLoading && !aiText && !aiError && !vip && dailyUsage >= DAILY_LIMIT && (
-                      <p className="text-sm text-neutral-400">{t.limitReached(DAILY_LIMIT)}</p>
-                    )}
-                    {aiText && (
-                      <>
-                        <div className="row-rise space-y-3 text-sm text-neutral-200 leading-relaxed">
-                          {aiText.split(/\n\s*\n/).map((para, i) => {
-                            const m = para.match(/^\s*\**([^:*\n]{3,40})\**\s*:\s*([\s\S]*)$/);
-                            return m ? (
-                              <p key={i}><span className="font-semibold text-amber-400">{m[1]} : </span>{m[2]}</p>
-                            ) : (
-                              <p key={i}>{para.trim()}</p>
-                            );
-                          })}
-                        </div>
-                        <p className="text-[11px] text-neutral-500 mt-3">{t.aiDisclaimer}</p>
-                        {!vip && <p className="text-[11px] text-neutral-500 mt-3">{t.freeLeft(Math.max(0, DAILY_LIMIT - dailyUsage))}</p>}
-                        {vip && <p className="text-[11px] text-neutral-500 mt-3">{t.vipActive}</p>}
-                      </>
-                    )}
-                    {aiError && <p className="text-sm text-neutral-400">{aiError}</p>}
-                  </div>
                 </div>
+            </div>
             </div>
             )}
           </>
         )
       )}
+    </div>
+  );
+}
+
+// L'analyse IA, mise en avant juste sous le bouton : accroche, clés du combat, forme, scénario, piège et verdict.
+function ExpertAnalysis({ analysis, loading, error, vip, left, fighterA, t }) {
+  const a = analysis && typeof analysis === "object" ? analysis : null;
+  const Section = ({ icon: Icon, title, children }) => (
+    <div className="rounded-xl bg-neutral-950/60 border border-neutral-800 p-4">
+      <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-amber-400 mb-2">
+        <Icon className="w-3.5 h-3.5" /> {title}
+      </div>
+      <div className="text-sm text-neutral-200 leading-relaxed">{children}</div>
+    </div>
+  );
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-amber-400/40 bg-gradient-to-b from-amber-400/[0.07] to-neutral-900 p-5 sm:p-6 shadow-[0_0_40px_-15px_rgba(251,191,36,0.5)]">
+      <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-amber-400 mb-4">
+        <Sparkles className="w-4 h-4" /> {t.expertAnalysis}
+      </div>
+
+      {loading && (
+        <div className="space-y-2.5" aria-live="polite">
+          <div className="ai-shimmer h-5 rounded-full w-4/5" />
+          <div className="ai-shimmer h-3 rounded-full w-full" />
+          <div className="ai-shimmer h-3 rounded-full w-11/12" />
+          <div className="ai-shimmer h-3 rounded-full w-3/5" />
+          <p className="text-[11px] text-neutral-500 pt-1">{t.generating}</p>
+        </div>
+      )}
+
+      {!loading && error && <p className="text-sm text-neutral-400">{error}</p>}
+
+      {!loading && a && (
+        <div className="row-rise space-y-4">
+          <p className="disp text-xl sm:text-2xl leading-snug text-neutral-50">{a.accroche}</p>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 text-neutral-950 text-xs font-semibold px-3 py-1.5">
+              <Trophy className="w-3.5 h-3.5" /> {t.favorite(a.favori || fighterA.nom)}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 text-amber-300 text-xs font-semibold px-3 py-1.5">
+              <Target className="w-3.5 h-3.5" /> {t.aiFinish} : {t.finishLabels[a.tendance] || a.tendance}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-700 text-neutral-300 text-xs font-semibold px-3 py-1.5">
+              {t.aiConfidence} : {t.confidenceLabels[a.confiance] || a.confiance}
+            </span>
+          </div>
+
+          {a.cles?.length > 0 && (
+            <Section icon={KeyRound} title={t.aiKeys}>
+              <ol className="space-y-2.5">
+                {a.cles.map((k, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="mono text-amber-400 shrink-0">{i + 1}</span>
+                    <span><span className="font-semibold text-neutral-50">{k.titre}.</span> {k.detail}</span>
+                  </li>
+                ))}
+              </ol>
+            </Section>
+          )}
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Section icon={Activity} title={t.aiForm}>{a.forme}</Section>
+            <Section icon={Film} title={t.aiScenario}>{a.scenario}</Section>
+          </div>
+          <Section icon={AlertTriangle} title={t.aiTrap}>{a.piege}</Section>
+
+          <div className="rounded-xl border border-amber-400/50 bg-amber-400/10 p-4">
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-amber-400 mb-2">
+              <Trophy className="w-3.5 h-3.5" /> {t.aiVerdict}
+            </div>
+            <p className="text-sm sm:text-base text-neutral-50 leading-relaxed font-medium">{a.verdict}</p>
+          </div>
+
+          <p className="text-[11px] text-neutral-500">{t.aiDisclaimer}</p>
+        </div>
+      )}
+
+      {!loading && <p className="text-[11px] text-neutral-500 mt-2">{vip ? t.vipActive : t.freeLeft(left)}</p>}
     </div>
   );
 }
