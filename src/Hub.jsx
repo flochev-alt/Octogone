@@ -2,7 +2,7 @@ import { Trophy, Swords, Newspaper, ArrowRight } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
-export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {} }) {
+export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {} }) {
   const t = T[lang];
   const sections = [
     { id: "combattants", icon: Trophy, title: t.navCombattants, desc: t.navCardCombattantsDesc },
@@ -12,7 +12,6 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {} })
   return (
     <div className="relative min-h-screen min-h-[100dvh] overflow-hidden bg-neutral-950 text-neutral-50 flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
         .tap { transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, border-color 0.2s; }
         .tap:active { transform: scale(0.97); }
@@ -100,6 +99,11 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {} })
           ))}
         </div>
       </main>
+      {/* Mentions légales et cookies accessibles depuis chaque page (LCEN, CNIL). */}
+      <div className="relative z-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex justify-center gap-4 text-[11px] text-neutral-600">
+        <button onClick={onLegal} className="tap underline hover:text-neutral-300">{t.legal}</button>
+        <button onClick={onCookies} className="tap underline hover:text-neutral-300">{t.cookies}</button>
+      </div>
     </div>
   );
 }

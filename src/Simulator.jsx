@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { Swords, Sparkles, TrendingUp, ChevronDown, Trophy, Lock, KeyRound, Activity, Film, AlertTriangle, Target, Share2, Download, X } from "lucide-react";
 import { useFighters } from "./useFighters.js";
 import { T, translateCategory, formatHeight, formatStyle, ageFrom, CATEGORY_ORDER } from "./i18n.js";
-import { usePhotos } from "./usePhotos.js";
+import { usePhotos, creditOf } from "./usePhotos.js";
 import FighterAvatar from "./FighterAvatar.jsx";
 import CategoryBar from "./CategoryBar.jsx";
 import { getVipCode } from "./vip.js";
@@ -241,6 +241,16 @@ export default function Simulator({ lang = "fr", vip = false }) {
               </div>
               <FighterCorner side="b" fighter={fighterB} photo={photoOf(fighterB)} fighters={fightersInCategorie} onChange={pickB} exclude={idA} t={t} lang={lang} animate={clashing} />
             </div>
+            {/* Crédit des photos libres (auteur · licence), avec lien vers le fichier d'origine. */}
+            {[fighterA, fighterB].some((f) => photos[f.nom]?.page) && (
+              <div className="-mt-3 mb-4 text-[10px] text-neutral-600 flex flex-wrap justify-center gap-x-3">
+                {[fighterA, fighterB].filter((f) => photos[f.nom]?.page).map((f) => (
+                  <a key={f.nom} href={photos[f.nom].page} target="_blank" rel="noopener noreferrer" className="hover:text-neutral-400">
+                    {t.photoBy} {creditOf(photos[f.nom])}
+                  </a>
+                ))}
+              </div>
+            )}
 
             <button
               onClick={analyser}
@@ -268,8 +278,9 @@ export default function Simulator({ lang = "fr", vip = false }) {
                 data={{
                   fighterA, fighterB, probA, probB, analysis: aiText,
                   photoA: photoOf(fighterA), photoB: photoOf(fighterB),
+                  creditA: photos[fighterA.nom] && creditOf(photos[fighterA.nom]), creditB: photos[fighterB.nom] && creditOf(photos[fighterB.nom]),
                   category: translateCategory(categorie, lang),
-                  text: { ...t.shareImg, favorite: t.favorite, finish: t.aiFinish, confidence: t.aiConfidence, finishLabels: t.finishLabels, confidenceLabels: t.confidenceLabels },
+                  text: { ...t.shareImg, photoBy: t.photoBy, favorite: t.favorite, finish: t.aiFinish, confidence: t.aiConfidence, finishLabels: t.finishLabels, confidenceLabels: t.confidenceLabels },
                 }}
               />
             )}

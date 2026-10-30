@@ -9,7 +9,10 @@ const usage = new Map();
 
 function overDailyLimit(req) {
   const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "unknown";
-  const key = `${new Date().toISOString().slice(0, 10)}|${ip}`;
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `${today}|${ip}`;
+  // Données personnelles : on ne garde jamais les adresses IP au-delà du jour en cours (mentions légales).
+  for (const k of usage.keys()) if (!k.startsWith(today)) usage.delete(k);
   const count = (usage.get(key) || 0) + 1;
   if (usage.size > 5000) usage.clear();
   usage.set(key, count);

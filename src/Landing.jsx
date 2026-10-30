@@ -37,7 +37,7 @@ const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   delay: i * 0.18,
 }));
 
-export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {} }) {
+export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
   const now = useNow();
@@ -69,7 +69,6 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
   return (
     <div className="min-h-screen min-h-[100dvh] bg-neutral-950 text-neutral-50 overflow-hidden select-none" style={{ fontFamily: "'Inter', sans-serif", WebkitTouchCallout: "none" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
         .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
         @keyframes octoSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -269,6 +268,12 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
         <NavCard icon={Swords} title={t.navSimulateur} desc={t.navCardSimulateurDesc} onClick={onEnterSimulator} />
         <NavCard icon={Newspaper} title={t.navMedia} desc={t.navCardMediaDesc} onClick={onEnterMedia} />
       </section>
+
+      {/* Mentions légales et cookies accessibles depuis chaque page (LCEN, CNIL). */}
+      <div className="relative z-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex justify-center gap-4 text-[11px] text-neutral-600">
+        <button onClick={onLegal} className="tap underline hover:text-neutral-300">{t.legal}</button>
+        <button onClick={onCookies} className="tap underline hover:text-neutral-300">{t.cookies}</button>
+      </div>
     </div>
   );
 }
