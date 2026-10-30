@@ -39,3 +39,26 @@ jobs:
           # La branche a pu avancer pendant la recherche : on se replace dessus avant d'envoyer.
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push
+      # Planche contact (miniatures + noms) pour vérifier d'un coup d'œil qu'aucune photo ne montre
+      # quelqu'un d'autre : Actions > le run > Artifacts > planche-photos.
+      - name: Planche contact
+        if: always()
+        run: |
+          mkdir -p planche
+          node -e '
+            const p = require("./public/photos.json");
+            for (const [n, v] of Object.entries(p)) {
+              const f = decodeURIComponent(v.page.split("File:")[1]);
+              console.log(n.replace(/[^A-Za-z0-9]+/g, "_") + "\t" + "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(f) + "?width=240");
+            }' > planche/list.tsv
+          while IFS=$'\t' read -r name url; do
+            curl -sfL -A "OctogonePhotos/1.0 (https://octogone.space)" -o "planche/$name.jpg" "$url" || true
+            sleep 0.3
+          done < planche/list.tsv
+          montage -label '%t' -geometry 160x200+4+4 -tile 10x -pointsize 11 planche/*.jpg planche/planche.jpg || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: planche-photos
+          path: planche/planche.jpg
+          if-no-files-found: ignore

@@ -74,6 +74,10 @@ function titleMatches(file, n) {
   const rest = text.replace(` ${n} `, " ").replace(/\b(jpg|jpeg|png|webp|tif|tiff|cropped|crop|\d+)\b/g, " ").trim();
   return rest === "" || MMA_CONTEXT.test(rest);
 }
+// Photo de groupe ou de combat (« X and Y », « X e Y », « X vs Y », « X knock out Y », « X - Y - Z ») :
+// le recadrage risque de montrer quelqu'un d'autre. On ne la garde que si c'est la photo de l'infobox Wikipédia.
+const GROUP = /\b(and|et|e|y|with|avec|com|vs|v|x|knock|knocks|knocked|defeats|def|against)\b|&|,|\s[-–]\s?/i;
+const solo = (file) => !GROUP.test(file.replace(/^File:/i, "").replace(/\.[a-z]+$/i, "").replace(/_/g, " "));
 // Photos choisies par Flo : « infobox » garde la photo de la page Wikipédia du combattant.
 const PINNED = { "Joshua Van": "infobox" };
 // Date de prise de vue au format AAAA-MM-JJ (Commons mélange « 2024-02-17 », « Taken on 7 February 2024 »…).
@@ -198,7 +202,7 @@ async function findPhotos(names) {
   ]);
   const missing = names.filter((n) => !infobox[n]);
   if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing).catch((e) => (note("infobox fr")(e), {})));
-  const files = names.map((n, k) => [...new Set([infobox[n], ...found[k]].filter(Boolean))]);
+  const files = names.map((n, k) => [...new Set([infobox[n], ...found[k].filter(solo)].filter(Boolean))]);
   const info = await commonsInfo(files.flat());
   // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
   const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
