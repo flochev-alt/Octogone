@@ -221,8 +221,9 @@ export default function Simulator({ lang = "fr" }) {
               <Swords className="w-4 h-4" /> {t.analyze}
             </button>
 
-            <div className="grid gap-5 lg:grid-cols-2 lg:items-start">
-              {/* Face-à-face chiffré, visible tout de suite */}
+            {/* Face-à-face et résultat, après « Analyser le duel » */}
+            {showResult && (
+            <div key={idA + idB} className="row-rise grid gap-5 lg:grid-cols-2 lg:items-start">
               <div className="rounded-2xl border border-neutral-800 bg-neutral-900 p-5">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-4">
                   <TrendingUp className="w-3.5 h-3.5" /> {t.taleOfTape}
@@ -238,9 +239,7 @@ export default function Simulator({ lang = "fr" }) {
                 </div>
               </div>
 
-              {/* Résultat, après « Analyser le duel » */}
-              {showResult ? (
-                <div key={idA + idB} className="row-rise space-y-5">
+                <div className="space-y-5">
                   <div className="relative overflow-hidden rounded-2xl border border-amber-400/30 bg-neutral-900 p-5">
                     <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
                     {favorite && (
@@ -298,15 +297,8 @@ export default function Simulator({ lang = "fr" }) {
                     {aiError && <p className="text-sm text-neutral-400">{aiError}</p>}
                   </div>
                 </div>
-              ) : (
-                <div className="hidden lg:flex rounded-2xl border border-dashed border-neutral-800 p-8 items-center justify-center text-center text-sm text-neutral-500 min-h-[200px]">
-                  <span className="flex flex-col items-center gap-3">
-                    <Swords className="w-6 h-6 text-amber-400/60" />
-                    {t.analyze}
-                  </span>
-                </div>
-              )}
             </div>
+            )}
           </>
         )
       )}
