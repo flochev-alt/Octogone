@@ -17,3 +17,9 @@ html {
 body {
   margin: 0;
 }
+
+/* Bords des grandes photos fondus dans le noir du site (photos en couleur, sans filtre). */
+.photo-fade {
+  -webkit-mask-image: radial-gradient(ellipse 75% 85% at 50% 30%, #000 50%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 85% at 50% 30%, #000 50%, transparent 100%);
+}
