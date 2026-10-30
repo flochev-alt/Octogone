@@ -80,8 +80,13 @@ const GROUP = /\b(and|et|e|y|with|avec|com|vs|v|x|knock|knocks|knocked|defeats|d
 // Une version « cropped » a été recadrée sur une personne : seule la mise en scène d'un KO ou d'une poignée de main
 // avec un tiers (« knock », « congratulates », « Trump ») reste écartée.
 const STAGED = /\b(knock|knocks|knocked|congratulates|trump|signature|autograph|logo)\b/i;
+// Portraits vérifiés à l'œil malgré un nom de fichier qui ressemble à une photo de groupe (virgule, tiret).
+const VERIFIED = new Set([
+  "Jon_Jones_-_Supporting_Brain_Health_Study.jpg", "Alonzo_Menifield_Jan_20,_2019.jpg", "Khalil_Rountree,_Jr..jpg",
+]);
 const solo = (file) => {
   const t = file.replace(/^File:/i, "").replace(/\.[a-z]+$/i, "").replace(/_/g, " ");
+  if (VERIFIED.has(file.replace(/^File:/i, "").replace(/ /g, "_"))) return true;
   return !STAGED.test(t) && (/cropped/i.test(t) || !GROUP.test(t));
 };
 // Combattants dont le nom est surtout porté par d'autres personnes sur Commons (basketteur, footballeur,
