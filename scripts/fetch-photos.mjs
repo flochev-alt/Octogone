@@ -19,9 +19,9 @@ const note = (where) => (e) => { errors.push(`${where}: ${e?.message || e}`); };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Appel HTTP poli : en cas de 429 (trop de requêtes), on attend puis on réessaie (4 fois max).
-async function get(url) {
+async function get(url, timeout = TIMEOUT) {
   for (let attempt = 0; ; attempt++) {
-    const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(TIMEOUT) });
+    const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(timeout) });
     if (r.status !== 429 || attempt >= 4) return r;
     await sleep((Number(r.headers.get("retry-after")) || 5 * 2 ** attempt) * 1000);
   }
@@ -61,6 +61,15 @@ async function infoboxFiles(lang, names) {
 const stripHtml = (s = "") => s.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const MIN_WIDTH = 500;
+// Date de prise de vue au format AAAA-MM-JJ (Commons mélange « 2024-02-17 », « Taken on 7 February 2024 »…).
+function isoDate(s) {
+  const iso = s.match(/\d{4}-\d{2}-\d{2}/);
+  if (iso) return iso[0];
+  const d = Date.parse(s.replace(/^taken (on|in)\s*/i, ""));
+  if (!Number.isNaN(d)) return new Date(d).toISOString().slice(0, 10);
+  const year = s.match(/\b(19|20)\d{2}\b/);
+  return year ? `${year[0]}-01-01` : "";
+}
 
 // Fichiers -> URL de la vignette + auteur + licence, uniquement pour ceux présents sur Commons.
 async function commonsInfo(files) {
@@ -86,7 +95,7 @@ async function commonsInfo(files) {
       license: stripHtml(meta.LicenseShortName?.value) || "",
       page: ii.descriptionurl,
       source: "Wikimedia Commons",
-      date: stripHtml(meta.DateTimeOriginal?.value || meta.DateTime?.value).slice(0, 10),
+      date: isoDate(stripHtml(meta.DateTimeOriginal?.value || meta.DateTime?.value)),
       width: ii.width,
     };
   }
@@ -121,7 +130,7 @@ const LICENSE_NAMES = { by: "CC BY", "by-sa": "CC BY-SA", cc0: "CC0", pdm: "Publ
 async function openverseSearch(name) {
   const r = await get("https://api.openverse.org/v1/images/?" + new URLSearchParams({
     q: `"${name}"`, license: "by,by-sa,cc0,pdm", category: "photograph", page_size: "20", mature: "false",
-  }));
+  }), 30000);
   if (!r.ok) throw new Error(`openverse ${r.status} ${(await r.text()).slice(0, 200)}`);
   const n = norm(name);
   return ((await r.json()).results || [])
@@ -163,10 +172,12 @@ async function findPhotos(names) {
   const info = await commonsInfo(files.flat());
   // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
   const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
-  const others = await Promise.all(names.map((n, k) => {
+  // Openverse est lent : un combattant à la fois.
+  const others = [];
+  for (const [k, n] of names.entries()) {
     const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
-    return fromCommons?.date >= recent ? [] : openverseSearch(n).catch((e) => (note("openverse")(e), []));
-  }));
+    others.push(fromCommons?.date >= recent ? [] : await openverseSearch(n).catch((e) => (note(`openverse ${n}`)(e), [])));
+  }
   const photos = {};
   names.forEach((name, k) => {
     // Openverse n'a pas de date : on préfère sa photo d'événement UFC à une photo Commons ancienne.
@@ -196,4 +207,4 @@ writeFileSync(out, JSON.stringify(sorted, null, 1) + "\n");
 console.log(`${Object.keys(photos).length}/${names.length} combattants avec photo.`);
 const missing = names.filter((n) => !photos[n]);
 if (missing.length) console.log("Sans photo :", missing.join(", "));
-if (errors.length) console.log("Erreurs :", [...new Set(errors)].slice(0, 20).join("\n"));
+if (errors.length) console.log(`Erreurs (${errors.length}) :`, [...new Set(errors)].slice(0, 20).join("\n"));
