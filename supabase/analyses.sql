@@ -6,7 +6,7 @@ create table if not exists public.analyses (
   cle        text primary key,
   combat     text not null,
   langue     text not null,
-  analyse    jsonb not null,
+  contenu    jsonb not null,
   created_at timestamptz not null default now()
 );
 

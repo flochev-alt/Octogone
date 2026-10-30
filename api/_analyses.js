@@ -30,9 +30,9 @@ export async function getAnalysis(key) {
   if (memory.has(key.cle)) return memory.get(key.cle);
   if (!enabled) return null;
   try {
-    const r = await fetch(`${URL}/rest/v1/analyses?cle=eq.${key.cle}&select=analyse`, { headers: headers() });
+    const r = await fetch(`${URL}/rest/v1/analyses?cle=eq.${key.cle}&select=contenu`, { headers: headers() });
     if (!r.ok) throw new Error(`Supabase analyses : ${r.status}`);
-    const found = (await r.json())[0]?.analyse || null;
+    const found = (await r.json())[0]?.contenu || null;
     if (found) memory.set(key.cle, found);
     return found;
   } catch (e) {
@@ -53,7 +53,7 @@ export async function saveAnalysis(key, analyse) {
     const r = await fetch(`${URL}/rest/v1/analyses?on_conflict=cle`, {
       method: "POST",
       headers: { ...headers(), Prefer: "resolution=ignore-duplicates,return=representation" },
-      body: JSON.stringify({ ...key, analyse }),
+      body: JSON.stringify({ ...key, contenu: analyse }),
     });
     if (!r.ok) throw new Error(`Supabase analyses : ${r.status} ${await r.text()}`);
     const inserted = (await r.json())[0];
