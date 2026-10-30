@@ -74,7 +74,7 @@ Remplis chaque champ :
 - scenario : 2 à 3 phrases qui racontent le déroulé le plus probable du combat, round après round si utile.
 - tendance : comment ce combat a le plus de chances de se terminer d'après les chiffres (ko, soumission ou decision).
 - piege : 1 à 2 phrases sur le scénario qui ferait tomber le favori.
-- favori : le nom exact du combattant que tu donnes favori.
+- favori : le nom exact du combattant que tu donnes favori. Si ce n'est pas celui que notre modèle place devant, explique pourquoi dans le verdict.
 - confiance : ton niveau de confiance dans ce favori (faible, moyenne ou forte), cohérent avec les chiffres.
 - verdict : 1 à 2 phrases percutantes qui tranchent et justifient le choix.`;
 
