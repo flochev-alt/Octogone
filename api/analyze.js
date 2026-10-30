@@ -1,6 +1,6 @@
 import { isVipCode } from "./_vip.js";
 
-const DAILY_LIMIT = 5;
+const DAILY_LIMIT = 10;
 // Compteur par adresse IP et par jour, en mémoire du serveur. Vercel peut redémarrer ou multiplier
 // ses instances : c'est un garde-fou en plus du compteur du navigateur, pas une garantie absolue
 // (il faudra une base de données, Supabase, pour un compteur exact).

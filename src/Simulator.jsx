@@ -11,7 +11,7 @@ const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2)
 // Champion en premier, puis classés 1 à 15, puis non-classés.
 const byRank = (a, b) => (a.rang ?? 99) - (b.rang ?? 99);
 
-const DAILY_LIMIT = 5;
+const DAILY_LIMIT = 10;
 
 function getDailyUsage() {
   const today = new Date().toISOString().slice(0, 10);
@@ -103,10 +103,11 @@ export default function Simulator({ lang = "fr" }) {
       setClashing(false);
       setShowResult(true);
     }, 900);
+    // L'analyse IA part en même temps, tant qu'il reste des analyses aujourd'hui.
+    if (vip || dailyUsage < DAILY_LIMIT) genererAnalyseIA();
   };
 
-  const genererAnalyseIA = async () => {
-    if (!vip && dailyUsage >= DAILY_LIMIT) return;
+  async function genererAnalyseIA() {
     setAiLoading(true);
     setAiError(null);
     try {
@@ -128,7 +129,7 @@ export default function Simulator({ lang = "fr" }) {
     } finally {
       setAiLoading(false);
     }
-  };
+  }
 
   const notEnoughFighters = fightersInCategorie.length < 2;
   const photos = usePhotos();
@@ -168,6 +169,9 @@ export default function Simulator({ lang = "fr" }) {
         @keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         .bar-grow-l { transform-origin: right; animation: barGrow 0.8s cubic-bezier(0.16,1,0.3,1) both; }
         .bar-grow-r { transform-origin: left; animation: barGrow 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+        @keyframes aiShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+        .ai-shimmer { background: linear-gradient(90deg, #262626 25%, rgba(251,191,36,0.25) 50%, #262626 75%); background-size: 200% 100%; animation: aiShimmer 1.6s linear infinite; }
+        @media (prefers-reduced-motion: reduce) { .ai-shimmer { animation: none; } }
       `}</style>
 
       {/* En-tête */}
@@ -276,24 +280,24 @@ export default function Simulator({ lang = "fr" }) {
                     <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-neutral-400 mb-3">
                       <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {t.expertAnalysis}
                     </div>
-                    {!aiText && !aiError && (vip || dailyUsage < DAILY_LIMIT) && (
-                      <>
-                        <button
-                          onClick={genererAnalyseIA}
-                          disabled={aiLoading}
-                          className="tap text-sm px-4 py-2 rounded-lg border border-amber-400/40 text-amber-400 hover:bg-amber-400/10 disabled:opacity-50"
-                        >
-                          {aiLoading ? t.generating : t.generateAI}
-                        </button>
-                        <p className="text-[11px] text-neutral-500 mt-2">
-                          {vip ? t.vipActive : t.freeLeft(DAILY_LIMIT - dailyUsage)}
-                        </p>
-                      </>
+                    {aiLoading && (
+                      <div className="space-y-2" aria-live="polite">
+                        <div className="ai-shimmer h-3 rounded-full w-full" />
+                        <div className="ai-shimmer h-3 rounded-full w-11/12" />
+                        <div className="ai-shimmer h-3 rounded-full w-4/6" />
+                        <p className="text-[11px] text-neutral-500 pt-1">{t.generating}</p>
+                      </div>
                     )}
-                    {!aiText && !aiError && !vip && dailyUsage >= DAILY_LIMIT && (
+                    {!aiLoading && !aiText && !aiError && !vip && dailyUsage >= DAILY_LIMIT && (
                       <p className="text-sm text-neutral-400">{t.limitReached(DAILY_LIMIT)}</p>
                     )}
-                    {aiText && <p className="text-sm text-neutral-200 leading-relaxed">{aiText}</p>}
+                    {aiText && (
+                      <>
+                        <p className="row-rise text-sm text-neutral-200 leading-relaxed">{aiText}</p>
+                        {!vip && <p className="text-[11px] text-neutral-500 mt-3">{t.freeLeft(Math.max(0, DAILY_LIMIT - dailyUsage))}</p>}
+                        {vip && <p className="text-[11px] text-neutral-500 mt-3">{t.vipActive}</p>}
+                      </>
+                    )}
                     {aiError && <p className="text-sm text-neutral-400">{aiError}</p>}
                   </div>
                 </div>
