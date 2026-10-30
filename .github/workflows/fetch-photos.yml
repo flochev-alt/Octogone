@@ -17,7 +17,7 @@ permissions:
 
 concurrency:
   group: fetch-photos
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   photos:

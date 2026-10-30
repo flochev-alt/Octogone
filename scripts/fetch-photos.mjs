@@ -61,6 +61,19 @@ async function infoboxFiles(lang, names) {
 const stripHtml = (s = "") => s.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const MIN_WIDTH = 500;
+// Le nom doit apparaître en mots entiers (« Joshua Van » ne doit pas trouver « Joshua Van Vlack »).
+const hasWords = (text, words) => ` ${norm(text)} `.includes(` ${words} `);
+// Fichier trouvé par son titre : il faut le nom seul (« Joshua Van 2024.jpg ») ou un contexte MMA
+// (« Joshua Van at UFC 310.jpg »), sinon c'est sans doute un homonyme (« Capt. Joshua Van Vlack »).
+const MMA_CONTEXT = /\b(ufc|mma|fight|fighter|bellator|pfl|weigh|press|octagon|cage|vs|v|rizin|ksw|one championship|champion|belt)\b/;
+function titleMatches(file, n) {
+  const text = ` ${norm(file)} `;
+  if (!text.includes(` ${n} `)) return false;
+  const rest = text.replace(` ${n} `, " ").replace(/\b(jpg|jpeg|png|webp|tif|tiff|cropped|crop|\d+)\b/g, " ").trim();
+  return rest === "" || MMA_CONTEXT.test(rest);
+}
+// Photos choisies par Flo : « infobox » garde la photo de la page Wikipédia du combattant.
+const PINNED = { "Joshua Van": "infobox" };
 // Date de prise de vue au format AAAA-MM-JJ (Commons mélange « 2024-02-17 », « Taken on 7 February 2024 »…).
 function isoDate(s) {
   const iso = s.match(/\d{4}-\d{2}-\d{2}/);
@@ -117,8 +130,8 @@ async function commonsSearch(name) {
     search(`incategory:"${name}" filetype:bitmap`),
   ]);
   return [...new Set([
-    ...byTitle.filter((f) => norm(f).includes(n)),
-    ...byCategory.filter((f) => norm(f).includes(last)),
+    ...byTitle.filter((f) => titleMatches(f, n)),
+    ...byCategory.filter((f) => hasWords(f, last)),
   ])].slice(0, 15);
 }
 
@@ -138,7 +151,7 @@ async function openverseSearch(name) {
     // Les tags Flickr sont souvent collés (« iliatopuria ») : on teste les deux formes.
     .filter((p) => {
       const text = `${p.title || ""} ${(p.tags || []).map((t) => t.name).join(" ")}`;
-      return norm(text).includes(n) || norm(text).replace(/ /g, "").includes(n.replace(/ /g, ""));
+      return hasWords(text, n) || hasWords(text, n.replace(/ /g, ""));
     })
     // Écarte les photos d'agence republiées sous une licence libre par erreur.
     .filter((p) => !AGENCY.test(`${p.title} ${p.creator}`))
@@ -183,7 +196,8 @@ async function findPhotos(names) {
     // Openverse n'a pas de date : on préfère sa photo d'événement UFC à une photo Commons ancienne.
     const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
     const fromOpenverse = best(others[k]);
-    const pick = fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
+    const pinned = PINNED[name] === "infobox" && infobox[name] && info[infobox[name].replace(/ /g, "_")];
+    const pick = pinned || fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
     if (pick) photos[name] = pick;
   });
   return photos;
