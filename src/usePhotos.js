@@ -1,43 +1,31 @@
 import { useEffect, useState } from "react";
 
-// Photos libres de droits (Wikimedia Commons) trouvées par /api/photos, partagées entre les pages.
-// Chargées par lots de 10 noms. Un nom sans photo reste à null : on garde alors les initiales.
-const cache = {};
+// Photos libres de droits des combattants, lues une seule fois dans /photos.json
+// (fichier généré par scripts/fetch-photos.mjs). Un nom sans photo garde ses initiales.
+let cache = {};
+let request = null;
 const listeners = new Set();
-const pending = new Set();
 
-async function load(names) {
-  const todo = names.filter((n) => !(n in cache) && !pending.has(n));
-  if (!todo.length) return;
-  todo.forEach((n) => pending.add(n));
-  const chunks = [];
-  for (let i = 0; i < todo.length; i += 10) chunks.push(todo.slice(i, i + 10));
-  // Les lots partent en parallèle ; chaque lot met la page à jour dès qu'il arrive.
-  await Promise.all(chunks.map(async (chunk) => {
-    try {
-      const r = await fetch(`/api/photos?names=${encodeURIComponent(chunk.join("|"))}`);
-      if (!r.ok) throw new Error(r.status);
-      const data = await r.json();
-      for (const n of chunk) cache[n] = data[n] || null;
-    } catch {
-      // Échec du serveur : on n'enregistre rien, pour réessayer au prochain affichage.
-    }
-    chunk.forEach((n) => pending.delete(n));
-    listeners.forEach((fn) => fn());
-  }));
+function load() {
+  request ??= fetch("/photos.json")
+    .then((r) => (r.ok ? r.json() : {}))
+    .catch(() => ({}))
+    .then((data) => {
+      cache = data;
+      listeners.forEach((fn) => fn());
+    });
 }
 
-// Renvoie { nom: { url, author, license, page } | null } pour les noms demandés.
-export function usePhotos(names) {
+// Renvoie { nom: { url, author, license, page, source } } ; les noms absents n'ont pas de photo.
+export function usePhotos() {
   const [, refresh] = useState(0);
-  const key = names.join("|");
 
   useEffect(() => {
     const fn = () => refresh((x) => x + 1);
     listeners.add(fn);
-    load(key ? key.split("|") : []);
+    load();
     return () => listeners.delete(fn);
-  }, [key]);
+  }, []);
 
   return cache;
 }

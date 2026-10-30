@@ -1,0 +1,39 @@
+# Cherche une photo libre de droits pour chaque combattant et enregistre public/photos.json.
+# Chaque lundi, quand le script change, ou à la main (Actions > Photos combattants > Run workflow).
+# Les photos sont cherchées ici, et non par le site, car Wikipédia bloque les requêtes venant de Vercel.
+name: Photos combattants
+
+on:
+  schedule:
+    - cron: "30 4 * * 1"
+  push:
+    paths:
+      - scripts/fetch-photos.mjs
+      - .github/workflows/fetch-photos.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-photos
+  cancel-in-progress: false
+
+jobs:
+  photos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Chercher les photos
+        run: node scripts/fetch-photos.mjs
+      - name: Enregistrer
+        run: |
+          git add public/photos.json
+          if git diff --cached --quiet; then echo "Aucun changement."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Photos combattants : mise à jour automatique"
+          git push

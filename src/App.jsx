@@ -190,7 +190,7 @@ export default function App() {
   // Une recherche porte sur toute la base (toutes catégories), sinon on affiche la catégorie choisie.
   const allFighters = useFighters();
   // Photos libres (Wikimedia Commons), chargées seulement sur l'onglet Combattants.
-  const photos = usePhotos(view === "combattants" ? allFighters.map((f) => f.nom) : []);
+  const photos = usePhotos();
   const photoOf = (f) => (f.photo ? { url: f.photo } : photos[f.nom] || null);
   const categories = useMemo(() => CATEGORY_ORDER.filter((c) => allFighters.some((f) => f.categorie === c)), [allFighters]);
   const searching = query.trim().length >= 2;

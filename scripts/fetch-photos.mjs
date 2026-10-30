@@ -1,23 +1,37 @@
-// GET /api/photos?names=Ilia Topuria|Justin Gaethje (10 noms max)
-// Cherche une photo libre de droits de chaque combattant, parmi : la photo de son infobox Wikipédia
-// (en, puis fr), les fichiers Commons portant son nom complet, ceux de sa catégorie Commons,
-// et, si Commons n'a rien de récent, les photos libres trouvées par Openverse (Flickr notamment). On garde la plus récente (puis prise en événement UFC, puis la plus grande).
-// Les photos trop petites (< 500 px de large) sont écartées. Renvoie une version HD (1200 px),
-// l'auteur et la licence pour le crédit affiché sur le site. Réponse mise en cache 7 jours par Vercel.
+// Génère public/photos.json : une photo libre de droits pour chaque combattant du site
+// (src/fightersData.js + affiches de src/mediaData.js). Usage : node scripts/fetch-photos.mjs
+// Lancé par le workflow « Photos combattants » (chaque semaine, ou à la main) : Wikipédia limite les
+// requêtes venant de Vercel, donc les photos sont cherchées une fois ici puis servies en fichier statique.
+// Sources : la photo de l'infobox Wikipédia (en, puis fr), les fichiers Commons portant son nom complet,
+// ceux de sa catégorie Commons, et, si Commons n'a rien de récent, les photos libres trouvées par
+// Openverse (Flickr notamment). On garde la plus récente (puis prise en événement UFC, puis la plus grande).
+// Les photos trop petites (< 500 px de large) sont écartées. Version HD (1200 px), auteur et licence
+// pour le crédit affiché sur le site. Un combattant introuvable cette fois garde sa photo précédente.
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { FIGHTERS } from "../src/fightersData.js";
+import { UPCOMING, RECENT_CARDS } from "../src/mediaData.js";
+
 const UA = "Octogone/1.0 (https://octogone.space)";
 // Chaque appel externe est coupé au bout de 4 s : un service lent ne doit pas bloquer toute la réponse.
-const TIMEOUT = 4000;
-// Erreurs rencontrées pendant la requête, visibles avec ?debug=1 (diagnostic).
-let errors = [];
+const TIMEOUT = 15000;
+const errors = [];
 const note = (where) => (e) => { errors.push(`${where}: ${e?.message || e}`); };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Appel HTTP poli : en cas de 429 (trop de requêtes), on attend puis on réessaie (4 fois max).
+async function get(url) {
+  for (let attempt = 0; ; attempt++) {
+    const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(TIMEOUT) });
+    if (r.status !== 429 || attempt >= 4) return r;
+    await sleep((Number(r.headers.get("retry-after")) || 5 * 2 ** attempt) * 1000);
+  }
+}
 
 // La page doit bien parler d'un combattant (évite les homonymes : chanteur, footballeur…).
 const FIGHTER = /mixed martial|martial art|\bMMA\b|fighter|wrestler|kickbox|boxer|judoka|sambo|arts martiaux|combattant|lutteur|boxeur/i;
 
 const api = async (host, params) => {
-  const r = await fetch(`https://${host}/w/api.php?` + new URLSearchParams({ format: "json", formatversion: "2", ...params }), {
-    headers: { "User-Agent": UA }, signal: AbortSignal.timeout(TIMEOUT),
-  });
+  const r = await get(`https://${host}/w/api.php?` + new URLSearchParams({ format: "json", formatversion: "2", ...params }));
   if (!r.ok) throw new Error(`${host} ${r.status} ${(await r.text()).slice(0, 200)}`);
   return r.json();
 };
@@ -105,9 +119,9 @@ async function commonsSearch(name) {
 const AGENCY = /getty|zuffa|usa ?today|imagn|reuters|\bafp\b|associated ?press|\bap photo|shutterstock|alamy/i;
 const LICENSE_NAMES = { by: "CC BY", "by-sa": "CC BY-SA", cc0: "CC0", pdm: "Public Domain Mark" };
 async function openverseSearch(name) {
-  const r = await fetch("https://api.openverse.org/v1/images/?" + new URLSearchParams({
+  const r = await get("https://api.openverse.org/v1/images/?" + new URLSearchParams({
     q: `"${name}"`, license: "by,by-sa,cc0,pdm", category: "photograph", page_size: "20", mature: "false",
-  }), { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(TIMEOUT) });
+  }));
   if (!r.ok) throw new Error(`openverse ${r.status} ${(await r.text()).slice(0, 200)}`);
   const n = norm(name);
   return ((await r.json()).results || [])
@@ -137,41 +151,49 @@ const ufc = (c) => (c.ufc || /ufc/i.test(c.page) ? 1 : 0);
 const best = (list) =>
   list.filter(Boolean).sort((a, b) => (b.date || "0").localeCompare(a.date || "0") || ufc(b) - ufc(a) || b.width - a.width)[0];
 
-export default async function handler(req, res) {
-  const names = String(req.query.names || "").split("|").map((n) => n.trim()).filter(Boolean).slice(0, 10);
-  if (!names.length) return res.status(400).json({ error: "names manquant" });
-  errors = [];
-  try {
-    // Photo de l'infobox (en, puis fr) + recherches Commons, pour chaque combattant.
-    // Une étape qui échoue n'annule pas les autres : on renvoie ce qu'on a trouvé.
-    const [infobox, found] = await Promise.all([
-      infoboxFiles("en", names).catch((e) => (note("infobox en")(e), {})),
-      Promise.all(names.map((n) => commonsSearch(n).catch(() => []))),
-    ]);
-    const missing = names.filter((n) => !infobox[n]);
-    if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing).catch((e) => (note("infobox fr")(e), {})));
-    const files = names.map((n, k) => [...new Set([infobox[n], ...found[k]].filter(Boolean))]);
-    const info = await commonsInfo(files.flat());
-    // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
-    const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
-    const others = await Promise.all(names.map((n, k) => {
-      const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
-      return fromCommons?.date >= recent ? [] : openverseSearch(n).catch((e) => (note("openverse")(e), []));
-    }));
-    const photos = {};
-    names.forEach((name, k) => {
-      // Openverse n'a pas de date : on préfère sa photo d'événement UFC à une photo Commons ancienne.
-      const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
-      const fromOpenverse = best(others[k]);
-      const pick = fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
-      if (pick) photos[name] = pick;
-    });
-    // Réponse vide (services injoignables) : cache court, pour réessayer vite.
-    const found_ = Object.keys(photos).length;
-    res.setHeader("Cache-Control", found_ ? "s-maxage=604800, stale-while-revalidate=86400" : "s-maxage=60");
-    if (req.query.debug) return res.status(200).json({ photos, errors: [...new Set(errors)].slice(0, 20) });
-    res.status(200).json(photos);
-  } catch (e) {
-    res.status(502).json(req.query.debug ? { error: String(e?.message || e), errors } : { error: "Photos indisponibles." });
-  }
+async function findPhotos(names) {
+  // Une étape qui échoue n'annule pas les autres : on renvoie ce qu'on a trouvé.
+  const [infobox, found] = await Promise.all([
+    infoboxFiles("en", names).catch((e) => (note("infobox en")(e), {})),
+    Promise.all(names.map((n) => commonsSearch(n).catch(() => []))),
+  ]);
+  const missing = names.filter((n) => !infobox[n]);
+  if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing).catch((e) => (note("infobox fr")(e), {})));
+  const files = names.map((n, k) => [...new Set([infobox[n], ...found[k]].filter(Boolean))]);
+  const info = await commonsInfo(files.flat());
+  // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
+  const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
+  const others = await Promise.all(names.map((n, k) => {
+    const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
+    return fromCommons?.date >= recent ? [] : openverseSearch(n).catch((e) => (note("openverse")(e), []));
+  }));
+  const photos = {};
+  names.forEach((name, k) => {
+    // Openverse n'a pas de date : on préfère sa photo d'événement UFC à une photo Commons ancienne.
+    const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
+    const fromOpenverse = best(others[k]);
+    const pick = fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
+    if (pick) photos[name] = pick;
+  });
+  return photos;
 }
+
+const names = [...new Set([
+  ...FIGHTERS.map((f) => f.nom),
+  ...[...UPCOMING, ...RECENT_CARDS].flatMap((c) => c.fighters || []),
+])];
+const out = "public/photos.json";
+const previous = existsSync(out) ? JSON.parse(readFileSync(out, "utf8")) : {};
+const photos = {};
+// 5 combattants à la fois, avec une pause, pour respecter les limites de Wikimedia.
+for (let i = 0; i < names.length; i += 5) {
+  Object.assign(photos, await findPhotos(names.slice(i, i + 5)));
+  await sleep(1000);
+}
+for (const n of names) if (!photos[n] && previous[n]) photos[n] = previous[n];
+const sorted = Object.fromEntries(Object.keys(photos).sort().map((n) => [n, photos[n]]));
+writeFileSync(out, JSON.stringify(sorted, null, 1) + "\n");
+console.log(`${Object.keys(photos).length}/${names.length} combattants avec photo.`);
+const missing = names.filter((n) => !photos[n]);
+if (missing.length) console.log("Sans photo :", missing.join(", "));
+if (errors.length) console.log("Erreurs :", [...new Set(errors)].slice(0, 20).join("\n"));

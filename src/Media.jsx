@@ -34,7 +34,7 @@ function FightersBadges({ fighters, highlight }) {
 
 // Face-à-face des affiches mises en avant : écussons (ou photos) des deux combattants.
 function FaceOff({ names, t }) {
-  const photos = usePhotos(names);
+  const photos = usePhotos();
   const photoOf = (n) => photos[n]?.url;
   return (
     <>
@@ -224,7 +224,7 @@ const lastName = (n) => n.split(" ").slice(1).join(" ") || n;
 
 // Affiche « À venir » : les deux combattants face à face, en grand, comme un poster.
 function UpcomingPoster({ c, lang, t }) {
-  const photos = usePhotos(c.fighters);
+  const photos = usePhotos();
   const photoOf = (n) => photos[n]?.url;
   return (
     <section className="row-rise rounded-2xl overflow-hidden border border-amber-400/35 bg-neutral-900">
