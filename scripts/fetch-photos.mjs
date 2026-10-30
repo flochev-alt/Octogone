@@ -78,6 +78,25 @@ function titleMatches(file, n) {
 // le recadrage risque de montrer quelqu'un d'autre. On ne la garde que si c'est la photo de l'infobox Wikipédia.
 const GROUP = /\b(and|et|e|y|with|avec|com|vs|v|x|knock|knocks|knocked|defeats|def|against)\b|&|,|\s[-–]\s?/i;
 const solo = (file) => !GROUP.test(file.replace(/^File:/i, "").replace(/\.[a-z]+$/i, "").replace(/_/g, " "));
+// Fichiers écartés après contrôle visuel (2026-10-30) : homonymes (basketteur, footballeur, joueur de
+// billard, cardinal…), photos de groupe ou où le combattant n'est pas reconnaissable.
+const REJECTED = new Set([
+  "Alex_Pérez_2_Tofaş_SK_TBSL_20260118_(1).jpg", "Anthony_Hernandez_(Gibraltar).jpg",
+  "Charles_Johnson_(28974422378)_(cropped).jpg", "Daniel_Rodriguez_(8180778752).jpg",
+  "3-Cushion_World_Cup_2017-7-David_Martinez_(ESP)-2.jpg", "IMG-Dricus-Duplessis(cropped).jpg",
+  "UFC's_Corey_Sandhagen_brings_his_fighting_spirit_to_the_1st_SOW_(1).jpg", "Cardinal_Sean_Brady_(cropped).jpg",
+  "May_2017_GT_vs._UGA_baseball_-_Tim_Elliott.jpg",
+  "Dineo-Seshee-Bopape-when-spirituality-was-a-baby-installation-view-2018.-Photo-by-Tom-Nolan.jpg",
+  "Johnny_Walker_4_(18716866780).jpg", "Lee_Zurik_-_Manuel_Torres_(14532239139).jpg",
+  "Marlon_Vera_LA_Fleet_Week_USS_Essex_Tour_9702269.jpg", "Tina_Black_&_Maycee_Barber_with_Maritza_Sanchez.png",
+  "SALUDO_CON_MICHAEL_MORALES_DEPORTISTA_DE_LA_UFC._QUITO,_27_DE_MAYO_DEL_2025.jpg",
+  "Miesha_Tate_at_Twentynine_Palms.jpg", "Mizuki_Inoue_20240512.jp.jpg",
+  "President_Donald_Trump_congratulates_Kayla_Harrison_after_her_victory_during_UFC_316_(54577774044).jpg",
+  "President_Donald_Trump_congratulates_Kevin_Holland_after_his_victory_during_UFC_316_(54576727207).jpg",
+  "Blue_Angels'_VIP_Rider_Max_Holloway_(1).jpg", "Wanderlei_Silva_2013.jpg", "Song_Yadong_at_UFC_Macau.jpg",
+  "Raquel_Pennington_MCCS_Twentynine_Palms_presents_an_action-packed_MMA_Fight_Night_Live_at_The_Combat_Center_(5).jpg",
+]);
+const accepted = (file) => solo(file) && !REJECTED.has(file.replace(/^File:/i, "").replace(/ /g, "_"));
 // Photos choisies par Flo : « infobox » garde la photo de la page Wikipédia du combattant.
 const PINNED = { "Joshua Van": "infobox" };
 // Date de prise de vue au format AAAA-MM-JJ (Commons mélange « 2024-02-17 », « Taken on 7 February 2024 »…).
@@ -202,7 +221,8 @@ async function findPhotos(names) {
   ]);
   const missing = names.filter((n) => !infobox[n]);
   if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing).catch((e) => (note("infobox fr")(e), {})));
-  const files = names.map((n, k) => [...new Set([infobox[n], ...found[k].filter(solo)].filter(Boolean))]);
+  // Même la photo de l'infobox doit être une photo solo (sauf photo choisie par Flo).
+  const files = names.map((n, k) => [...new Set([PINNED[n] ? infobox[n] : infobox[n] && accepted(infobox[n]) && infobox[n], ...found[k].filter(accepted)].filter(Boolean))]);
   const info = await commonsInfo(files.flat());
   // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
   const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
