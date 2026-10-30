@@ -471,7 +471,7 @@ export default function App() {
                     {/* Portrait à droite : la photo détourée si on l'a, sinon les initiales en grand */}
                     <div className="absolute right-0 bottom-0 top-0 w-1/2 flex items-end justify-center">
                       {photoOf(champion) ? (
-                        <img src={photoOf(champion).url} alt={champion.nom} className="h-full w-full object-cover object-top [mask-image:linear-gradient(to_right,transparent,black_45%)]" />
+                        <img src={photoOf(champion).url} alt={champion.nom} onError={(e) => { e.currentTarget.style.display = "none"; }} className="h-full w-full object-cover object-top [mask-image:linear-gradient(to_right,transparent,black_45%)]" />
                       ) : (
                         <span aria-hidden="true" className="disp text-[7rem] sm:text-[8rem] leading-none text-amber-400/25 self-center">{initialsOf(champion.nom)}</span>
                       )}
@@ -598,20 +598,20 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
   return (
     <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 ${closing ? "backdrop-exit" : "backdrop-enter"}`} onClick={onClose}>
       <div
-        className={`bg-neutral-900 border border-neutral-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[85vh] overflow-y-auto ${closing ? "sheet-exit" : "sheet-enter"}`}
+        className={`bg-neutral-900 border border-neutral-800 rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm max-h-[85vh] [@media(max-height:500px)]:max-h-[94vh] overflow-y-auto ${closing ? "sheet-exit" : "sheet-enter"}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative h-80 overflow-hidden bg-neutral-950 flex items-center justify-center">
+        <div className="relative h-80 [@media(max-height:500px)]:h-52 overflow-hidden bg-neutral-950 flex items-center justify-center">
           <div className="panel-flash absolute inset-0 bg-white z-10 pointer-events-none" />
           {photo ? (
             <div className="walkout absolute inset-0">
-              <img src={photo.url} alt={fighter.nom} className="photo-fade w-full h-full object-cover object-top" />
+              <img src={photo.url} alt={fighter.nom} onError={(e) => { e.currentTarget.style.display = "none"; }} className="photo-fade w-full h-full object-cover object-top" />
             </div>
           ) : (
             <>
-              <div className="glow-pulse absolute w-64 h-64 rounded-full bg-amber-400/30 blur-2xl -translate-y-12" />
-              <div className="ring-spin absolute w-44 h-44 rounded-full border-2 border-dashed border-amber-400/25 -translate-y-12" />
-              <div className="walkout relative w-32 h-32 -translate-y-12 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl">
+              <div className="glow-pulse absolute w-64 h-64 rounded-full bg-amber-400/30 blur-2xl -translate-y-12 [@media(max-height:500px)]:-translate-y-8 [@media(max-height:500px)]:scale-75" />
+              <div className="ring-spin absolute w-44 h-44 rounded-full border-2 border-dashed border-amber-400/25 -translate-y-12 [@media(max-height:500px)]:-translate-y-8 [@media(max-height:500px)]:scale-75" />
+              <div className="walkout relative w-32 h-32 -translate-y-12 [@media(max-height:500px)]:-translate-y-8 [@media(max-height:500px)]:scale-75 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-2xl">
                 <span className="disp text-5xl text-neutral-950">{initialsOf(fighter.nom)}</span>
               </div>
             </>
@@ -744,7 +744,7 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
 function Tile({ value, label, gold = false }) {
   return (
     <div className="rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2.5 min-w-0">
-      <div className={`mono text-base sm:text-lg tracking-tight truncate ${gold ? "text-amber-400" : "text-neutral-100"}`}>{value || "–"}</div>
+      <div className={`mono tracking-tight truncate ${String(value || "").length > 8 ? "text-sm sm:text-base" : "text-base sm:text-lg"} ${gold ? "text-amber-400" : "text-neutral-100"}`}>{value || "–"}</div>
       <div className="text-[10px] text-neutral-500 mt-0.5 leading-tight">{label}</div>
     </div>
   );

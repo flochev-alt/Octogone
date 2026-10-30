@@ -232,7 +232,7 @@ function UpcomingPoster({ c, lang, t }) {
         {c.fighters.map((n) => (
           <div key={n} className="relative flex-1 overflow-hidden bg-[radial-gradient(circle_at_50%_35%,rgba(251,191,36,0.22),#0a0a0a_70%)] flex items-start justify-center pt-6">
             {photoOf(n) ? (
-              <img src={photoOf(n)} alt={n} className="photo-fade absolute inset-0 w-full h-full object-cover object-top" />
+              <img src={photoOf(n)} alt={n} onError={(e) => { e.currentTarget.style.display = "none"; }} className="photo-fade absolute inset-0 w-full h-full object-cover object-top" />
             ) : (
               <span aria-hidden="true" className="disp text-6xl sm:text-7xl text-amber-400/30">{n.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}</span>
             )}

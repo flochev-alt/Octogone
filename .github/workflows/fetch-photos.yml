@@ -39,3 +39,24 @@ jobs:
           # La branche a pu avancer pendant la recherche : on se replace dessus avant d'envoyer.
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push
+      # Miniatures (une par combattant) pour vérifier d'un coup d'œil qu'aucune photo ne montre
+      # quelqu'un d'autre : branche controle-photos.
+      - name: Planche contact
+        if: always()
+        run: |
+          mkdir -p planche
+          node -e '
+            const p = require("./public/photos.json");
+            for (const [n, v] of Object.entries(p)) {
+              const f = decodeURIComponent(v.page.split("File:")[1]);
+              console.log(n.replace(/[^A-Za-z0-9]+/g, "_") + "\t" + "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(f) + "?width=240");
+            }' > planche/list.tsv
+          while IFS=$'\t' read -r name url; do
+            curl -sfL -A "OctogonePhotos/1.0 (https://octogone.space)" -o "planche/$name.jpg" "$url" || true
+            sleep 0.3
+          done < planche/list.tsv
+          if ls planche/*.jpg >/dev/null 2>&1; then
+            cd planche && git init -q -b controle-photos && git add .
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Planche contact photos"
+            git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" controle-photos
+          fi
