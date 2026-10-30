@@ -3,6 +3,7 @@ import { Newspaper, MapPin, CheckCircle2, Search, Play } from "lucide-react";
 import { T, L, formatDate, translateMethod } from "./i18n.js";
 import { useMedia } from "./useMedia.js";
 import { usePhotos, creditOf } from "./usePhotos.js";
+import { getConsent } from "./consent.js";
 import FighterAvatar from "./FighterAvatar.jsx";
 
 export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" : ", ": "));
@@ -126,7 +127,29 @@ function RecapPost({ card, lang, t }) {
 
 // Charge le widget officiel X (Twitter) uniquement quand le post apparaît à l'écran en scrollant.
 // X n'est pas soumis aux mêmes restrictions de diffusion par pays que les vidéos YouTube de l'UFC.
+// Le widget X dépose ses propres cookies : il ne se charge qu'avec l'accord du visiteur (bandeau cookies
+// accepté, ou clic sur « Afficher le post X »), comme le demande la CNIL. Sinon, un simple lien vers X.
 function TweetEmbed({ url, lang, t }) {
+  const [allowed, setAllowed] = useState(() => getConsent() === "accepted");
+  if (!allowed) {
+    return (
+      <div className="mt-3 rounded-xl border border-neutral-800 bg-neutral-950 p-3 text-center">
+        <p className="text-[11px] text-neutral-500 leading-relaxed">{t.xConsentNote}</p>
+        <div className="mt-2 flex flex-wrap justify-center gap-2">
+          <button onClick={() => setAllowed(true)} className="tap rounded-lg border border-amber-400/60 text-amber-400 text-xs font-semibold px-3 py-2 hover:bg-amber-400/10">
+            <Play className="inline w-3 h-3 mr-1 fill-amber-400" />{t.xShow}
+          </button>
+          <a href={url} target="_blank" rel="noopener noreferrer" className="tap rounded-lg border border-neutral-700 text-neutral-300 text-xs font-semibold px-3 py-2 hover:bg-neutral-800">
+            {t.viewPost}
+          </a>
+        </div>
+      </div>
+    );
+  }
+  return <TweetWidget url={url} lang={lang} t={t} />;
+}
+
+function TweetWidget({ url, lang, t }) {
   const [inView, setInView] = useState(false);
   const ref = useRef(null);
 

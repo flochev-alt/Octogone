@@ -236,13 +236,21 @@ async function draw(canvas, d, withPhotos) {
   // Pied : invitation et adresse du site.
   ctx.fillStyle = "#d4d4d4";
   ctx.font = "500 30px Inter, sans-serif";
-  ctx.fillText(text.cta, W / 2, H - 150);
+  ctx.fillText(text.cta, W / 2, H - 170);
   ctx.fillStyle = GOLD;
   ctx.font = "800 54px Archivo, sans-serif";
-  ctx.fillText("octogone.space", W / 2, H - 92);
+  ctx.fillText("octogone.space", W / 2, H - 112);
   ctx.fillStyle = "#737373";
   ctx.font = "400 20px Inter, sans-serif";
-  ctx.fillText(text.disclaimer, W / 2, H - 52);
+  ctx.fillText(text.disclaimer, W / 2, H - 74);
+  // Licences libres (CC BY, CC BY-SA) : l'auteur et la licence des photos utilisées restent visibles sur l'image.
+  const credits = [imgA && d.creditA, imgB && d.creditB].filter(Boolean);
+  if (credits.length) {
+    const line = `${text.photoBy} ${credits.join("  |  ")}`;
+    let size = 17;
+    do ctx.font = `400 ${size--}px Inter, sans-serif`; while (ctx.measureText(line).width > W - 120 && size > 11);
+    ctx.fillText(line, W / 2, H - 46);
+  }
 }
 
 // Renvoie un fichier PNG prêt à partager ou à télécharger.

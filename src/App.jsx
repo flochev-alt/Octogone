@@ -330,6 +330,8 @@ export default function App() {
           onEnterMedia={() => goTo("media")}
           lang={lang}
           setLang={setLang}
+          onLegal={() => changeView("mentions")}
+          onCookies={() => setCookiesOpen(true)}
         />
         {banner}
         {veilEl}
@@ -340,7 +342,7 @@ export default function App() {
   if (view === "hub") {
     return (
       <>
-        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} />
+        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} />
         {banner}
         {veilEl}
       </>
@@ -350,7 +352,6 @@ export default function App() {
   return (
     <div className="min-h-screen min-h-[100dvh] flex flex-col bg-neutral-950 text-neutral-50 overflow-x-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
         .disp { font-family: 'Archivo', sans-serif; font-weight: 800; letter-spacing: -0.01em; }
         .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
         ::selection { background: #fbbf24; color: #0a0a0a; }
