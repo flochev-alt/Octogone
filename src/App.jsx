@@ -11,6 +11,8 @@ import { usePhotos, creditOf } from "./usePhotos.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
 import { LEAGUES, LEAGUE_FIGHTERS, VACANT } from "./otherLeagues.js";
 import { LEGENDS } from "./legends.js";
+import { FIGHTERS } from "./fightersData.js";
+import { fighterPath, slugFromPath, slugify } from "./slug.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
   formatHeight, formatDate, ageFrom, getInitialLang, setStoredLang,
@@ -164,8 +166,18 @@ const RESULT_STYLE = {
   NC: "bg-neutral-700/60 text-neutral-300",
 };
 
+const SITE_TITLE = "Octogone — Stats MMA";
+const fighterTitle = (f) => `${f.nom} : bilan, stats et derniers combats | Octogone`;
+// Combattant dont l'adresse est /combattant/<slug> (page arrivée depuis Google ou un lien partagé).
+const fighterAt = (path) => {
+  const slug = slugFromPath(path);
+  return slug ? [...FIGHTERS, ...LEAGUE_FIGHTERS].find((f) => slugify(f.nom) === slug) || null : null;
+};
+const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
+
 export default function App() {
-  const [view, setView] = useState("landing");
+  const [linked] = useState(() => fighterAt(window.location.pathname));
+  const [view, setView] = useState(linked ? "combattants" : "landing");
   const changeView = (v) => setView(v);
   const [lang, setLangState] = useState("fr");
   const t = T[lang];
@@ -183,9 +195,9 @@ export default function App() {
     setStoredLang(l);
   };
 
-  const [categorie, setCategorie] = useState("Poids leger");
+  const [categorie, setCategorie] = useState(linked ? categoryOf(linked) : "Poids leger");
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(linked);
   const [closing, setClosing] = useState(false);
   const [cookiesOpen, setCookiesOpen] = useState(false);
 
@@ -210,10 +222,38 @@ export default function App() {
   const listed = champion ? fighters.filter((f) => f !== champion) : fighters;
   const firstUnranked = searching || categorie === "Legendes" ? -1 : listed.findIndex((f) => f.rang == null);
 
-  const closePanel = () => {
+  const hidePanel = () => {
     setClosing(true);
     setTimeout(() => { setSelected(null); setClosing(false); }, 260);
   };
+  // Chaque fiche a sa propre adresse : le bouton retour du téléphone ou du navigateur la referme.
+  const openFighter = (f) => {
+    setSelected(f);
+    if (window.location.pathname !== fighterPath(f)) window.history.pushState({ fighter: true }, "", fighterPath(f));
+  };
+  const closePanel = () => {
+    if (window.history.state?.fighter) window.history.back();
+    else {
+      hidePanel();
+      window.history.replaceState(null, "", "/");
+    }
+  };
+  useEffect(() => {
+    const onPop = () => {
+      const f = fighterAt(window.location.pathname);
+      if (f) {
+        setView("combattants");
+        setSelected(f);
+      } else hidePanel();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+  useEffect(() => {
+    document.title = selected ? fighterTitle(selected) : SITE_TITLE;
+  }, [selected]);
+  // Données à jour (Supabase) pour la fiche ouverte.
+  const shown = selected && (allFighters.find((f) => f.id === selected.id) || selected);
 
   const banner = (
     <ConsentBanner
@@ -408,7 +448,7 @@ export default function App() {
                   {LEAGUE_FIGHTERS.filter((f) => f.ligue === league).map((f, i) => (
                     <button
                       key={f.id}
-                      onClick={() => setSelected(f)}
+                      onClick={() => openFighter(f)}
                       style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
                       className="tap row-rise w-full min-w-0 text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-3 flex items-center gap-3"
                     >
@@ -465,7 +505,7 @@ export default function App() {
                 {champion && (
                   <button
                     key={categorie + "-champ"}
-                    onClick={() => setSelected(champion)}
+                    onClick={() => openFighter(champion)}
                     className="tap row-rise relative overflow-hidden w-full h-56 sm:h-64 text-left mb-6 rounded-2xl border border-amber-400/35 hover:border-amber-400/70 bg-[radial-gradient(circle_at_75%_40%,rgba(251,191,36,0.35),#0a0a0a_65%)]"
                   >
                     {/* Portrait à droite : la photo détourée si on l'a, sinon les initiales en grand */}
@@ -507,7 +547,7 @@ export default function App() {
                         <p className="text-[11px] uppercase tracking-widest text-neutral-500 pt-4 pb-1 lg:col-span-2">{t.unranked}</p>
                       )}
                       <button
-                        onClick={() => setSelected(f)}
+                        onClick={() => openFighter(f)}
                         style={{ animationDelay: `${Math.min(i, 10) * 35}ms` }}
                         className="tap row-rise w-full min-w-0 text-left rounded-2xl border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 hover:border-amber-400/40 px-4 py-2.5 flex items-center gap-3"
                       >
@@ -536,7 +576,7 @@ export default function App() {
             )}
           </main>
 
-          {selected && <FighterPanel fighter={selected} photo={photoOf(selected)} closing={closing} onClose={closePanel} lang={lang} t={t} />}
+          {shown && <FighterPanel fighter={shown} photo={photoOf(shown)} closing={closing} onClose={closePanel} lang={lang} t={t} />}
         </>
       )}
 
