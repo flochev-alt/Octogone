@@ -23,7 +23,8 @@ async function get(url, timeout = TIMEOUT) {
   for (let attempt = 0; ; attempt++) {
     const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(timeout) });
     if (r.status !== 429 || attempt >= 4) return r;
-    await sleep((Number(r.headers.get("retry-after")) || 5 * 2 ** attempt) * 1000);
+    // Attente demandée par le service, plafonnée à 20 s.
+    await sleep(Math.min(Number(r.headers.get("retry-after")) || 5 * 2 ** attempt, 20) * 1000);
   }
 }
 
@@ -141,9 +142,11 @@ async function commonsSearch(name) {
 const AGENCY = /getty|zuffa|usa ?today|imagn|reuters|\bafp\b|associated ?press|\bap photo|shutterstock|alamy/i;
 const LICENSE_NAMES = { by: "CC BY", "by-sa": "CC BY-SA", cc0: "CC0", pdm: "Public Domain Mark" };
 // Si Openverse ne répond pas 3 fois de suite, on arrête de l'interroger pour cette fois.
+// Openverse a aussi un budget total de 10 minutes par recherche.
 let openverseFailures = 0;
+const openverseDeadline = Date.now() + 10 * 60 * 1000;
 async function openverseSearch(name) {
-  if (openverseFailures >= 3) return [];
+  if (openverseFailures >= 3 || Date.now() > openverseDeadline) return [];
   try {
     const found = await openverseQuery(name);
     openverseFailures = 0;
@@ -156,7 +159,7 @@ async function openverseSearch(name) {
 async function openverseQuery(name) {
   const r = await get("https://api.openverse.org/v1/images/?" + new URLSearchParams({
     q: `"${name}"`, license: "by,by-sa,cc0,pdm", category: "photograph", page_size: "20", mature: "false",
-  }), 30000);
+  }), 20000);
   if (!r.ok) throw new Error(`openverse ${r.status} ${(await r.text()).slice(0, 200)}`);
   const n = norm(name);
   return ((await r.json()).results || [])
