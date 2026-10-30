@@ -185,9 +185,17 @@ export default function App() {
   const [veil, setVeil] = useState(null);
   const goTo = (v) => {
     if (veil) return;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return setView(v);
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      if (v === "combattants") { setCategorie("champions"); setQuery(""); }
+      return setView(v);
+    }
     setVeil("in");
-    setTimeout(() => { setView(v); setVeil("out"); }, 420);
+    setTimeout(() => {
+      // On entre dans Combattants par l'onglet Champions.
+      if (v === "combattants") { setCategorie("champions"); setQuery(""); }
+      setView(v);
+      setVeil("out");
+    }, 420);
     setTimeout(() => setVeil(null), 900);
   };
   const veilEl = veil && (
@@ -213,7 +221,7 @@ export default function App() {
     setStoredLang(l);
   };
 
-  const [categorie, setCategorie] = useState(linked ? categoryOf(linked) : "Poids leger");
+  const [categorie, setCategorie] = useState(linked ? categoryOf(linked) : "champions");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(linked);
   const [closing, setClosing] = useState(false);
