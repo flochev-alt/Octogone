@@ -48,9 +48,11 @@ export default function Cage3D() {
       <div ref={tilt} className="cage-tilt">
         <div className="cage-view">
           <div className="cage-spin">
-            {/* Logo au centre du tapis, comme le logo de l'organisation dans une vraie cage. */}
-            <div className="cage-floor">
-              <span className="cage-logo">O<span className="cage-logo-dot" /></span>
+            <div className="cage-floor" />
+            {/* Logo du site au centre, estompé, un peu au-dessus du tapis : comme le logo de l'organisation dans une vraie cage. */}
+            <div className="cage-logo">
+              <span className="cage-logo-o">O</span>
+              <span className="cage-logo-dot" />
             </div>
             {SIDES.map((a, i) => (
               <div key={a} className="cage-side" style={{ transform: `rotateY(${a}deg) translateZ(var(--apothem))` }}>

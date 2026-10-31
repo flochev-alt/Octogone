@@ -140,35 +140,45 @@ body {
   background: radial-gradient(circle, rgba(251, 191, 36, 0.22), rgba(251, 191, 36, 0.05) 60%, rgba(251, 191, 36, 0.12));
 }
 /* Logo du site estompé au centre du tapis, et bandeaux « sponsor » octogone.space sur le grillage. */
-.cage-floor {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* Logo du site (icône de l'appli) : octogone doré, « O » blanc et point carré doré, très estompé.
+   Il flotte un peu au-dessus du tapis (translateZ, sur l'axe de rotation) pour paraître centré dans la cage. */
 .cage-logo {
-  position: relative;
+  position: absolute;
+  left: calc(var(--r) * -0.33);
+  top: calc(var(--r) * -0.33);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calc(var(--r) * 0.62);
-  height: calc(var(--r) * 0.62);
-  border-radius: 50%;
-  border: 2px solid rgba(251, 191, 36, 0.2);
-  box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.04), inset 0 0 24px rgba(251, 191, 36, 0.1);
+  width: calc(var(--r) * 0.66);
+  height: calc(var(--r) * 0.66);
+  transform: rotateX(90deg) translateZ(calc(var(--h) * 0.75));
+  opacity: 0.22;
+  /* Cadre octogonal : un octogone doré, puis un octogone noir plus petit par-dessus. */
+  background: #fbbf24;
+  clip-path: polygon(29.3% 0, 70.7% 0, 100% 29.3%, 100% 70.7%, 70.7% 100%, 29.3% 100%, 0 70.7%, 0 29.3%);
+}
+.cage-logo::before {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  background: #0a0a0a;
+  clip-path: polygon(29.3% 0, 70.7% 0, 100% 29.3%, 100% 70.7%, 70.7% 100%, 29.3% 100%, 0 70.7%, 0 29.3%);
+}
+.cage-logo-o {
+  position: relative;
   font-family: 'Archivo', sans-serif;
   font-weight: 800;
-  font-size: calc(var(--r) * 0.36);
+  font-size: calc(var(--r) * 0.34);
   line-height: 1;
-  color: rgba(254, 243, 199, 0.16);
+  color: #fff;
 }
 .cage-logo-dot {
-  width: calc(var(--r) * 0.06);
-  height: calc(var(--r) * 0.06);
-  margin-left: calc(var(--r) * 0.015);
+  position: relative;
   align-self: flex-end;
-  margin-bottom: calc(var(--r) * 0.16);
-  border-radius: 50%;
-  background: rgba(251, 191, 36, 0.32);
+  width: calc(var(--r) * 0.058);
+  height: calc(var(--r) * 0.058);
+  margin: 0 0 calc(var(--r) * 0.2) calc(var(--r) * 0.03);
+  background: #fbbf24;
 }
 .cage-ad {
   position: absolute;
