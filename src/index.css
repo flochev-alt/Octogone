@@ -203,3 +203,49 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .cage-spin { animation: none; transform: rotateY(22.5deg); }
 }
+
+/* Emblème du site à la place du O de « L'OCTOGONE. » (src/Landing.jsx) : un disque doré incliné
+   qui tourne sur lui-même au rythme de la cage, avec le « O. » au centre. */
+.title-emblem {
+  display: inline-block;
+  position: relative;
+  width: 0.76em;
+  height: 0.76em;
+  margin: 0 0.03em;
+  vertical-align: -0.02em; /* sans contenu dans le flux : le bas du disque se pose sur la ligne de base */
+  perspective: 400px;
+}
+.title-emblem-disc {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 0.09em solid #fbbf24;
+  box-shadow: 0 0 0.25em rgba(251, 191, 36, 0.55), inset 0 0 0.2em rgba(251, 191, 36, 0.35);
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.28), rgba(251, 191, 36, 0.05) 70%);
+  transform: rotateX(22deg);
+  animation: emblemSpin 40s linear infinite;
+}
+.title-emblem-o {
+  display: flex;
+  align-items: flex-end;
+  font-size: 0.5em;
+  line-height: 1;
+  color: #fef3c7;
+}
+.title-emblem-dot {
+  width: 0.16em;
+  height: 0.16em;
+  margin: 0 0 0.08em 0.04em;
+  border-radius: 50%;
+  background: #fbbf24;
+}
+@keyframes emblemSpin {
+  from { transform: rotateX(22deg) rotateZ(0deg); }
+  to { transform: rotateX(22deg) rotateZ(-360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-emblem-disc { animation: none; }
+}
