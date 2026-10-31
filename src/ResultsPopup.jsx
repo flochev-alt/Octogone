@@ -114,6 +114,26 @@ const TEXT = {
   },
 };
 
+// Fissures de l'impact (fixes, pour un rendu identique à chaque fois) : des lignes brisées qui partent du centre.
+const CRACKS = Array.from({ length: 11 }, (_, i) => {
+  const a = (i / 11) * Math.PI * 2 + (i % 2 ? 0.17 : -0.11);
+  let x = 50, y = 50, d = "M50 50";
+  for (let k = 1; k <= 5; k++) {
+    const r = 7 + k * 8 + (i * 7 + k * 3) % 5;
+    const w = ((i * 13 + k * 29) % 11 - 5) / 22;
+    x = 50 + Math.cos(a + w) * r;
+    y = 50 + Math.sin(a + w) * r;
+    d += ` L${x.toFixed(1)} ${y.toFixed(1)}`;
+  }
+  return d;
+});
+// Éclats projetés à l'impact.
+const ROCKS = Array.from({ length: 16 }, (_, i) => {
+  const a = (i / 16) * Math.PI * 2 + (i % 3) * 0.2;
+  const r = 28 + ((i * 17) % 22);
+  return { "--dx": `${(Math.cos(a) * r).toFixed(1)}vmin`, "--dy": `${(Math.sin(a) * r).toFixed(1)}vmin`, "--r": `${(i * 77) % 360}deg`, "--s": `${6 + (i % 4) * 3}px` };
+});
+
 const lastName = (n) => n.split(" ").slice(1).join(" ") || n;
 // Nom court dans les petites cartes (nom de famille), sauf si les deux combattants ont le même.
 const short = (n, other) => (lastName(n) === lastName(other) ? n : lastName(n));
@@ -124,6 +144,12 @@ export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onN
   const ready = fanVotesReady();
   const [demo] = useState(() => new URLSearchParams(window.location.search).get("pronos"));
   const [open, setOpen] = useState(null);
+  const [landed, setLanded] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const id = setTimeout(() => setLanded(true), 520);
+    return () => clearTimeout(id);
+  }, [open]);
 
   const recap = useMemo(() => {
     if (demo) return demoRecap(cards, demo);
@@ -167,6 +193,7 @@ export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onN
     : mode === "victory" ? tx.subVictory(me, total) : mode === "draw" ? tx.subDraw(me) : tx.subLose(me, total);
   const fansLine = mode === "lose" ? tx.fansNext : perfect && me > fans ? tx.fansTop : me >= fans ? tx.fansBetter : tx.fansNext;
   const [org, main] = eventName(card.name, lang).split(/\s*:\s*/);
+  const impact = mode === "bravo" || mode === "victory";
   const [m1, m2] = (main || "").split(/\s+vs\.?\s+/i);
   const date = formatDate(card.iso, lang, { weekday: "short", day: "numeric", month: "short" });
   const nextName = nextEvent ? eventName(nextEvent.name, lang) : null;
@@ -176,14 +203,73 @@ export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onN
       role="dialog"
       aria-modal="true"
       aria-label={`${tx.vsAi} · ${card.name}`}
-      className={`pr-pop pr-${mode} fixed inset-0 z-[80] overflow-y-auto bg-black/95 backdrop-blur-sm text-neutral-50`}
+      className={`pr-pop pr-${mode} ${impact ? "pr-impact" : ""} fixed inset-0 z-[80] overflow-y-auto text-neutral-50`}
       style={{ fontFamily: "'Inter', sans-serif" }}
       onClick={(e) => e.target === e.currentTarget && close()}
     >
       <style>{`
         .pr-pop .disp { font-family: 'Archivo', sans-serif; font-weight: 900; }
-        .pr-pop { animation: prFade .35s ease both; }
+        .pr-bg { position: fixed; inset: 0; background: rgba(0,0,0,.95); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); animation: prFade .35s ease both; }
         @keyframes prFade { from { opacity: 0; } to { opacity: 1; } }
+
+        /* BRAVO et VICTOIRE : le pop-up tombe comme une météorite, l'impact fissure le fond et secoue l'écran. */
+        .pr-impact .pr-bg { animation: prBgImpact 1s ease both; }
+        @keyframes prBgImpact { 0% { opacity: 0; } 45% { opacity: .55; } 52%, 100% { opacity: 1; } }
+        .pr-meteor { position: fixed; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; pointer-events: none; z-index: 3;
+          background: radial-gradient(circle at 40% 40%, #fff 0 18%, #fde68a 30%, #f59e0b 55%, rgba(180,83,9,0) 72%);
+          box-shadow: 0 0 40px 14px rgba(251,191,36,.7), 0 0 90px 30px rgba(245,158,11,.35);
+          animation: prFall .5s cubic-bezier(.55,0,1,.45) both; }
+        .pr-meteor::after { content: ""; position: absolute; left: 50%; bottom: 50%; width: 22px; height: 260px; margin-left: -11px; transform-origin: 50% 100%; transform: rotate(35deg);
+          background: linear-gradient(0deg, rgba(253,230,138,.9), rgba(245,158,11,.45) 35%, rgba(245,158,11,0)); border-radius: 50%; filter: blur(3px); }
+        @keyframes prFall {
+          0% { transform: translate(55vw, -75vh) scale(.5) rotate(-35deg); opacity: 0; }
+          10% { opacity: 1; }
+          100% { transform: translate(0, 0) scale(1.4) rotate(-35deg); opacity: 1; }
+        }
+        .pr-meteor.done { display: none; }
+        .pr-flash { position: fixed; inset: 0; pointer-events: none; z-index: 4; opacity: 0;
+          background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.95), rgba(253,230,138,.7) 25%, rgba(245,158,11,.25) 55%, transparent 80%);
+          animation: prFlash .7s .5s ease-out both; }
+        @keyframes prFlash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+        .pr-wave { position: fixed; left: 50%; top: 50%; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; pointer-events: none; z-index: 2;
+          border: 3px solid rgba(253,230,138,.9); box-shadow: 0 0 30px rgba(251,191,36,.6), inset 0 0 30px rgba(251,191,36,.4); opacity: 0;
+          animation: prWave .9s .5s cubic-bezier(.1,.6,.3,1) both; }
+        .pr-wave.w2 { animation-delay: .62s; border-width: 2px; }
+        @keyframes prWave { 0% { transform: scale(.2); opacity: 1; } 100% { transform: scale(14); opacity: 0; } }
+        .pr-cracks { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .pr-cracks path { fill: none; stroke: #fbbf24; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100;
+          animation: prCrack .45s .52s cubic-bezier(.2,.8,.3,1) forwards, prCrackGlow 1.6s 1s ease-out forwards; }
+        @keyframes prCrack { to { stroke-dashoffset: 0; } }
+        @keyframes prCrackGlow { from { stroke-opacity: 1; } to { stroke-opacity: .28; } }
+        .pr-crater { position: fixed; left: 50%; top: 50%; width: 70vmin; height: 70vmin; margin: -35vmin 0 0 -35vmin; border-radius: 50%; pointer-events: none; z-index: 1; opacity: 0;
+          background: radial-gradient(circle, rgba(251,191,36,.18), rgba(180,83,9,.08) 45%, transparent 70%); animation: prFade .8s .55s ease-out both; }
+        .pr-rock { position: fixed; left: 50%; top: 50%; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2); pointer-events: none; z-index: 3; opacity: 0;
+          background: linear-gradient(135deg, #fde68a, #b45309); clip-path: polygon(50% 0, 100% 35%, 80% 100%, 15% 90%, 0 30%);
+          animation: prRock .9s .5s cubic-bezier(.15,.7,.3,1) both; }
+        @keyframes prRock { 0% { transform: translate(0,0) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; } }
+        .pr-impact .pr-box { animation: prSlam .55s .47s cubic-bezier(.2,1.4,.4,1) both; }
+        @keyframes prSlam {
+          0% { opacity: 0; transform: scale(2.2); filter: blur(10px) brightness(2.5); }
+          35% { opacity: 1; transform: scale(.92); filter: blur(0) brightness(1.6); }
+          65% { transform: scale(1.03); filter: brightness(1.1); }
+          100% { opacity: 1; transform: none; filter: none; }
+        }
+        .pr-impact .pr-shake { animation: prShake .5s .5s linear both; }
+        @keyframes prShake {
+          0%, 100% { transform: none; } 10% { transform: translate(-9px, 6px); } 20% { transform: translate(8px, -7px); } 30% { transform: translate(-7px, -4px); }
+          40% { transform: translate(6px, 5px); } 55% { transform: translate(-4px, 3px); } 70% { transform: translate(3px, -2px); } 85% { transform: translate(-1px, 1px); }
+        }
+
+        /* L'IA L'EMPORTE : entrée lente et timide, comme un soupir. */
+        .pr-lose .pr-bg { animation: prFade 1.2s ease both; }
+        .pr-lose .pr-box { animation: prSigh 1.8s .25s cubic-bezier(.25,.1,.25,1) both; }
+        @keyframes prSigh {
+          0% { opacity: 0; transform: translateY(-26px) scale(.98); filter: grayscale(1) blur(2px); }
+          60% { opacity: .9; transform: translateY(6px); filter: grayscale(.6) blur(0); }
+          100% { opacity: 1; transform: none; filter: none; }
+        }
+        .pr-lose .pr-title { animation: prDroop 1.4s 1.1s ease-out both; transform-origin: 50% 0; }
+        @keyframes prDroop { 0% { opacity: 0; transform: translateY(-6px); letter-spacing: .06em; } 70% { opacity: 1; transform: translateY(3px) rotate(1deg); } 100% { opacity: 1; transform: rotate(.6deg); letter-spacing: -.01em; } }
         .pr-beam { position: fixed; top: -10%; width: 60%; height: 120%; pointer-events: none;
           background: conic-gradient(from 180deg at 50% 0%, transparent 165deg, rgba(251,191,36,.18) 180deg, transparent 195deg); }
         .pr-draw .pr-beam { opacity: .45; } .pr-lose .pr-beam { opacity: .25; }
@@ -202,7 +288,7 @@ export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onN
           background: linear-gradient(180deg,#fff7d6 0%,#fde68a 30%,#fbbf24 60%,#b45309 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
           filter: drop-shadow(0 0 18px rgba(251,191,36,.55)) drop-shadow(0 4px 0 rgba(120,53,15,.6));
         }
-        .pr-bravo .pr-title { font-size: min(52px, 11.5vw); white-space: nowrap; animation: prPop .7s .25s cubic-bezier(.2,1.6,.4,1) both; transform: rotate(-2deg) skewX(-6deg); }
+        .pr-bravo .pr-title { font-size: min(52px, 11.5vw); white-space: nowrap; animation: prPop .7s .85s cubic-bezier(.2,1.6,.4,1) both; transform: rotate(-2deg) skewX(-6deg); }
         @keyframes prPop { from { transform: scale(.4) rotate(-8deg); opacity: 0; } to { transform: rotate(-2deg) skewX(-6deg); opacity: 1; } }
         .pr-lose .pr-title { color: #d4d4d4; }
         .pr-cta { background: linear-gradient(90deg,#f59e0b,#fbbf24,#fde68a); box-shadow: 0 10px 30px rgba(251,191,36,.25); }
@@ -210,8 +296,22 @@ export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onN
           .pr-bravo .pr-title { font-size: 40px; } .pr-title { font-size: 30px; }
           .pr-sc { font-size: 40px !important; }
         }
-        @media (prefers-reduced-motion: reduce) { .pr-pop, .pr-box, .pr-bravo .pr-title { animation: none; } }
+        @media (prefers-reduced-motion: reduce) { .pr-bg, .pr-box, .pr-shake, .pr-title, .pr-cracks path { animation: none !important; } .pr-meteor, .pr-flash, .pr-wave, .pr-rock, .pr-crater { display: none; } .pr-cracks path { stroke-dashoffset: 0; stroke-opacity: .28; } }
       `}</style>
+      <div aria-hidden="true" className="pr-bg" />
+      {impact && (
+        <>
+          <svg aria-hidden="true" className="pr-cracks" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+            {CRACKS.map((d, i) => <path key={i} d={d} pathLength="100" strokeWidth={i % 3 ? 0.25 : 0.45} />)}
+          </svg>
+          <div aria-hidden="true" className="pr-crater" />
+          <div aria-hidden="true" className={`pr-meteor ${landed ? "done" : ""}`} />
+          <div aria-hidden="true" className="pr-wave" />
+          <div aria-hidden="true" className="pr-wave w2" />
+          <div aria-hidden="true" className="pr-flash" />
+          {ROCKS.map((r, i) => <span key={i} aria-hidden="true" className="pr-rock" style={r} />)}
+        </>
+      )}
       <div aria-hidden="true" className="pr-beam -left-[15%] -rotate-[18deg]" />
       <div aria-hidden="true" className="pr-beam -right-[15%] rotate-[18deg]" />
       <svg aria-hidden="true" className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vmin] h-[150vmin] opacity-[0.08] pointer-events-none" viewBox="0 0 100 100">
@@ -227,7 +327,7 @@ export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onN
         <X className="w-4 h-4" />
       </button>
       <div
-        className="min-h-full flex items-center justify-center pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]"
+        className="pr-shake relative z-[2] min-h-full flex items-center justify-center pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]"
         onClick={(e) => e.target === e.currentTarget && close()}
       >
         <div className="pr-box relative w-full max-w-[440px] text-center [@media(max-height:500px)]:max-w-3xl [@media(max-height:500px)]:grid [@media(max-height:500px)]:grid-cols-2 [@media(max-height:500px)]:gap-x-6 [@media(max-height:500px)]:items-center">
