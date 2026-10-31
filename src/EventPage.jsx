@@ -270,12 +270,12 @@ function FightRow({ fight, headline, event, open, canVote, votes, fighters, phot
     }
   };
 
-  // Le main event affiche son pronostic tout de suite ; les autres combats sur demande.
+  // Le pronostic de l'IA ne se dévoile qu'aux fans qui ont voté sur ce combat (il arrive tout seul après le vote).
   useEffect(() => {
     const cached = picks.get(key);
     setPick(cached || null);
     setState(cached ? "done" : "idle");
-    if (!cached && headline && open && odds) loadPick();
+    if (!cached && open && odds && myVote(event.iso, fight.a, fight.b)) loadPick();
   }, [key, Boolean(odds)]);
 
   const sameCategory = a && b && a.categorie === b.categorie;
@@ -295,6 +295,9 @@ function FightRow({ fight, headline, event, open, canVote, votes, fighters, phot
       setVoteState("error");
     }
   };
+
+  // Tant que le fan n'a pas voté : seulement les deux combattants et les boutons de vote (ni stats ni IA).
+  const hidden = canVote && !mine;
 
   return (
     <div className={`row-rise rounded-2xl border bg-neutral-900 p-4 ${headline ? "border-amber-400/40" : "border-neutral-800"}`}>
@@ -317,7 +320,7 @@ function FightRow({ fight, headline, event, open, canVote, votes, fighters, phot
         <span className="order-2 mono text-[11px] text-neutral-500">VS</span>
       </div>
 
-      {odds ? (
+      {hidden ? null : odds ? (
         <div className="mt-4">
           <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-neutral-500 mb-1.5">
             <span className="mono text-amber-400 text-sm normal-case tracking-normal">{odds.probA}%</span>
@@ -337,22 +340,22 @@ function FightRow({ fight, headline, event, open, canVote, votes, fighters, phot
         <FanVote fight={fight} row={row} mine={mine} canVote={canVote} sending={voteState === "sending"} failed={voteState === "error"} aiPick={state === "done" ? pick?.favori : null} onVote={vote} t={t} />
       )}
 
-      {odds && open && (
+      {odds && open && !hidden && (
         <div className="mt-4">
-          {state === "idle" && (
+          {mine && state === "idle" && (
             <button onClick={loadPick} className="tap w-full rounded-xl border border-amber-400/50 text-amber-300 text-xs font-semibold py-2.5 hover:bg-amber-400/10 flex items-center justify-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> {t.aiPickShow}
             </button>
           )}
-          {state === "loading" && (
+          {mine && state === "loading" && (
             <div className="space-y-2" aria-live="polite">
               <div className="ai-shimmer h-3 rounded-full w-4/5" />
               <div className="ai-shimmer h-3 rounded-full w-3/5" />
               <p className="text-[11px] text-neutral-500">{t.aiPickLoading}</p>
             </div>
           )}
-          {state === "error" && <p className="text-[11px] text-neutral-500">{t.aiPickFailed}</p>}
-          {state === "done" && pick && (
+          {mine && state === "error" && <p className="text-[11px] text-neutral-500">{t.aiPickFailed}</p>}
+          {mine && state === "done" && pick && (
             <div className="row-rise rounded-xl border border-amber-400/40 bg-amber-400/[0.06] p-3.5">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-amber-400 mb-2">
                 <Sparkles className="w-3 h-3" /> {t.aiPick}
