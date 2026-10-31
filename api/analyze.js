@@ -1,6 +1,17 @@
 import { isVipCode } from "./_vip.js";
 import { duelKey, getAnalysis, saveAnalysis } from "./_analyses.js";
-import { generateAnalysis, hasApiKey } from "./_ai.js";
+import { analyzeDuel, hasApiKey } from "./_ai.js";
+import { FIGHTERS } from "../src/fightersData.js";
+import { RECENT_FIGHTS } from "../src/recentFights.js";
+import { findFighter } from "../src/events.js";
+import { duelOdds } from "../src/score.js";
+
+// Les stats viennent toujours de la base du site (jamais du navigateur) : mêmes chiffres vérifiés
+// pour tout le monde, et même analyse en cache que les pages d'événement.
+const serverFighter = (f) => {
+  const found = (f?.id && FIGHTERS.find((x) => x.id === f.id)) || (f?.nom && findFighter(FIGHTERS, f.nom));
+  return found ? { ...found, recent: RECENT_FIGHTS[found.id] || [] } : null;
+};
 
 const DAILY_LIMIT = 5;
 // Compteur par adresse IP et par jour, en mémoire du serveur. Vercel peut redémarrer ou multiplier
@@ -29,8 +40,10 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: "daily_limit" });
   }
 
-  const { fighterA, fighterB, probA, probB, lang = "fr" } = req.body;
-  if (!fighterA?.nom || !fighterB?.nom) return res.status(400).json({ error: "Combattants manquants" });
+  const { lang = "fr" } = req.body || {};
+  const fighterA = serverFighter(req.body?.fighterA);
+  const fighterB = serverFighter(req.body?.fighterB);
+  if (!fighterA || !fighterB || fighterA.id === fighterB.id) return res.status(400).json({ error: "Combattants manquants" });
 
   // Duel déjà analysé avec les mêmes stats : tout le monde reçoit la même analyse.
   const key = duelKey(fighterA, fighterB, lang);
@@ -44,7 +57,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const analysis = await generateAnalysis({ fighterA, fighterB, probA, probB, lang });
+    const analysis = await analyzeDuel({ fighterA, fighterB, ...duelOdds(fighterA, fighterB), lang });
     res.status(200).json({ analysis: await saveAnalysis(key, analysis) });
   } catch (e) {
     console.error(e);

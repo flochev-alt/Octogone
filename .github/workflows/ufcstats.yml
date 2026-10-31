@@ -1,0 +1,54 @@
+# Recalcule les stats de carrière UFC (précision des frappes, des amenées au sol, défense de lutte...)
+# à partir des feuilles de match officielles UFCStats, après chaque week-end d'événement.
+# Met à jour src/fightersData.js et src/ufcCareer.js (utilisé par l'analyse IA), puis Supabase.
+# Aussi à la main : Actions > Stats officielles UFC > Run workflow.
+name: Stats officielles UFC
+
+on:
+  schedule:
+    # Lundi et mardi 6 h UTC : le jeu de données public est mis à jour dans la journée qui suit l'événement.
+    - cron: "0 6 * * 1,2"
+  push:
+    branches: [main]
+    paths:
+      - scripts/ufcstats-sync.mjs
+      - .github/workflows/ufcstats.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ufcstats
+  cancel-in-progress: false
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Recalculer les stats
+        run: node scripts/ufcstats-sync.mjs --write
+      - name: Enregistrer
+        id: commit
+        run: |
+          git add src/fightersData.js src/ufcCareer.js
+          if git diff --cached --quiet; then echo "Aucun changement."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Stats officielles UFC : mise à jour automatique"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push
+          echo "changed=1" >> "$GITHUB_OUTPUT"
+      # Un envoi fait par ce workflow ne relance pas « Synchro Supabase » : on applique ici.
+      - name: Appliquer sur Supabase
+        if: steps.commit.outputs.changed == '1'
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then echo "::warning::Secret SUPABASE_DB_URL absent."; exit 0; fi
+          node scripts/generate-fighters-seed.mjs
+          psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 --single-transaction -f supabase/seed_fighters.sql
