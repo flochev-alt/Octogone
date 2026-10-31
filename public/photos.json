@@ -99,13 +99,13 @@
   "width": 3077
  },
  "Anderson Silva": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/a/aa/Anderson-Silva.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "Paulblank",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/a/a2/Anderson_Silva.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "Conselho Nacional do Ministério Público CNMP",
   "license": "CC BY 3.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Anderson-Silva.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Anderson_Silva.png",
   "source": "Wikimedia Commons",
-  "date": "2012-02-04",
-  "width": 700
+  "date": "2012-08-12",
+  "width": 300
  },
  "Angela Hill": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Angela_Hill_victorious_at_Friday_Night_Fights.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -849,10 +849,10 @@
   "width": 1080
  },
  "Randy Couture": {
-  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Randy_Couture_%287588439678%29.jpg/1280px-Randy_Couture_%287588439678%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/Randy_Couture_%287588430190%29.jpg/1280px-Randy_Couture_%287588430190%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "Gage Skidmore from Peoria, AZ, United States of America",
   "license": "CC BY-SA 2.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Randy_Couture_(7588439678).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Randy_Couture_(7588430190).jpg",
   "source": "Wikimedia Commons",
   "date": "2012-07-12",
   "width": 4752
@@ -912,13 +912,14 @@
   "width": 522
  },
  "Ronda Rousey": {
-  "url": "https://upload.wikimedia.org/wikipedia/commons/2/25/Rousey_HOF_2018_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
-  "author": "Shared Account",
-  "license": "CC BY-SA 2.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Rousey_HOF_2018_(cropped).jpg",
-  "source": "Wikimedia Commons",
-  "date": "2018-04-06",
-  "width": 1133
+  "url": "https://live.staticflickr.com/65535/54999813062_0d9a06b764_b.jpg",
+  "width": 1024,
+  "author": "sikarklub",
+  "license": "Public Domain Mark 1.0",
+  "page": "https://www.flickr.com/photos/57350999@N08/54999813062",
+  "source": "Flickr",
+  "date": "",
+  "ufc": true
  },
  "Rose Namajunas": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Rose_Namajunas.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
@@ -946,6 +947,15 @@
   "source": "Wikimedia Commons",
   "date": "2024-03-05",
   "width": 1078
+ },
+ "Sean Strickland": {
+  "url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Sean_Strickland_at_UFN_200.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
+  "author": "MMAnytt",
+  "license": "CC BY-SA 4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Sean_Strickland_at_UFN_200.png",
+  "source": "Wikimedia Commons",
+  "date": "2022-02-04",
+  "width": 450
  },
  "Sergei Pavlovich": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/SergeiPavlovich2018.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
