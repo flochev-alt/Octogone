@@ -7,9 +7,9 @@ import { useFighters } from "./useFighters.js";
 import { usePhotos, creditOf } from "./usePhotos.js";
 import FighterAvatar from "./FighterAvatar.jsx";
 import FighterLink from "./FighterLink.jsx";
-import { eventSlug, cardOf, findFighter, resultSides, isUpcoming, parisDay, useNow, sameName } from "./events.js";
+import { eventSlug, cardOf, findFighter, resultSides, isUpcoming, parisDay, useNow, sameName, upcomingEvents } from "./events.js";
 import { duelOdds } from "./score.js";
-import { findRow, fanShare, fanPick, verdictOf, scoreOf, votingOpen } from "./fans.js";
+import { findRow, fanShare, fanPick, verdictOf, scoreOf, nextVoteEvent, votableFight } from "./fans.js";
 import { useFanVotes, myVote, sendVote } from "./useFanVotes.js";
 
 // Événement d'après son adresse (/evenement/<slug>), parmi les cartes à venir et les cartes passées du fil Média.
@@ -53,6 +53,8 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
   const seasonCards = media.filter((i) => i.type === "recap" && i.data.iso?.startsWith(season)).map((i) => i.data);
   const seasonScore = scoreOf(votes, seasonCards);
   const eventScore = e.past ? scoreOf(votes, [e]) : null;
+  const voteNow = !e.past && nextVoteEvent(upcomingEvents(media, now), now);
+  const votesHere = Boolean(voteNow && eventSlug(voteNow) === eventSlug(e));
   const headliners = e.fighters?.length === 2 ? e.fighters : card[0] ? [card[0].a, card[0].b] : sides ? [sides.winner || sides.a, sides.loser || sides.b] : [];
 
   return (
@@ -120,7 +122,7 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
                       headline={f === card[0]}
                       event={e}
                       open={upcoming}
-                      now={now}
+                      canVote={votesHere && votableFight(f, fighters)}
                       votes={votes}
                       fighters={fighters}
                       photos={photos}
@@ -135,6 +137,11 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
             );
           })}
           {card.length < 5 && <p className="text-xs text-neutral-500">{t.cardSoFar}</p>}
+          {upcoming && !votesHere && voteNow && (
+            <p className="text-xs text-neutral-400 flex items-start gap-1.5">
+              <Users className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-px" /> {t.fanVoteLater}
+            </p>
+          )}
           <ScoreBoard season={season} seasonScore={seasonScore} t={t} />
           <p className="text-[11px] text-neutral-500">{t.fanVoteNote}</p>
           <p className="text-[11px] text-neutral-500">{t.aiDisclaimer}</p>
@@ -236,7 +243,7 @@ function Countdown({ e, now, t }) {
 // Pronostics de l'IA déjà reçus pendant la visite (pour ne pas redemander en changeant de page).
 const picks = new Map();
 
-function FightRow({ fight, headline, event, open, now, votes, fighters, photos, lang, t, onFighter, onSimulate }) {
+function FightRow({ fight, headline, event, open, canVote, votes, fighters, photos, lang, t, onFighter, onSimulate }) {
   const a = findFighter(fighters, fight.a);
   const b = findFighter(fighters, fight.b);
   const odds = a && b ? duelOdds(a, b) : null;
@@ -278,7 +285,6 @@ function FightRow({ fight, headline, event, open, now, votes, fighters, photos, 
   const [mine, setMine] = useState(() => myVote(event.iso, fight.a, fight.b));
   const [voteState, setVoteState] = useState("idle");
   useEffect(() => setMine(myVote(event.iso, fight.a, fight.b)), [key]);
-  const canVote = open && votingOpen(event, now);
   const vote = async (name) => {
     setVoteState("sending");
     try {

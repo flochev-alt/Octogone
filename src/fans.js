@@ -1,7 +1,7 @@
 // « Les fans contre l'IA » : partagé entre le site et api/vote.js.
 // Un combat est repéré par la date de l'événement et les deux noms (simplifiés, triés) : le même duel
 // se retrouve ainsi sur la page de l'événement à venir puis sur celle des résultats.
-import { norm, sameName, resultSides } from "./events.js";
+import { norm, sameName, resultSides, findFighter, cardOf } from "./events.js";
 
 const DAY = 864e5;
 
@@ -13,6 +13,15 @@ export function fanKey(iso, a, b) {
 // Les votes ferment au début de la carte (start), sinon le soir de l'événement (22 h, heure de Paris).
 export const voteCloses = (e) => (e.start ? Date.parse(e.start) : Date.parse(`${e.iso}T21:00:00Z`));
 export const votingOpen = (e, now) => now < voteCloses(e);
+
+// Seul le prochain événement (le plus proche dont les votes ne sont pas fermés) est ouvert au vote :
+// les fans reviennent chaque semaine pour voter sur le suivant.
+export const nextVoteEvent = (events, now) =>
+  events.filter((e) => cardOf(e).length && votingOpen(e, now)).sort((a, b) => voteCloses(a) - voteCloses(b))[0] || null;
+
+// On vote seulement sur la carte principale (main event compris) et quand les deux combattants sont
+// dans notre base : l'IA peut alors toujours donner son favori, il y a un vrai duel Fans contre IA.
+export const votableFight = (f, fighters) => (f.part || "main") === "main" && Boolean(findFighter(fighters, f.a) && findFighter(fighters, f.b));
 
 // Ligne de votes d'un combat (la date peut différer d'un jour entre l'affiche et les résultats).
 export function findRow(rows, iso, a, b) {
