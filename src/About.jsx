@@ -28,7 +28,7 @@ const CONTENT = {
       "Les photos sont toutes sous licence libre, avec leur auteur indiqué.",
     ],
     whoTitle: "Qui est derrière ?",
-    who: "Octogone.space est un site de fan, fait par un passionné de MMA. Il est indépendant : il n'est ni affilié ni sponsorisé par l'UFC ou une autre ligue. Les pronostics sont là pour le plaisir, pas pour parier.",
+    who: "Octogone.space est un site de fan, fait par Florian C., un passionné de MMA. Il est indépendant : il n'est ni affilié ni sponsorisé par l'UFC ou une autre ligue. Les pronostics sont là pour le plaisir, pas pour parier.",
     contact: "Une erreur, une idée ? Écris à",
   },
   en: {
@@ -51,7 +51,7 @@ const CONTENT = {
       "All photos are under free licences, with their author credited.",
     ],
     whoTitle: "Who's behind it?",
-    who: "Octogone.space is a fan site, made by an MMA enthusiast. It is independent: it is not affiliated with or sponsored by the UFC or any other league. Picks are for fun, not for betting.",
+    who: "Octogone.space is a fan site, made by Florian C., an MMA enthusiast. It is independent: it is not affiliated with or sponsored by the UFC or any other league. Picks are for fun, not for betting.",
     contact: "Spotted a mistake, got an idea? Write to",
   },
   es: {
@@ -74,7 +74,7 @@ const CONTENT = {
       "Todas las fotos tienen licencia libre, con su autor indicado.",
     ],
     whoTitle: "¿Quién está detrás?",
-    who: "Octogone.space es un sitio de fans, hecho por un apasionado del MMA. Es independiente: no está afiliado ni patrocinado por la UFC ni por ninguna otra liga. Los pronósticos son para divertirse, no para apostar.",
+    who: "Octogone.space es un sitio de fans, hecho por Florian C., un apasionado del MMA. Es independiente: no está afiliado ni patrocinado por la UFC ni por ninguna otra liga. Los pronósticos son para divertirse, no para apostar.",
     contact: "¿Un error, una idea? Escribe a",
   },
 };
