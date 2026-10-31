@@ -8,6 +8,7 @@ import Media, { eventName } from "./Media.jsx";
 import EventPage from "./EventPage.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import About from "./About.jsx";
+import ResultsPopup from "./ResultsPopup.jsx";
 import { nextVoteEvent } from "./fans.js";
 import ConsentBanner from "./ConsentBanner.jsx";
 import { initVip, activateVip } from "./vip.js";
@@ -329,6 +330,9 @@ export default function App() {
     if (view === "landing" || view === "hub") goTo("apropos");
     else changeView("apropos");
   };
+  // Pop-up « Toi contre l'IA » : cartes passées (résultats) et prochain événement ouvert au vote.
+  const recapCards = useMemo(() => media.filter((i) => i.type === "recap").map((i) => i.data), [media]);
+  const voteEvent = useMemo(() => nextVoteEvent(upcomingEvents(media, Date.now()), Date.now()), [media]);
   const aboutGo = (id) => {
     const events = upcomingEvents(media, Date.now());
     const ev = id === "vote" ? nextVoteEvent(events, Date.now()) || events[0] : events[0];
@@ -393,6 +397,7 @@ export default function App() {
 
   const banner = (
     <>
+    <ResultsPopup cards={recapCards} lang={lang} nextEvent={voteEvent} onNext={openEvent} paused={Boolean(veil) || view === "mentions"} />
     {vipToast && (
       <div role="status" className="fixed z-[60] bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full text-sm font-semibold shadow-lg border bg-neutral-900 border-amber-400/60 text-amber-300 whitespace-nowrap">
         {vipToast === "on" ? t.vipOn : t.vipBad}

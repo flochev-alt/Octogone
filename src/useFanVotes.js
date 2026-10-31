@@ -30,17 +30,25 @@ function voterId() {
 
 // Une seule requête par visite ; les votes faits ensuite mettent la liste à jour pour toutes les pages.
 let rows = [];
+let ready = false; // vrai une fois la liste reçue (ou la requête échouée)
 let request = null;
 const listeners = new Set();
-const emit = () => listeners.forEach((f) => f(rows));
+const emit = () => listeners.forEach((f) => f([...rows]));
 const load = () =>
   (request ??= fetch("/api/vote")
     .then((r) => (r.ok ? r.json() : { rows: [] }))
     .then((d) => {
       rows = Array.isArray(d.rows) ? d.rows : [];
-      emit();
     })
-    .catch(() => {}));
+    .catch(() => {})
+    .finally(() => {
+      ready = true;
+      emit();
+    }));
+
+export const fanVotesReady = () => ready;
+// Tous les votes faits sur cet appareil : { cle: nom choisi }.
+export const myVotes = () => read(MINE_KEY, {});
 
 export function useFanVotes() {
   const [list, setList] = useState(rows);
