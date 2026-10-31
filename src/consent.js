@@ -39,6 +39,24 @@ export function loadAnalytics() {
   document.head.appendChild(script);
 }
 
+// Quand la pub est active, c'est le bandeau certifié de Google (norme IAB TCF) qui recueille le choix.
+// On écoute sa réponse : Google Analytics ne se charge que si le visiteur accepte le dépôt de cookies
+// (finalité 1) et la mesure d'audience (finalité 8 ou 9) pour Google (fournisseur 755).
+// Hors Europe, Google n'affiche pas de bandeau (gdprApplies = false) : la mesure est permise.
+// Renvoie false si le bandeau de Google n'est pas là (bloqueur de pub) : on garde alors le nôtre.
+export function listenGoogleConsent() {
+  if (typeof window === "undefined" || typeof window.__tcfapi !== "function") return false;
+  window.__tcfapi("addEventListener", 2, (tcData, success) => {
+    if (!success || !tcData) return;
+    if (tcData.eventStatus !== "tcloaded" && tcData.eventStatus !== "useractioncomplete") return;
+    const p = tcData.purpose?.consents || {};
+    const ok = tcData.gdprApplies === false || Boolean(p[1] && (p[8] || p[9]) && tcData.vendor?.consents?.[755]);
+    if (ok) loadAnalytics();
+    else disableAnalytics();
+  });
+  return true;
+}
+
 // Retrait du consentement : on coupe la mesure et on efface les cookies _ga déjà posés.
 function disableAnalytics() {
   if (typeof window === "undefined") return;
