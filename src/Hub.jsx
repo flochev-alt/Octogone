@@ -38,7 +38,8 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
         </svg>
       </div>
 
-      <header className="relative z-10 flex items-center justify-between px-5 pt-5">
+      {/* Appli installée sur iPhone : le haut de page passe sous l'heure et la batterie, on décale d'autant (safe-area). */}
+      <header className="relative z-10 flex items-center justify-between pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-[calc(1.25rem_+_env(safe-area-inset-top))]">
         <button onClick={onHome} aria-label="Octogone" className="tap h-12 flex items-center gap-2.5">
           <span className="w-2 h-2 rounded-full bg-amber-400" />
           <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>

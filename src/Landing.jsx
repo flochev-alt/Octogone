@@ -141,13 +141,13 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
           />
         ))}
         {/* Nom du site en haut à gauche, comme dans l'en-tête des onglets (Combattants…). */}
-        <div className="rise absolute top-5 left-5 z-40 h-12 flex items-center gap-2.5">
+        <div className="rise absolute top-[calc(1.25rem_+_env(safe-area-inset-top))] left-[max(1.25rem,env(safe-area-inset-left))] z-40 h-12 flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
         </div>
 
         {/* Sélecteur de langue : au-dessus de la carte du prochain événement, qui occupe le haut de l'écran. */}
-        <div className="rise absolute top-5 right-5 z-40 flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
+        <div className="rise absolute top-[calc(1.25rem_+_env(safe-area-inset-top))] right-[max(1.25rem,env(safe-area-inset-right))] z-40 flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
           {LANGUAGES.map((l) => (
             <button
               key={l.code}
@@ -164,7 +164,7 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
 
         {/* Prochain événement, au-dessus de l'octogone (dans le flux, pour ne jamais le chevaucher) */}
         {nextEvent && (
-          <div className="blur-in relative z-20 w-full pt-24 sm:pt-20" style={{ animationDelay: "150ms" }}>
+          <div className="blur-in relative z-20 w-full pt-[calc(6rem_+_env(safe-area-inset-top))] sm:pt-[calc(5rem_+_env(safe-area-inset-top))]" style={{ animationDelay: "150ms" }}>
             <NextEventCard e={nextEvent} now={now} lang={lang} t={t} onClick={onEnterMedia} />
           </div>
         )}

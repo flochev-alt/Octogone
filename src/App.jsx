@@ -388,7 +388,8 @@ export default function App() {
         .tap:active { transform: scale(0.97); }
       `}</style>
 
-      <header className="sticky top-0 z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 overflow-x-hidden">
+      {/* Appli installée sur iPhone : l'en-tête commence sous l'heure et la batterie (safe-area), fond compris. */}
+      <header className="sticky top-0 z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 overflow-x-hidden pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
         <div className="max-w-5xl mx-auto px-3 sm:px-5 h-16 flex items-center justify-between gap-1.5 sm:gap-3">
           <button onClick={() => changeView("landing")} className="tap flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
