@@ -52,11 +52,17 @@ export default function Cage3D() {
             {SIDES.map((a, i) => (
               <div key={a} className="cage-side" style={{ transform: `rotateY(${a}deg) translateZ(var(--apothem))` }}>
                 <span className="cage-post" />
-                {/* Bandeau « sponsor » un grillage sur deux, lisible de l'extérieur comme de l'intérieur. */}
-                {i % 2 === 0 && (
+                {/* « Sponsors » en alternance : bandeau octogone.space, puis logo du site, lisibles de l'extérieur
+                    comme de l'intérieur (une face pour chaque côté, jamais en miroir). */}
+                {i % 2 === 0 ? (
                   <>
                     <span className="cage-ad">octogone.space</span>
                     <span className="cage-ad cage-ad-back">octogone.space</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="cage-badge"><span className="cage-badge-dot" /></span>
+                    <span className="cage-badge cage-ad-back"><span className="cage-badge-dot" /></span>
                   </>
                 )}
               </div>

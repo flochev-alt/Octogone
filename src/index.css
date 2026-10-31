@@ -173,48 +173,59 @@ body {
   .cage-spin { animation: none; transform: rotateY(22.5deg); }
 }
 
-/* Logo du site à la place du O de « L'OCTOGONE. » (src/Landing.jsx) : le cercle doré et le « O. »
-   vus en plongée, comme posés sur le tapis de la cage, qui tournent au rythme de la cage. */
+/* Logo du site à la place du O de « L'OCTOGONE. » (src/Landing.jsx) : un anneau de la hauteur des
+   capitales et de l'épaisseur du trait d'Archivo 800, dans le même dégradé doré que le titre, avec le point du logo au centre. */
 .title-emblem {
   display: inline-block;
   position: relative;
-  width: 0.76em;
-  height: 0.76em;
-  margin: 0 0.03em;
-  vertical-align: -0.02em; /* sans contenu dans le flux : le bas se pose sur la ligne de base */
-  perspective: 300px;
+  width: 0.74em;
+  height: 0.72em;
+  margin: 0 0.035em 0 0.03em;
+  vertical-align: 0; /* sans contenu dans le flux : le bas se pose sur la ligne de base */
 }
-.title-emblem-disc {
+.title-emblem-ring,
+.title-emblem-dot {
   position: absolute;
-  inset: 0 -0.04em;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #fbbf24 0%, #fef3c7 50%, #fbbf24 100%);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+.title-emblem-ring {
+  inset: 0;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 0.155em), #000 calc(100% - 0.15em));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 0.155em), #000 calc(100% - 0.15em));
+}
+.title-emblem-dot {
+  left: calc(50% - 0.075em);
+  top: calc(50% - 0.075em);
+  width: 0.15em;
+  height: 0.15em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-emblem-ring, .title-emblem-dot { animation: none; }
+}
+
+/* Logo du site sur un grillage sur deux : anneau doré et son point. */
+.cage-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  width: calc(var(--r) * 0.12);
+  height: calc(var(--r) * 0.12);
+  margin-left: calc(var(--r) * -0.06);
+  border-radius: 50%;
+  border: calc(var(--r) * 0.022) solid rgba(251, 191, 36, 0.75);
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.4);
+  backface-visibility: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  border: 0.06em solid rgba(251, 191, 36, 0.75);
-  box-shadow: 0 0 0 0.08em rgba(251, 191, 36, 0.12), 0 0 0.35em rgba(251, 191, 36, 0.45), inset 0 0 0.25em rgba(251, 191, 36, 0.3);
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.3), rgba(251, 191, 36, 0.06) 70%);
-  transform: rotateX(62deg);
-  animation: emblemSpin 40s linear infinite;
 }
-.title-emblem-o {
-  display: flex;
-  align-items: flex-end;
-  font-size: 0.6em;
-  line-height: 1;
-  color: rgba(254, 243, 199, 0.85);
-}
-.title-emblem-dot {
-  width: 0.16em;
-  height: 0.16em;
-  margin: 0 0 0.08em 0.04em;
+.cage-badge.cage-ad-back { transform: rotateY(180deg); }
+.cage-badge-dot {
+  width: 28%;
+  height: 28%;
   border-radius: 50%;
   background: #fbbf24;
-}
-@keyframes emblemSpin {
-  from { transform: rotateX(62deg) rotateZ(0deg); }
-  to { transform: rotateX(62deg) rotateZ(-360deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .title-emblem-disc { animation: none; }
 }

@@ -255,8 +255,8 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
   );
 }
 
-// « L'OCTOGONE. » : à la place du O entre le T et le G, le logo du site posé à plat comme sur le tapis
-// d'une cage, qui tourne au rythme de la cage 3D.
+// « L'OCTOGONE. » : le O entre le T et le G est le logo du site (anneau doré et son point),
+// dessiné à l'épaisseur et à la hauteur des lettres pour se fondre dans le titre.
 // Seulement quand cette lettre est bien un O (en anglais « OCTAGON », on garde le texte tel quel).
 function TitleWithEmblem({ text }) {
   const i = text.indexOf("OCTOG");
@@ -265,9 +265,8 @@ function TitleWithEmblem({ text }) {
     <span className="whitespace-nowrap">
       <span className="shimmer-text">{text.slice(0, i + 3)}</span>
       <span className="title-emblem" role="img" aria-label="O">
-        <span className="title-emblem-disc">
-          <span className="title-emblem-o">O<span className="title-emblem-dot" /></span>
-        </span>
+        <span className="title-emblem-ring" />
+        <span className="title-emblem-dot" />
       </span>
       <span className="shimmer-text">{text.slice(i + 4)}</span>
     </span>
