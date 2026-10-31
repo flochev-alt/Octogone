@@ -369,6 +369,16 @@
   "date": "2019-11-04",
   "width": 669
  },
+ "Eduarda Moura": {
+  "url": "https://live.staticflickr.com/65535/54789685969_4bbd8f4fc3_b.jpg",
+  "width": 1024,
+  "author": "assembleiaam",
+  "license": "Public Domain Mark 1.0",
+  "page": "https://www.flickr.com/photos/145273645@N02/54789685969",
+  "source": "Flickr",
+  "date": "",
+  "ufc": false
+ },
  "Fedor Emelianenko": {
   "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Fedor_Emelianenko_Dec_2015.jpg/1280px-Fedor_Emelianenko_Dec_2015.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "Bruno Massami",
@@ -720,6 +730,16 @@
   "date": "2025-06-07",
   "width": 622
  },
+ "Michael Morales": {
+  "url": "https://live.staticflickr.com/65535/54549855374_74636993d1_b.jpg",
+  "width": 1024,
+  "author": "http://www.presidencia.gob.ec/",
+  "license": "Public Domain Mark 1.0",
+  "page": "https://www.flickr.com/photos/7965504@N03/54549855374",
+  "source": "Flickr",
+  "date": "",
+  "ufc": true
+ },
  "Miesha Tate": {
   "url": "https://upload.wikimedia.org/wikipedia/commons/2/26/MCAS_Yuma_hosts_MMA_Fight_Night_with_guest_of_honor%2C_Miesha_Tate_%286%29_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled",
   "author": "Cpl. Gideon Schippers",
@@ -829,10 +849,10 @@
   "width": 1080
  },
  "Randy Couture": {
-  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/88/Randy_Couture_%287588430190%29.jpg/1280px-Randy_Couture_%287588430190%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+  "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Randy_Couture_%287588439678%29.jpg/1280px-Randy_Couture_%287588439678%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
   "author": "Gage Skidmore from Peoria, AZ, United States of America",
   "license": "CC BY-SA 2.0",
-  "page": "https://commons.wikimedia.org/wiki/File:Randy_Couture_(7588430190).jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Randy_Couture_(7588439678).jpg",
   "source": "Wikimedia Commons",
   "date": "2012-07-12",
   "width": 4752
