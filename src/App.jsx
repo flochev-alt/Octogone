@@ -7,7 +7,7 @@ import CategoryBar from "./CategoryBar.jsx";
 import Media from "./Media.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
-import { initVip } from "./vip.js";
+import { initVip, activateVip } from "./vip.js";
 import { useInstall } from "./install.js";
 import { useFighters } from "./useFighters.js";
 import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
@@ -214,6 +214,18 @@ export default function App() {
   useEffect(() => {
     setLangState(getInitialLang());
   }, []);
+
+  // Appli installée (écran d'accueil) : sur iPhone elle n'a pas la mémoire de Safari, on y propose de saisir le code VIP.
+  const isStandalone = typeof window !== "undefined" &&
+    (window.matchMedia?.("(display-mode: standalone)").matches || window.navigator.standalone === true);
+  const askVipCode = async () => {
+    const code = window.prompt(t.vipPrompt);
+    if (!code) return;
+    const ok = await activateVip(code);
+    setVip(ok);
+    setVipToast(ok ? "on" : "bad");
+    setTimeout(() => setVipToast(null), 4000);
+  };
 
   // Accès VIP vérifié dès l'arrivée sur le site (lien octogone.space/?vip=CODE), quelle que soit la page.
   const [vip, setVip] = useState(false);
@@ -673,6 +685,11 @@ export default function App() {
             className="tap underline text-amber-400/80 hover:text-amber-300"
           >
             {t.installApp}
+          </button>
+        )}
+        {!vip && isStandalone && (
+          <button onClick={askVipCode} className="tap underline hover:text-neutral-300">
+            {t.vipEnter}
           </button>
         )}
         {iosHelp && installApp.mode === "ios" && <span className="basis-full text-neutral-400">{t.iosInstall}</span>}

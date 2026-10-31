@@ -24,6 +24,19 @@ async function checkCode(code) {
   }
 }
 
+// Saisie du code à la main : sur iPhone, l'appli installée ne partage pas la mémoire de Safari,
+// donc le code donné par le lien ?vip= n'y est pas. Renvoie true si le code est bon (et le garde).
+export async function activateVip(code) {
+  const clean = String(code || "").trim();
+  if (!clean || !(await checkCode(clean))) return false;
+  try {
+    localStorage.setItem(VIP_KEY, clean);
+  } catch {
+    // stockage indisponible : l'accès vaut pour cette visite seulement
+  }
+  return true;
+}
+
 // À appeler au chargement : lit ?vip= dans l'adresse, l'efface de la barre d'adresse,
 // puis renvoie { vip, tried } : vip vaut true si ce navigateur a un code VIP valide,
 // tried vaut true si un code venait d'être donné dans l'adresse (pour afficher « activé » ou « incorrect »).
