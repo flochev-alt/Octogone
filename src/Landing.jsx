@@ -4,40 +4,19 @@ import { LANGUAGES, T } from "./i18n.js";
 import { eventName } from "./Media.jsx";
 import { useMedia } from "./useMedia.js";
 import Cage3D from "./Cage3D.jsx";
+import { upcomingEvents, parisDay, useNow } from "./events.js";
 
-// Événements à venir, lus dans le fil Média (Supabase, sinon mediaData.js), du plus proche au plus lointain.
-// `start` (facultatif) = début de la carte principale en UTC : il active le compte à rebours à la seconde.
-// Un événement reste « en cours » 6 h après son début, sinon jusqu'à la fin de sa journée (heure de Paris).
-const parisDay = (d) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris" }).format(d);
-const LIVE_HOURS = 6;
-function upcomingEvents(items, now) {
-  return items
-    .filter((p) => p.type === "upcoming")
-    .map((p) => p.data)
-    .filter((e) => (e.start ? now - Date.parse(e.start) < LIVE_HOURS * 3600e3 : e.iso >= parisDay(now)))
-    .sort((a, b) => (a.start || a.iso).localeCompare(b.start || b.iso));
-}
 const LOCALES = { fr: "fr-FR", en: "en-US", es: "es-ES" };
 const shortDate = (iso, lang) =>
   new Date(`${iso}T12:00:00Z`).toLocaleDateString(LOCALES[lang], { day: "2-digit", month: "2-digit", year: "numeric" });
 const lastName = (n) => n.split(" ").slice(-1)[0];
-
-// Heure courante, rafraîchie chaque seconde (pour le compte à rebours).
-function useNow() {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return now;
-}
 
 const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   angle: (360 / 12) * i,
   delay: i * 0.18,
 }));
 
-export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {} }) {
+export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, onOpenEvent = onEnterMedia, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
   const now = useNow();
@@ -165,7 +144,7 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
         {/* Prochain événement, au-dessus de l'octogone (dans le flux, pour ne jamais le chevaucher) */}
         {nextEvent && (
           <div className="blur-in relative z-20 w-full pt-[calc(6rem_+_env(safe-area-inset-top))] sm:pt-[calc(5rem_+_env(safe-area-inset-top))]" style={{ animationDelay: "150ms" }}>
-            <NextEventCard e={nextEvent} now={now} lang={lang} t={t} onClick={onEnterMedia} />
+            <NextEventCard e={nextEvent} now={now} lang={lang} t={t} onClick={() => onOpenEvent(nextEvent)} />
           </div>
         )}
 

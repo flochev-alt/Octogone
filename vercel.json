@@ -1,6 +1,7 @@
 {
   "cleanUrls": true,
   "functions": {
-    "api/analyze.js": { "maxDuration": 60 }
+    "api/analyze.js": { "maxDuration": 60 },
+    "api/pick.js": { "maxDuration": 60 }
   }
 }

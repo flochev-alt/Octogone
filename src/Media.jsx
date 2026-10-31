@@ -1,10 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Newspaper, MapPin, CheckCircle2, Search, Play } from "lucide-react";
+import { Newspaper, MapPin, CheckCircle2, Search, Play, ChevronRight } from "lucide-react";
 import { T, L, formatDate, translateMethod } from "./i18n.js";
 import { useMedia } from "./useMedia.js";
 import { usePhotos, creditOf } from "./usePhotos.js";
 import { getConsent } from "./consent.js";
 import FighterAvatar from "./FighterAvatar.jsx";
+import FighterLink from "./FighterLink.jsx";
+import { useFighters } from "./useFighters.js";
 
 export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" : ", ": "));
 
@@ -54,6 +56,16 @@ function FaceOff({ names, t }) {
   );
 }
 
+// Lien vers la page de l'événement (carte complète, pronostics, résultats).
+function EventLink({ e, label, onEvent }) {
+  if (!onEvent) return null;
+  return (
+    <button onClick={() => onEvent(e)} className="tap mt-3 inline-flex items-center gap-1 rounded-full border border-amber-400/50 text-amber-300 text-xs font-semibold px-3 py-1.5 hover:bg-amber-400/10">
+      {label} <ChevronRight className="w-3.5 h-3.5" />
+    </button>
+  );
+}
+
 function Post({ children }) {
   return (
     <div className="border-b border-neutral-800 px-5 py-4 hover:bg-neutral-900/40 transition-colors">
@@ -62,7 +74,7 @@ function Post({ children }) {
   );
 }
 
-function UpcomingPost({ c, lang, t }) {
+function UpcomingPost({ c, lang, t, onEvent }) {
   return (
     <div className="flex gap-3">
       <FightersBadges fighters={c.fighters} highlight={c.highlight} />
@@ -83,12 +95,26 @@ function UpcomingPost({ c, lang, t }) {
           <MapPin className="w-3 h-3" /> {L(c.location, lang)}
           <CheckCircle2 className="w-3 h-3 text-amber-400 ml-2" /> {t.official}
         </div>
+        <EventLink e={c} label={t.seeCard} onEvent={onEvent} />
       </div>
     </div>
   );
 }
 
-function RecapPost({ card, lang, t }) {
+// « A def. B » : chaque nom mène à la fiche du combattant s'il est dans notre base.
+function ResultLine({ fight, fighters, onFighter, t }) {
+  const [winner, loser] = fight.split(" def. ");
+  if (!loser) return <div className="text-neutral-200">{fight}</div>;
+  return (
+    <div className="text-neutral-200">
+      <FighterLink name={winner} fighters={fighters} onFighter={onFighter} />
+      <span className="text-neutral-500"> def. </span>
+      <FighterLink name={loser} fighters={fighters} onFighter={onFighter} />
+    </div>
+  );
+}
+
+function RecapPost({ card, lang, t, onEvent, onFighter, fighters }) {
   return (
     <div className="flex gap-3">
       <Avatar label="UFC" />
@@ -106,7 +132,7 @@ function RecapPost({ card, lang, t }) {
           {card.results.map((r, i) => (
             <div key={i} className="flex items-start justify-between gap-3 text-xs border-t border-neutral-800 pt-2 first:border-0 first:pt-0">
               <div>
-                <div className="text-neutral-200">{r.fight}</div>
+                <ResultLine fight={r.fight} fighters={fighters} onFighter={onFighter} t={t} />
                 <div className="text-neutral-500">{L(r.note, lang)}</div>
               </div>
               <span className="font-semibold text-amber-400 shrink-0 whitespace-nowrap">{translateMethod(r.method, lang)}</span>
@@ -114,6 +140,7 @@ function RecapPost({ card, lang, t }) {
           ))}
         </div>
         {card.note && <div className="text-xs text-neutral-500 mt-2">{L(card.note, lang)}</div>}
+        <EventLink e={card} label={t.seeEvent} onEvent={onEvent} />
         {card.tweetUrl && (
           <>
             <div className="text-[11px] uppercase tracking-widest text-amber-400 mt-3">{t.finishLabel}</div>
@@ -129,7 +156,7 @@ function RecapPost({ card, lang, t }) {
 // X n'est pas soumis aux mêmes restrictions de diffusion par pays que les vidéos YouTube de l'UFC.
 // Le widget X dépose ses propres cookies : il ne se charge qu'avec l'accord du visiteur (bandeau cookies
 // accepté, ou clic sur « Afficher le post X »), comme le demande la CNIL. Sinon, un simple lien vers X.
-function TweetEmbed({ url, lang, t }) {
+export function TweetEmbed({ url, lang, t }) {
   const [allowed, setAllowed] = useState(() => getConsent() === "accepted");
   if (!allowed) {
     return (
@@ -246,7 +273,7 @@ function PhotoCredits({ names, photos, t }) {
 const lastName = (n) => n.split(" ").slice(1).join(" ") || n;
 
 // Affiche « À venir » : les deux combattants face à face, en grand, comme un poster.
-function UpcomingPoster({ c, lang, t }) {
+function UpcomingPoster({ c, lang, t, onEvent }) {
   const photos = usePhotos();
   const photoOf = (n) => photos[n]?.url;
   return (
@@ -273,13 +300,14 @@ function UpcomingPoster({ c, lang, t }) {
         </div>
         <div className="text-xs text-neutral-400 mt-1">{formatDate(c.iso, lang)} · {L(c.location, lang)}</div>
         <PhotoCredits names={c.fighters} photos={photos} t={t} />
+        <EventLink e={c} label={t.seeCard} onEvent={onEvent} />
       </div>
     </section>
   );
 }
 
 // Carte « Derniers résultats » : vignette vers la vidéo du finish, puis les deux premiers combats.
-function LatestResults({ card, lang, t }) {
+function LatestResults({ card, lang, t, onEvent }) {
   return (
     <section className="row-rise rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-900">
       {card.tweetUrl && (
@@ -306,6 +334,7 @@ function LatestResults({ card, lang, t }) {
             </div>
           );
         })}
+        <EventLink e={card} label={t.seeEvent} onEvent={onEvent} />
       </div>
     </section>
   );
@@ -325,8 +354,9 @@ function searchTextFor(item) {
   return fields.flatMap(allLangs).filter(Boolean).join(" ").toLowerCase();
 }
 
-export default function Media({ lang = "fr" }) {
+export default function Media({ lang = "fr", onEvent, onFighter }) {
   const t = T[lang];
+  const fighters = useFighters();
   const [query, setQuery] = useState("");
   const items = useMedia();
   const feed = useMemo(() => items.filter((i) => i.type !== "trash_talk").sort(byIsoDesc), [items]);
@@ -381,13 +411,13 @@ export default function Media({ lang = "fr" }) {
           {nextPoster && (
             <div>
               <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-2">{t.upcomingLabel}</div>
-              <UpcomingPoster c={nextPoster} lang={lang} t={t} />
+              <UpcomingPoster c={nextPoster} lang={lang} t={t} onEvent={onEvent} />
             </div>
           )}
           {latestRecap && (
             <div>
               <div className="mono text-[10px] uppercase tracking-widest text-neutral-400 mb-2">{t.latestResults}</div>
-              <LatestResults card={latestRecap} lang={lang} t={t} />
+              <LatestResults card={latestRecap} lang={lang} t={t} onEvent={onEvent} />
             </div>
           )}
           <div className="mono text-[10px] uppercase tracking-widest text-neutral-400 pt-2 lg:col-span-2">{t.newsFeed}</div>
@@ -397,8 +427,8 @@ export default function Media({ lang = "fr" }) {
       <div className="border-t border-neutral-800 lg:max-w-2xl lg:mx-auto">
         {filteredFeed.map((item, i) => (
           <Post key={`${item.type}-${i}`}>
-            {item.type === "upcoming" && <UpcomingPost c={item.data} lang={lang} t={t} />}
-            {item.type === "recap" && <RecapPost card={item.data} lang={lang} t={t} />}
+            {item.type === "upcoming" && <UpcomingPost c={item.data} lang={lang} t={t} onEvent={onEvent} />}
+            {item.type === "recap" && <RecapPost card={item.data} lang={lang} t={t} onEvent={onEvent} onFighter={onFighter} fighters={fighters} />}
             {item.type === "reaction" && <ReactionPost r={item.data} lang={lang} />}
             {item.type === "tweet" && <TweetPost tw={item.data} lang={lang} t={t} />}
           </Post>
