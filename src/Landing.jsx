@@ -140,12 +140,10 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
             style={{ left: p.x, top: p.y, boxShadow: "0 0 8px 2px rgba(251,191,36,0.6)" }}
           />
         ))}
-        {/* Logo, en haut à gauche */}
-        <div className="rise absolute top-5 left-5 z-40 w-14 h-14 flex items-center justify-center">
-          <svg width="56" height="56" viewBox="0 0 100 100">
-            <polygon points="32,10 68,10 90,32 90,68 68,90 32,90 10,68 10,32" fill="none" stroke="#fbbf24" strokeWidth="9" />
-            <text x="50" y="66" textAnchor="middle" fontFamily="Archivo, sans-serif" fontWeight="800" fontSize="48" fill="white">O<tspan fill="#fbbf24">.</tspan></text>
-          </svg>
+        {/* Nom du site en haut à gauche, comme dans l'en-tête des onglets (Combattants…). */}
+        <div className="rise absolute top-5 left-5 z-40 h-12 flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
         </div>
 
         {/* Sélecteur de langue : au-dessus de la carte du prochain événement, qui occupe le haut de l'écran. */}

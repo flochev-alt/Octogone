@@ -39,11 +39,9 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
       </div>
 
       <header className="relative z-10 flex items-center justify-between px-5 pt-5">
-        <button onClick={onHome} aria-label="Octogone" className="tap w-12 h-12 flex items-center justify-center">
-          <svg width="48" height="48" viewBox="0 0 100 100">
-            <polygon points="32,10 68,10 90,32 90,68 68,90 32,90 10,68 10,32" fill="none" stroke="#fbbf24" strokeWidth="9" />
-            <text x="50" y="66" textAnchor="middle" fontFamily="Archivo, sans-serif" fontWeight="800" fontSize="48" fill="white">O<tspan fill="#fbbf24">.</tspan></text>
-          </svg>
+        <button onClick={onHome} aria-label="Octogone" className="tap h-12 flex items-center gap-2.5">
+          <span className="w-2 h-2 rounded-full bg-amber-400" />
+          <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
         </button>
         <div className="flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
           {LANGUAGES.map((l) => (
