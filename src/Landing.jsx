@@ -255,7 +255,8 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
   );
 }
 
-// « L'OCTOGONE. » : le O entre le T et le G devient l'emblème du site, qui tourne comme le tapis de la cage.
+// « L'OCTOGONE. » : à la place du O entre le T et le G, le logo du site posé à plat comme sur le tapis
+// d'une cage, qui tourne au rythme de la cage 3D.
 // Seulement quand cette lettre est bien un O (en anglais « OCTAGON », on garde le texte tel quel).
 function TitleWithEmblem({ text }) {
   const i = text.indexOf("OCTOG");
