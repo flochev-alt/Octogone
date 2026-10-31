@@ -1,0 +1,20 @@
+# Temporaire : planche des photos possibles pour quelques combattants (branche controle-candidats).
+name: Photos candidates
+on:
+  push:
+    paths: [scripts/photo-candidates.mjs, .github/workflows/photo-candidats.yml]
+permissions:
+  contents: write
+jobs:
+  cand:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/photo-candidates.mjs "Anderson Silva" "Sean Strickland"
+      - run: |
+          cd cand && git init -q -b controle-candidats && git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Candidats photos"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" controle-candidats
