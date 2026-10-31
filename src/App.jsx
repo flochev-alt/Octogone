@@ -59,8 +59,8 @@ const formatRecord = (v, d, n, nc) => `${v}-${d}-${n}${nc ? ` (${nc} NC)` : ""}`
 // Identifiant de l'API Octagon (slug UFC.com) déduit du nom : "Uroš Medić" -> "uros-medic".
 const toSlug = (name) => normName(name).replace(/['.]/g, "").replace(/\s+/g, "-");
 
-// Classement : champion (rang 0), puis 1 à 15, puis les non-classés dans l'ordre de la base.
-const byRank = (a, b) => (a.rang ?? 99) - (b.rang ?? 99);
+// Classement : champion (rang 0), puis 1 à 15, puis les autres combattants (hors top 15) par ordre alphabétique.
+const byRank = (a, b) => (a.rang ?? 99) - (b.rang ?? 99) || (a.rang == null && b.rang == null ? a.nom.localeCompare(b.nom) : 0);
 
 // Champions actuels — vérifiés manuellement (recherches croisées), à mettre à jour à chaque changement de titre.
 const CHAMPIONS = [
@@ -683,7 +683,10 @@ export default function App() {
                   {listed.map((f, i) => (
                     <Fragment key={f.id}>
                       {i === firstUnranked && (
-                        <p className="text-[11px] uppercase tracking-widest text-neutral-500 pt-4 pb-1 lg:col-span-2">{t.unranked}</p>
+                        <p className="flex items-center gap-3 text-[11px] uppercase tracking-widest text-amber-400/80 pt-5 pb-1 lg:col-span-2">
+                          <span>{t.unranked}</span>
+                          <span className="h-px flex-1 bg-neutral-800" />
+                        </p>
                       )}
                       <button
                         onClick={() => openFighter(f)}
