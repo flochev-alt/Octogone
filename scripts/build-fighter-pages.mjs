@@ -189,8 +189,32 @@ mkdirSync("dist/evenement", { recursive: true });
 for (const e of UPCOMING) writeFileSync(`dist/evenement/${eventSlug(e)}.html`, eventPage(e, false));
 for (const e of RECENT_CARDS) writeFileSync(`dist/evenement/${eventSlug(e)}.html`, eventPage(e, true));
 
+// a-propos.html : la page « Qu'est-ce qu'Octogone.space ? », lisible sans JavaScript.
+{
+  const url = `${SITE}/a-propos`;
+  const title = "Qu'est-ce qu'Octogone.space ? | Octogone";
+  const desc = "Octogone.space, le site des fans de MMA : fiches des combattants vérifiées sur 2 sources, Simulateur avec analyse IA, pages d'événement et vote « Les fans contre l'IA ». Gratuit et sans compte.";
+  const head = [
+    `<title>${esc(title)}</title>`,
+    `<meta name="description" content="${esc(desc)}" />`,
+    `<link rel="canonical" href="${url}" />`,
+    `<meta property="og:type" content="website" />`,
+    `<meta property="og:site_name" content="Octogone" />`,
+    `<meta property="og:title" content="${esc(title)}" />`,
+    `<meta property="og:description" content="${esc(desc)}" />`,
+    `<meta property="og:url" content="${url}" />`,
+    `<meta property="og:locale" content="fr_FR" />`,
+    `<meta property="og:image" content="${SITE}/og-image.jpg" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:title" content="${esc(title)}" />`,
+    `<meta name="twitter:description" content="${esc(desc)}" />`,
+    `<meta name="twitter:image" content="${SITE}/og-image.jpg" />`,
+  ].join("\n    ");
+  writeFileSync("dist/a-propos.html", fill(head, `<main><h1>Qu'est-ce qu'Octogone.space ?</h1><p>${esc(desc)}</p></main>`));
+}
+
 const today = new Date().toISOString().slice(0, 10);
-const urls = [`${SITE}/`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`)];
+const urls = [`${SITE}/`, `${SITE}/a-propos`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`)];
 writeFileSync("dist/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod></url>`).join("\n")}
