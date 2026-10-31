@@ -8,6 +8,7 @@ import CategoryBar from "./CategoryBar.jsx";
 import { getVipCode } from "./vip.js";
 import { RECENT_FIGHTS } from "./recentFights.js";
 import { makeShareImage } from "./shareImage.js";
+import { duelOdds } from "./score.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -29,16 +30,8 @@ function incrementDailyUsage() {
   return current + 1;
 }
 
-function computeScore(f) {
-  const winRate = (f.victoires / (f.victoires + f.defaites)) * 100;
-  const striking = f.striking ?? 50;
-  const tdAcc = f.tdAcc ?? 30;
-  const tdDef = f.tdDef ?? 65;
-  const finishRate = (f.ko ?? 20) + (f.sub ?? 15);
-  return winRate * 0.45 + striking * 0.2 + tdAcc * 0.1 + tdDef * 0.15 + finishRate * 0.1;
-}
-
-export default function Simulator({ lang = "fr", vip = false }) {
+// preset : duel déjà choisi en venant d'une fiche ou d'une page d'événement ({ cat, a, b } : catégorie et ids).
+export default function Simulator({ lang = "fr", vip = false, preset = null }) {
   const t = T[lang];
   const fighters = useFighters();
   // Toutes les catégories de la base, dans l'ordre du plus léger au plus lourd (puis femmes et légendes).
@@ -46,7 +39,8 @@ export default function Simulator({ lang = "fr", vip = false }) {
     () => CATEGORY_ORDER.filter((c) => fighters.some((f) => f.categorie === c)),
     [fighters]
   );
-  const [categorie, setCategorie] = useState(CATEGORIES[0]);
+  const [categorie, setCategorie] = useState(preset?.cat || CATEGORIES[0]);
+  const presetRef = useRef(preset);
   useEffect(() => {
     if (!CATEGORIES.includes(categorie)) setCategorie(CATEGORIES[0]);
   }, [CATEGORIES]);
@@ -68,8 +62,17 @@ export default function Simulator({ lang = "fr", vip = false }) {
   }, []);
 
   useEffect(() => {
-    setIdA(fightersInCategorie[0]?.id);
-    setIdB(fightersInCategorie[1]?.id ?? fightersInCategorie[0]?.id);
+    const p = presetRef.current;
+    const has = (id) => fightersInCategorie.some((f) => f.id === id);
+    if (p && p.cat === categorie && has(p.a)) {
+      // Le duel demandé, sinon le combattant demandé face au premier autre de sa catégorie.
+      setIdA(p.a);
+      setIdB(has(p.b) && p.b !== p.a ? p.b : fightersInCategorie.find((f) => f.id !== p.a)?.id ?? p.a);
+    } else {
+      presetRef.current = null;
+      setIdA(fightersInCategorie[0]?.id);
+      setIdB(fightersInCategorie[1]?.id ?? fightersInCategorie[0]?.id);
+    }
     setShowResult(false);
     setAiText(null);
     setLimitHit(false);
@@ -81,13 +84,7 @@ export default function Simulator({ lang = "fr", vip = false }) {
 
   const { probA, probB } = useMemo(() => {
     if (!fighterA || !fighterB) return { probA: 50, probB: 50 };
-    const scoreA = computeScore(fighterA);
-    const scoreB = computeScore(fighterB);
-    const total = scoreA + scoreB;
-    return {
-      probA: Math.round((scoreA / total) * 100),
-      probB: Math.round((scoreB / total) * 100),
-    };
+    return duelOdds(fighterA, fighterB);
   }, [fighterA, fighterB]);
 
   const advantages = useMemo(() => {

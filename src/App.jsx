@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo, useRef, Fragment } from "react";
-import { Search, X, ChevronLeft, ChevronRight, Trophy, MapPin, Users, Swords, Instagram, Cake, Dumbbell, Medal } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight, Trophy, MapPin, Users, Swords, Instagram, Cake, Dumbbell, Medal, CalendarDays } from "lucide-react";
 import Simulator from "./Simulator.jsx";
 import Landing from "./Landing.jsx";
 import Hub from "./Hub.jsx";
 import CategoryBar from "./CategoryBar.jsx";
-import Media from "./Media.jsx";
+import Media, { eventName } from "./Media.jsx";
+import EventPage from "./EventPage.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import ConsentBanner from "./ConsentBanner.jsx";
 import { initVip, activateVip } from "./vip.js";
@@ -17,6 +18,8 @@ import { LEAGUES, LEAGUE_FIGHTERS, VACANT } from "./otherLeagues.js";
 import { LEGENDS } from "./legends.js";
 import { FIGHTERS } from "./fightersData.js";
 import { fighterPath, slugFromPath, slugify } from "./slug.js";
+import { eventSlug, eventPath, eventSlugFromPath, upcomingEvents, nextFightOf, findFighter } from "./events.js";
+import { useMedia } from "./useMedia.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
   formatHeight, formatDate, ageFrom, getInitialLang, setStoredLang,
@@ -181,13 +184,20 @@ const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
 
 export default function App() {
   const [linked] = useState(() => fighterAt(window.location.pathname));
-  const [view, setView] = useState(linked ? "combattants" : "landing");
-  const changeView = (v) => setView(v);
+  const [linkedEvent] = useState(() => eventSlugFromPath(window.location.pathname));
+  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : "landing");
+  // Duel déjà choisi pour le Simulateur (bouton « Simuler un duel » d'une fiche ou d'une page d'événement).
+  const [simPreset, setSimPreset] = useState(null);
+  const changeView = (v) => { setSimPreset(null); setView(v); };
+  // Page d'événement ouverte (/evenement/<slug>) et page d'où l'on vient, pour le bouton retour.
+  const [eventOpen, setEventOpen] = useState(linkedEvent);
+  const eventFrom = useRef("media");
   // Changement de page animé (accueil → page de choix → section) : un voile noir et un octogone doré
   // couvrent l'écran, la page change dessous, puis le voile s'efface.
   const [veil, setVeil] = useState(null);
   const goTo = (v) => {
     if (veil) return;
+    if (v !== "evenement") setSimPreset(null);
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
       if (v === "combattants") { setCategorie("champions"); setQuery(""); }
       return setView(v);
@@ -292,23 +302,61 @@ export default function App() {
     if (window.history.state?.fighter) window.history.back();
     else {
       hidePanel();
-      window.history.replaceState(null, "", "/");
+      window.history.replaceState(null, "", view === "evenement" && eventOpen ? `/evenement/${eventOpen}` : "/");
     }
+  };
+  // Chaque événement a aussi sa propre adresse ; le retour ramène à la page d'où l'on vient.
+  const openEvent = (e) => {
+    if (view !== "evenement") eventFrom.current = view === "hub" ? "hub" : view === "landing" ? "landing" : view;
+    if (selected) hidePanel();
+    setEventOpen(eventSlug(e));
+    if (window.location.pathname !== eventPath(e)) window.history.pushState({ event: true }, "", eventPath(e));
+    if (view === "landing" || view === "hub") goTo("evenement");
+    else setView("evenement");
+  };
+  const leaveEvent = () => {
+    if (window.history.state?.event) window.history.back();
+    else {
+      window.history.replaceState(null, "", "/");
+      setView(eventFrom.current);
+    }
+  };
+  // Simulateur prérempli avec ce duel (b facultatif : le Simulateur choisit alors l'adversaire).
+  const simulate = (a, b = null) => {
+    if (selected) hidePanel();
+    window.history.replaceState(null, "", "/");
+    setSimPreset({ n: Date.now(), cat: a.categorie, a: a.id, b: b?.id });
+    setView("simulateur");
   };
   useEffect(() => {
     const onPop = () => {
-      const f = fighterAt(window.location.pathname);
+      const path = window.location.pathname;
+      const f = fighterAt(path);
+      const ev = eventSlugFromPath(path);
       if (f) {
-        setView("combattants");
+        // Une fiche s'ouvre par-dessus la page en cours (événement, médias...), sinon dans Combattants.
+        setView((v) => (v === "landing" || v === "hub" || v === "mentions" ? "combattants" : v));
         setSelected(f);
-      } else hidePanel();
+      } else if (ev) {
+        hidePanel();
+        setEventOpen(ev);
+        setView("evenement");
+      } else {
+        hidePanel();
+        setView((v) => (v === "evenement" ? eventFrom.current : v));
+      }
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+  // En quittant une page d'événement par les onglets, l'adresse revient à l'accueil du site.
   useEffect(() => {
-    document.title = selected ? fighterTitle(selected) : SITE_TITLE;
-  }, [selected]);
+    if (view !== "evenement" && eventSlugFromPath(window.location.pathname)) window.history.replaceState(null, "", "/");
+  }, [view]);
+  useEffect(() => {
+    if (selected) document.title = fighterTitle(selected);
+    else if (view !== "evenement") document.title = SITE_TITLE;
+  }, [selected, view]);
   // Changement de page (« Explorer le site », onglets) : on repart du haut, pas de la position de défilement de l'accueil.
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -340,6 +388,7 @@ export default function App() {
           onExplore={() => goTo("hub")}
           onEnterSimulator={() => goTo("simulateur")}
           onEnterMedia={() => goTo("media")}
+          onOpenEvent={openEvent}
           lang={lang}
           setLang={setLang}
           onLegal={() => changeView("mentions")}
@@ -472,9 +521,11 @@ export default function App() {
       </header>
 
       {view === "simulateur" ? (
-        <Simulator lang={lang} vip={vip} />
+        <Simulator key={simPreset?.n} lang={lang} vip={vip} preset={simPreset} />
+      ) : view === "evenement" ? (
+        <EventPage slug={eventOpen} lang={lang} onBack={leaveEvent} onFighter={openFighter} onSimulate={simulate} />
       ) : view === "media" ? (
-        <Media lang={lang} />
+        <Media lang={lang} onEvent={openEvent} onFighter={openFighter} />
       ) : view === "mentions" ? (
         <MentionsLegales lang={lang} />
       ) : (
@@ -666,9 +717,11 @@ export default function App() {
               </>
             )}
           </main>
-
-          {shown && <FighterPanel fighter={shown} photo={photoOf(shown)} closing={closing} onClose={closePanel} lang={lang} t={t} />}
         </>
+      )}
+
+      {shown && view !== "mentions" && (
+        <FighterPanel fighter={shown} photo={photoOf(shown)} closing={closing} onClose={closePanel} lang={lang} t={t} onSimulate={simulate} onEvent={openEvent} />
       )}
 
       <footer className="mt-auto w-full max-w-5xl mx-auto px-5 pt-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -715,7 +768,7 @@ function SearchBox({ query, setQuery, t, className = "" }) {
 
 // Fiche combattant : tout vient de notre base vérifiée (fightersData.js). L'API Octagon ne sert
 // plus qu'au lieu de naissance et à la salle d'entraînement, quand elle connaît le combattant.
-function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
+function FighterPanel({ fighter, photo, onClose, closing, lang, t, onSimulate, onEvent }) {
   const [extra, setExtra] = useState(null);
   const [loading, setLoading] = useState(true);
   // Photo qui ne charge pas : on affiche le médaillon à la place d'un cadre vide.
@@ -738,6 +791,15 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
   }, [fighter.nom, ligue]);
 
   const recent = fighter.recent || RECENT_FIGHTS[fighter.id];
+  // Prochain combat inscrit sur une carte à venir (fil Média), avec lien vers la page de l'événement.
+  const media = useMedia();
+  const next = useMemo(() => nextFightOf(fighter.nom, upcomingEvents(media, Date.now())), [fighter.nom, media]);
+  // Adversaire du prochain combat, s'il est dans la même catégorie : le Simulateur ouvre directement ce duel.
+  const fighters = useFighters();
+  const sameCatOpponent = (name) => {
+    const o = findFighter(fighters, name);
+    return o && o.categorie === fighter.categorie ? o : null;
+  };
   const legend = fighter.categorie === "Legendes" ? LEGENDS[fighter.nom] : null;
   const age = ageFrom(fighter.naissance);
   const rankLabel = fighter.rang === 0 ? t.champion : fighter.rang != null ? `#${fighter.rang}` : null;
@@ -801,6 +863,20 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
           </a>
         )}
         <div className="p-5 space-y-4">
+          {next && (
+            <button
+              onClick={() => onEvent(next.event)}
+              className="tap row-rise w-full text-left rounded-xl border border-amber-400/50 bg-amber-400/[0.08] hover:bg-amber-400/15 px-3.5 py-2.5 flex items-center gap-3"
+            >
+              <CalendarDays className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="flex-1 min-w-0">
+                <span className="block mono text-[10px] uppercase tracking-widest text-amber-400">{t.nextFight} · {formatDate(next.event.iso, lang, { day: "numeric", month: "short" })}</span>
+                <span className="block text-sm font-semibold text-neutral-100 truncate">{t.nextFightVs(next.opponent)}</span>
+                <span className="block text-[11px] text-neutral-400 truncate">{eventName(next.event.name, lang)}</span>
+              </span>
+              <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
+            </button>
+          )}
           <div className={`row-rise grid gap-2 ${ligue ? "grid-cols-2" : "grid-cols-3"}`}>
             <Tile value={formatRecord(fighter.victoires, fighter.defaites, fighter.nuls)} sub={fighter.nc > 0 ? `${fighter.nc} NC` : null} label={t.proRecord} gold />
             {ligue ? (
@@ -812,6 +888,15 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t }) {
               </>
             )}
           </div>
+          {!ligue && onSimulate && (
+            <button
+              onClick={() => onSimulate(fighter, next && sameCatOpponent(next.opponent))}
+              className="tap row-rise w-full rounded-xl bg-amber-400 text-neutral-950 text-sm font-semibold py-2.5 hover:bg-amber-300 flex items-center justify-center gap-2"
+              style={{ animationDelay: "5ms" }}
+            >
+              <Swords className="w-4 h-4" /> {t.simulateDuel}
+            </button>
+          )}
           {legend && (
             <div className="row-rise space-y-3" style={{ animationDelay: "10ms" }}>
               <p className="text-sm text-neutral-300 leading-relaxed">{L(legend.bio, lang)}</p>

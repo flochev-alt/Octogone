@@ -11,6 +11,13 @@ export const LOCAL_MEDIA = [
   ...TRASH_TALK.map((d) => ({ type: "trash_talk", iso: null, data: d })),
 ];
 
+// Une seule requête partagée entre les pages (accueil, médias, événements, fiches).
+let request = null;
+const loadMedia = () =>
+  (request ??= fetchTable("media_posts", "select=type,iso,data&order=iso.desc.nullslast,id")
+    .then((rows) => (rows.length ? rows : null))
+    .catch(() => null));
+
 // Affiche tout de suite les données locales (mediaData.js), puis les remplace
 // par les posts publiés de Supabase si la base répond. En cas de panne, le fil reste affiché.
 export function useMedia() {
@@ -19,11 +26,9 @@ export function useMedia() {
   useEffect(() => {
     if (!supabaseEnabled) return;
     let cancelled = false;
-    fetchTable("media_posts", "select=type,iso,data&order=iso.desc.nullslast,id")
-      .then((rows) => {
-        if (!cancelled && rows.length) setItems(rows);
-      })
-      .catch(() => {});
+    loadMedia().then((rows) => {
+      if (!cancelled && rows) setItems(rows);
+    });
     return () => { cancelled = true; };
   }, []);
 

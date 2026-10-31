@@ -5,6 +5,10 @@
 // Chaque élément a une vraie date ISO : le tri chronologique et l'affichage de la date dans
 // chaque langue sont automatiques. Les textes sont soit une chaîne (identique dans les 3 langues),
 // soit un objet { fr, en, es } lu avec L().
+// card = carte complète, dans l'ordre officiel (main event en premier) : a/b = les deux combattants
+// (noms comme dans fightersData.js pour relier les fiches), cat = catégorie, belt = titre en jeu,
+// part = "prelims" ou "early" (préliminaires, early prelims) ; sans part = carte principale.
+// Seuls les combats confirmés par au moins deux sources y figurent.
 export const UPCOMING = [
   {
     iso: "2027-01-30",
@@ -20,6 +24,10 @@ export const UPCOMING = [
       en: "Joshua Van will also defend his flyweight title against Manel Kape. Islam Makhachev, out until mid-2027, is expected to face the winner of Prates vs. Morales.",
       es: "Joshua Van también defenderá su título del peso mosca ante Manel Kape. Islam Makhachev, baja hasta mediados de 2027, debería enfrentarse al ganador del Prates vs. Morales.",
     },
+    card: [
+      { a: "Carlos Prates", b: "Michael Morales", cat: "Poids welter", belt: { fr: "Titre intérimaire", en: "Interim title", es: "Título interino" } },
+      { a: "Joshua Van", b: "Manel Kape", cat: "Poids mouche", belt: { fr: "Titre", en: "Title", es: "Título" } },
+    ],
     fighters: ["Carlos Prates", "Michael Morales"],
     highlight: true,
   },
@@ -37,6 +45,11 @@ export const UPCOMING = [
       en: "Also on the card: Alex Pereira vs. Sergei Pavlovich (heavyweight). A Sean Strickland vs. Nassourdine Imavov rematch for the middleweight title has been discussed but is not official yet.",
       es: "También en la cartelera: Alex Pereira vs. Sergei Pavlovich (peso pesado). Se habla de una revancha Sean Strickland vs. Nassourdine Imavov por el título del peso medio, aún sin oficializar.",
     },
+    card: [
+      { a: "Charles Oliveira", b: "Diego Lopes", cat: "Poids leger", belt: { fr: "Titre BMF", en: "BMF title", es: "Título BMF" } },
+      { a: "Alex Pereira", b: "Sergei Pavlovich", cat: "Poids lourd" },
+      { a: "Brandon Moreno", b: "Charles Johnson", cat: "Poids mouche" },
+    ],
     fighters: ["Charles Oliveira", "Diego Lopes"],
     highlight: true,
     badge: { fr: "Titre BMF", en: "BMF title", es: "Título BMF" },
@@ -50,6 +63,16 @@ export const UPCOMING = [
       en: "Jiří Procházka vs. Navajo Stirling (light heavyweight)",
       es: "Jiří Procházka vs. Navajo Stirling (semipesado)",
     },
+    card: [
+      { a: "Jiří Procházka", b: "Navajo Stirling", cat: "Poids mi-lourd" },
+      { a: "Aljamain Sterling", b: "Kevin Vallejos", cat: "Poids plume" },
+      { a: "Dan Hooker", b: "Brian Ortega", cat: "Poids leger" },
+      { a: "Jared Cannonier", b: "Ikram Aliskerov", cat: "Poids moyen" },
+      { a: "Shamil Gaziev", b: "Tallison Teixeira", cat: "Poids lourd" },
+      { a: "Aleksandre Topuria", b: "Santiago Luna", cat: "Poids coq" },
+      { a: "Asu Almabayev", b: "Kyoji Horiguchi", cat: "Poids mouche" },
+      { a: "Amir Albazi", b: "Alessandro Costa", cat: "Poids mouche" },
+    ],
     fighters: ["Jiří Procházka", "Navajo Stirling"],
   },
   {
@@ -66,11 +89,26 @@ export const UPCOMING = [
       en: "Ciryl Gane's first defense as undisputed champion. Co-main event: Kayla Harrison vs. Amanda Nunes, women's bantamweight title.",
       es: "Primera defensa de Ciryl Gane como campeón indiscutible. Co-main event: Kayla Harrison vs. Amanda Nunes, título del peso gallo femenino.",
     },
+    card: [
+      { a: "Ciryl Gane", b: "Josh Hokit", cat: "Poids lourd", belt: { fr: "Titre", en: "Title", es: "Título" } },
+      { a: "Kayla Harrison", b: "Amanda Nunes", cat: "Poids coq feminin", belt: { fr: "Titre", en: "Title", es: "Título" } },
+      { a: "Caio Borralho", b: "Yousri Belgaroui", cat: "Poids moyen" },
+      { a: "Uroš Medić", b: "Kevin Holland", cat: "Poids welter" },
+      { a: "Bilal Hasan", b: "Luis Gurule", cat: "Poids mouche" },
+      { a: "Stephen Thompson", b: "Charles Radtke", cat: "Poids welter", part: "prelims" },
+      { a: "Drew Dober", b: "Chris Duncan", cat: "Poids leger", part: "prelims" },
+      { a: "Jim Miller", b: "Terrance McKinney", cat: "Poids leger", part: "prelims" },
+      { a: "Bia Mesquita", b: "Macy Chiasson", cat: "Poids coq feminin", part: "early" },
+      { a: "Adrian Yanez", b: "Juan Díaz", cat: "Poids coq", part: "early" },
+      { a: "Nazim Sadykhov", b: "Jefferson Nascimento", cat: "Poids leger", part: "early" },
+    ],
     fighters: ["Ciryl Gane", "Josh Hokit"],
     highlight: true,
   },
   {
     iso: "2026-11-07",
+    // Début de la carte principale (UTC) : 20 h ET (ufc.com).
+    start: "2026-11-08T01:00:00Z",
     name: "UFC Fight Night : Bonfim vs. Brady",
     location: "Meta Apex, Las Vegas",
     main: {
@@ -78,6 +116,21 @@ export const UPCOMING = [
       en: "Gabriel Bonfim vs. Sean Brady (welterweight)",
       es: "Gabriel Bonfim vs. Sean Brady (peso wélter)",
     },
+    card: [
+      { a: "Gabriel Bonfim", b: "Sean Brady", cat: "Poids welter" },
+      { a: "Tatiana Suarez", b: "Virna Jandiroba", cat: "Poids paille feminin" },
+      { a: "Davey Grant", b: "Elijah Smith", cat: "Poids coq" },
+      { a: "Seokhyeon Ko", b: "Wellington Turman", cat: "Poids welter" },
+      { a: "Billy Elekana", b: "Lucas Fernando", cat: "Poids mi-lourd" },
+      { a: "Mantas Kondratavičius", b: "Andre Petroski", cat: "Poids moyen" },
+      { a: "Gabriel Lorenco", b: "Alvin Hines", cat: "Poids lourd", part: "prelims" },
+      { a: "Karine Silva", b: "Gabriella Fernandes", cat: "Poids mouche feminin", part: "prelims" },
+      { a: "Mitch Raposo", b: "Marcos Degli", cat: "Poids mouche", part: "prelims" },
+      { a: "Jose Delano", b: "Murtazali Magomedov", cat: "Poids plume", part: "prelims" },
+      { a: "Keiichiro Nakamura", b: "Ollie Schmid", cat: "Poids plume", part: "prelims" },
+      { a: "Austin Bashi", b: "Lucas Brennan", cat: "Poids plume", part: "prelims" },
+      { a: "Priscila Cachoeira", b: "Nina Milošević", cat: "Poids coq feminin", part: "prelims" },
+    ],
     fighters: ["Gabriel Bonfim", "Sean Brady"],
   },
   {
@@ -91,6 +144,20 @@ export const UPCOMING = [
       en: "Renato Moicano vs. Tom Nolan (lightweight)",
       es: "Renato Moicano vs. Tom Nolan (peso ligero)",
     },
+    card: [
+      { a: "Renato Moicano", b: "Tom Nolan", cat: "Poids leger" },
+      { a: "Randy Brown", b: "Jacobe Smith", cat: "Poids welter" },
+      { a: "Ode Osbourne", b: "Cody Durden", cat: "Poids mouche" },
+      { a: "Yana Santos", b: "Luana Santos", cat: "Poids coq feminin" },
+      { a: "Jean-Paul Lebosnoyani", b: "Farman Hasanov", cat: "Poids welter" },
+      { a: "Francis Marshall", b: "Dakota Hope", cat: "Poids plume", part: "prelims" },
+      { a: "Rodrigo Sezinando", b: "Theodor Berggren", cat: "Poids welter", part: "prelims" },
+      { a: "Julian Erosa", b: "Jeong Yeong Lee", cat: "Poids plume", part: "prelims" },
+      { a: "Zach Reese", b: "Mickey Gall", cat: "Poids moyen", part: "prelims" },
+      { a: "Nick Klein", b: "Joseph Kropschot", cat: "Poids moyen", part: "prelims" },
+      { a: "Talita Alencar", b: "Piera Rodriguez", cat: "Poids paille feminin", part: "prelims" },
+      { a: "Lucia Szabová", b: "Tainara Lisboa", cat: "Poids mouche feminin", part: "prelims" },
+    ],
     fighters: ["Renato Moicano", "Tom Nolan"],
   },
 ];
