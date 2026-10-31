@@ -1,4 +1,4 @@
-// Données vérifiées manuellement (voir combattants-template.csv) — 207 combattants (classement UFC actuel de chaque catégorie + autres combattants notables)
+// Données vérifiées manuellement (voir combattants-template.csv) — combattants (classement UFC actuel de chaque catégorie + autres combattants notables)
 // avec leurs vraies stats. victoires/defaites/nuls/nc = bilan pro complet,
 // ufcV/ufcD/ufcN/ufcNc = bilan à l'UFC uniquement (mis à jour le 25 oct. 2026).
 // rang = classement UFC officiel (0 = champion, 1-15, null = non classé) au 26 oct. 2026, d'après ufc-fr.com.
@@ -227,4 +227,12 @@ export const FIGHTERS = [
   { id: "f217", nom: "Ronda Rousey", categorie: "Legendes", taille: 168, allonge: 173, victoires: 13, defaites: 2, nuls: 0, ko: 23, sub: 77, dec: 0, striking: null, tdAcc: null, tdDef: null, nc: 0, ufcV: null, ufcD: null, ufcN: null, ufcNc: null, rang: null, naissance: "1987-02-01", style: ["judo"] },
   { id: "f218", nom: "José Aldo", categorie: "Legendes", taille: 170, allonge: 178, victoires: 32, defaites: 10, nuls: 0, ko: 53, sub: 3, dec: 44, striking: null, tdAcc: null, tdDef: null, nc: 0, ufcV: null, ufcD: null, ufcN: null, ufcNc: null, rang: null, naissance: "1986-09-09", style: ["muaythai","jjb"] },
   { id: "f219", nom: "Wanderlei Silva", categorie: "Legendes", taille: 178, allonge: 188, victoires: 35, defaites: 14, nuls: 1, ko: 77, sub: 3, dec: 20, striking: null, tdAcc: null, tdDef: null, nc: 1, ufcV: null, ufcD: null, ufcN: null, ufcNc: null, rang: null, naissance: "1976-07-03", style: ["muaythai"] },
+  // Combattants des cartes principales à venir (ajoutés le 31 oct. 2026 pour « Les fans contre l'IA ») :
+  // ufc.com (fiche athlète) recoupé avec Wikipédia, Sherdog, ESPN, Agent MMA ou RotoWire.
+  { id: "f220", nom: "Randy Brown", categorie: "Poids welter", taille: 191, allonge: 198, victoires: 20, defaites: 8, nuls: 0, ko: 40, sub: 25, dec: 35, striking: 47, tdAcc: 16, tdDef: 75, nc: 0, ufcV: 14, ufcD: 8, ufcN: 0, ufcNc: 0, rang: null, naissance: "1990-07-08", style: ["boxe","jjb"] },
+  { id: "f221", nom: "Jacobe Smith", categorie: "Poids welter", taille: 178, allonge: 183, victoires: 13, defaites: 0, nuls: 0, ko: 77, sub: 8, dec: 15, striking: 67, tdAcc: 0, tdDef: 100, nc: 0, ufcV: 4, ufcD: 0, ufcN: 0, ufcNc: 0, rang: null, naissance: "1996-01-17", style: ["mma"] },
+  { id: "f222", nom: "Ode Osbourne", categorie: "Poids mouche", taille: 170, allonge: 185, victoires: 13, defaites: 9, nuls: 0, ko: 46, sub: 31, dec: 23, striking: 41, tdAcc: 0, tdDef: 67, nc: 2, ufcV: 5, ufcD: 7, ufcN: 0, ufcNc: 1, rang: null, naissance: "1992-01-09", style: ["mma"] },
+  { id: "f223", nom: "Cody Durden", categorie: "Poids mouche", taille: 170, allonge: 170, victoires: 18, defaites: 11, nuls: 1, ko: 33, sub: 33, dec: 34, striking: 44, tdAcc: 10, tdDef: 57, nc: 0, ufcV: 7, ufcD: 9, ufcN: 1, ufcNc: 0, rang: null, naissance: "1991-03-29", style: ["mma"] },
+  { id: "f224", nom: "Jean-Paul Lebosnoyani", categorie: "Poids welter", taille: 180, allonge: 183, victoires: 11, defaites: 2, nuls: 0, ko: 27, sub: 46, dec: 27, striking: 47, tdAcc: 21, tdDef: 100, nc: 0, ufcV: 2, ufcD: 0, ufcN: 0, ufcNc: 0, rang: null, naissance: "1999-01-27", style: ["jjb"] },
+  { id: "f225", nom: "Farman Hasanov", categorie: "Poids welter", taille: 183, allonge: 188, victoires: 6, defaites: 0, nuls: 0, ko: 67, sub: 0, dec: 33, striking: 51, tdAcc: 0, tdDef: null, nc: 0, ufcV: 1, ufcD: 0, ufcN: 0, ufcNc: 0, rang: null, naissance: "1995-08-01", style: ["lutte"] },
 ];

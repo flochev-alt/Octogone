@@ -1657,4 +1657,44 @@ export const RECENT_FIGHTS = {
     { opponent: "Stephanie Luciano", result: "D", method: "Décision unanime", event: "UFC on ESPN : Tybura vs. Spivac 2" },
     { opponent: "Rayanne dos Santos", result: "V", method: "Décision partagée", event: "UFC Fight Night : Song vs. Gutiérrez" },
   ],
+  // Randy Brown
+  f220: [
+    { opponent: "Kevin Holland", result: "D", method: "Décision unanime", event: "UFC 327" },
+    { opponent: "Gabriel Bonfim", result: "D", method: "TKO", event: "UFC Fight Night : Bonfim vs. Brown" },
+    { opponent: "Nicolas Dalby", result: "V", method: "KO", event: "UFC on ESPN : Machado Garry vs. Prates" },
+    { opponent: "Bryan Battle", result: "D", method: "Décision partagée", event: "UFC 310" },
+    { opponent: "Elizeu Zaleski dos Santos", result: "V", method: "Décision unanime", event: "UFC 302" },
+  ],
+  // Jacobe Smith
+  f221: [
+    { opponent: "Bruce Whitehead", result: "V", method: "TKO", event: "UFC 332" },
+    { opponent: "Josiah Harrell", result: "V", method: "TKO", event: "UFC Fight Night : Strickland vs. Hernandez" },
+    { opponent: "Niko Price", result: "V", method: "Soumission", event: "UFC 317" },
+    { opponent: "Preston Parsons", result: "V", method: "TKO", event: "UFC Fight Night : Dern vs. Ribas 2" },
+  ],
+  // Ode Osbourne
+  f222: [
+    { opponent: "Alibi Idiris", result: "NC", method: "Sans décision", event: "UFC Fight Night : Strickland vs. Hernandez" },
+    { opponent: "Steve Erceg", result: "D", method: "Décision unanime", event: "UFC on ESPN : Dolidze vs. Hernandez" },
+    { opponent: "Luis Gurule", result: "V", method: "TKO", event: "UFC on ESPN : Emmett vs. Murphy" },
+    { opponent: "Ronaldo Rodríguez", result: "D", method: "Décision unanime", event: "UFC 306" },
+    { opponent: "Jafel Filho", result: "D", method: "Soumission", event: "UFC Fight Night : Tuivasa vs. Tybura" },
+  ],
+  // Cody Durden
+  f223: [
+    { opponent: "Alessandro Costa", result: "D", method: "Soumission", event: "UFC 329" },
+    { opponent: "Jafel Filho", result: "V", method: "Décision unanime", event: "UFC Fight Night : Sterling vs. Zalal" },
+    { opponent: "Nyamjargal Tumendemberel", result: "D", method: "Décision unanime", event: "UFC 326" },
+    { opponent: "Allan Nascimento", result: "D", method: "Soumission", event: "UFC Fight Night : Garcia vs. Onama" },
+    { opponent: "Jose Ochoa", result: "D", method: "KO", event: "UFC on ESPN : Usman vs. Buckley" },
+  ],
+  // Jean-Paul Lebosnoyani
+  f224: [
+    { opponent: "Seokhyeon Ko", result: "V", method: "Décision unanime", event: "UFC Fight Night 281" },
+    { opponent: "Phil Rowe", result: "V", method: "Décision partagée", event: "UFC Fight Night : Strickland vs. Hernandez" },
+  ],
+  // Farman Hasanov
+  f225: [
+    { opponent: "Eric Nolan", result: "V", method: "Décision unanime", event: "UFC Fight Night : Fiziev vs. Torres" },
+  ],
 };
