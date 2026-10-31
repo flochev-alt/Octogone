@@ -11,6 +11,7 @@ import About from "./About.jsx";
 import ResultsPopup from "./ResultsPopup.jsx";
 import { nextVoteEvent } from "./fans.js";
 import ConsentBanner from "./ConsentBanner.jsx";
+import Contact from "./Contact.jsx";
 import { initVip, activateVip } from "./vip.js";
 import { useInstall } from "./install.js";
 import { useFighters } from "./useFighters.js";
@@ -324,7 +325,7 @@ export default function App() {
   const media = useMedia();
   const openAbout = () => {
     if (view === "apropos") return;
-    aboutFrom.current = view === "mentions" ? "landing" : view;
+    aboutFrom.current = view === "mentions" || view === "contact" ? "landing" : view;
     if (selected) hidePanel();
     window.history.pushState({ about: true }, "", ABOUT_PATH);
     if (view === "landing" || view === "hub") goTo("apropos");
@@ -361,7 +362,7 @@ export default function App() {
       const ev = eventSlugFromPath(path);
       if (f) {
         // Une fiche s'ouvre par-dessus la page en cours (événement, médias...), sinon dans Combattants.
-        setView((v) => (v === "landing" || v === "hub" || v === "mentions" ? "combattants" : v));
+        setView((v) => (v === "landing" || v === "hub" || v === "mentions" || v === "contact" ? "combattants" : v));
         setSelected(f);
       } else if (path === ABOUT_PATH) {
         hidePanel();
@@ -397,7 +398,7 @@ export default function App() {
 
   const banner = (
     <>
-    <ResultsPopup cards={recapCards} lang={lang} nextEvent={voteEvent} onNext={openEvent} paused={Boolean(veil) || view === "mentions"} />
+    <ResultsPopup cards={recapCards} lang={lang} nextEvent={voteEvent} onNext={openEvent} paused={Boolean(veil) || view === "mentions" || view === "contact"} />
     {vipToast && (
       <div role="status" className="fixed z-[60] bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full text-sm font-semibold shadow-lg border bg-neutral-900 border-amber-400/60 text-amber-300 whitespace-nowrap">
         {vipToast === "on" ? t.vipOn : t.vipBad}
@@ -425,6 +426,7 @@ export default function App() {
           setLang={setLang}
           onLegal={() => changeView("mentions")}
           onCookies={() => setCookiesOpen(true)}
+          onContact={() => changeView("contact")}
           onAbout={openAbout}
         />
         {banner}
@@ -436,7 +438,7 @@ export default function App() {
   if (view === "hub") {
     return (
       <>
-        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onAbout={openAbout} />
+        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} />
         {banner}
         {veilEl}
       </>
@@ -563,6 +565,8 @@ export default function App() {
         <About lang={lang} onGo={aboutGo} hasEvent={upcomingEvents(media, Date.now()).length > 0} />
       ) : view === "mentions" ? (
         <MentionsLegales lang={lang} />
+      ) : view === "contact" ? (
+        <Contact lang={lang} />
       ) : (
         <>
           <main className="w-full max-w-5xl mx-auto px-5 py-8">
@@ -758,7 +762,7 @@ export default function App() {
         </>
       )}
 
-      {shown && view !== "mentions" && (
+      {shown && view !== "mentions" && view !== "contact" && (
         <FighterPanel fighter={shown} photo={photoOf(shown)} closing={closing} onClose={closePanel} lang={lang} t={t} onSimulate={simulate} onEvent={openEvent} />
       )}
 
@@ -772,6 +776,9 @@ export default function App() {
         </button>
         <button onClick={() => setCookiesOpen(true)} className="tap underline hover:text-neutral-300">
           {t.cookies}
+        </button>
+        <button onClick={() => changeView("contact")} className="tap underline hover:text-neutral-300">
+          {t.contact}
         </button>
         {installApp.mode && (
           <button

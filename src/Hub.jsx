@@ -2,7 +2,7 @@ import { Trophy, Swords, Newspaper, ArrowRight, Info } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
-export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onAbout = () => {} }) {
+export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {} }) {
   const t = T[lang];
   const sections = [
     { id: "combattants", icon: Trophy, title: t.navCombattants, desc: t.navCardCombattantsDesc },
@@ -106,10 +106,11 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
         </button>
       </main>
       {/* Mentions légales et cookies accessibles depuis chaque page (LCEN, CNIL). */}
-      <div className="relative z-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex justify-center gap-4 text-[11px] text-neutral-600">
+      <div className="relative z-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex flex-wrap justify-center gap-x-4 gap-y-1 px-4 text-[11px] text-neutral-600">
         <button onClick={onAbout} className="tap underline hover:text-neutral-300">{t.about}</button>
         <button onClick={onLegal} className="tap underline hover:text-neutral-300">{t.legal}</button>
         <button onClick={onCookies} className="tap underline hover:text-neutral-300">{t.cookies}</button>
+        <button onClick={onContact} className="tap underline hover:text-neutral-300">{t.contact}</button>
       </div>
     </div>
   );
