@@ -137,7 +137,8 @@ body {
   height: calc(var(--r) * 2);
   transform: rotateX(90deg);
   clip-path: polygon(30.9% 3.9%, 69.1% 3.9%, 96.1% 30.9%, 96.1% 69.1%, 69.1% 96.1%, 30.9% 96.1%, 3.9% 69.1%, 3.9% 30.9%);
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.22), rgba(251, 191, 36, 0.05) 60%, rgba(251, 191, 36, 0.12));
+  /* Tapis sombre (il masque le halo doré de l'accueil) avec un liseré doré au bord : le logo ressort mieux. */
+  background: radial-gradient(circle, rgba(10, 10, 10, 0.82), rgba(10, 10, 10, 0.72) 62%, rgba(251, 191, 36, 0.16));
 }
 /* Logo du site estompé au centre du tapis, et bandeaux « sponsor » octogone.space sur le grillage. */
 /* Logo du site (icône de l'appli) : octogone doré, « O » blanc et point carré doré, très estompé.
@@ -152,7 +153,7 @@ body {
   width: calc(var(--r) * 0.66);
   height: calc(var(--r) * 0.66);
   transform: rotateX(90deg) translateZ(calc(var(--h) * 0.75));
-  opacity: 0.22;
+  opacity: 0.35;
   /* Cadre octogonal : un octogone doré, puis un octogone noir plus petit par-dessus. */
   background: #fbbf24;
   clip-path: polygon(29.3% 0, 70.7% 0, 100% 29.3%, 100% 70.7%, 70.7% 100%, 29.3% 100%, 0 70.7%, 0 29.3%);

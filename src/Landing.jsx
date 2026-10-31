@@ -154,7 +154,7 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
           {mounted && <Cage3D />}
 
           {/* Fondu chaud discret, contenu dans le petit octogone */}
-          <div className="absolute inset-0 m-auto w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-amber-400/40 blur-2xl pointer-events-none" />
+          <div className="absolute inset-0 m-auto w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-amber-400/20 blur-2xl pointer-events-none" />
 
           {/* Étincelles discrètes */}
           {mounted && (
