@@ -8,7 +8,7 @@ export const eventPath = (e) => `/evenement/${eventSlug(e)}`;
 export const eventSlugFromPath = (path) => path.match(/^\/evenement\/([a-z0-9-]+)\/?$/)?.[1] || null;
 
 // Même nom malgré les accents ou les tirets (« Uros Medic » = « Uroš Medić »).
-const norm = (n) => n?.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/-/g, " ").toLowerCase().trim();
+export const norm = (n) => n?.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/-/g, " ").toLowerCase().trim();
 export const sameName = (a, b) => norm(a) === norm(b);
 export const findFighter = (fighters, name) => fighters.find((f) => sameName(f.nom, name)) || null;
 

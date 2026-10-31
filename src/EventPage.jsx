@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, MapPin, Sparkles, Trophy, Target, Swords, CalendarDays } from "lucide-react";
+import { ChevronLeft, MapPin, Sparkles, Trophy, Target, Swords, CalendarDays, Users, Check, X as Cross } from "lucide-react";
 import { T, L, formatDate, translateCategory, translateMethod } from "./i18n.js";
 import { eventName, TweetEmbed } from "./Media.jsx";
 import { useMedia } from "./useMedia.js";
@@ -7,8 +7,10 @@ import { useFighters } from "./useFighters.js";
 import { usePhotos, creditOf } from "./usePhotos.js";
 import FighterAvatar from "./FighterAvatar.jsx";
 import FighterLink from "./FighterLink.jsx";
-import { eventSlug, cardOf, findFighter, resultSides, isUpcoming, parisDay, useNow } from "./events.js";
+import { eventSlug, cardOf, findFighter, resultSides, isUpcoming, parisDay, useNow, sameName, upcomingEvents } from "./events.js";
 import { duelOdds } from "./score.js";
+import { findRow, fanShare, fanPick, verdictOf, scoreOf, nextVoteEvent, votableFight } from "./fans.js";
+import { useFanVotes, myVote, sendVote } from "./useFanVotes.js";
 
 // Événement d'après son adresse (/evenement/<slug>), parmi les cartes à venir et les cartes passées du fil Média.
 export function useEvent(slug) {
@@ -24,6 +26,8 @@ const PART_LABEL = { main: "mainCard", prelims: "prelims", early: "earlyPrelims"
 export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimulate }) {
   const t = T[lang];
   const e = useEvent(slug);
+  const media = useMedia();
+  const votes = useFanVotes();
   const fighters = useFighters();
   const photos = usePhotos();
   const now = useNow();
@@ -44,6 +48,13 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
   const upcoming = !e.past && isUpcoming(e, now);
   const card = e.past ? [] : cardOf(e);
   const sides = e.past ? resultSides(e.results?.[0]?.fight || "") : null;
+  // Score Fans – IA : sur cet événement (s'il est passé) et sur la saison (cartes passées de la même année).
+  const season = e.iso.slice(0, 4);
+  const seasonCards = media.filter((i) => i.type === "recap" && i.data.iso?.startsWith(season)).map((i) => i.data);
+  const seasonScore = scoreOf(votes, seasonCards);
+  const eventScore = e.past ? scoreOf(votes, [e]) : null;
+  const voteNow = !e.past && nextVoteEvent(upcomingEvents(media, now), now);
+  const votesHere = Boolean(voteNow && eventSlug(voteNow) === eventSlug(e));
   const headliners = e.fighters?.length === 2 ? e.fighters : card[0] ? [card[0].a, card[0].b] : sides ? [sides.winner || sides.a, sides.loser || sides.b] : [];
 
   return (
@@ -111,6 +122,8 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
                       headline={f === card[0]}
                       event={e}
                       open={upcoming}
+                      canVote={votesHere && votableFight(f, fighters)}
+                      votes={votes}
                       fighters={fighters}
                       photos={photos}
                       lang={lang}
@@ -124,6 +137,13 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
             );
           })}
           {card.length < 5 && <p className="text-xs text-neutral-500">{t.cardSoFar}</p>}
+          {upcoming && !votesHere && voteNow && (
+            <p className="text-xs text-neutral-400 flex items-start gap-1.5">
+              <Users className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-px" /> {t.fanVoteLater}
+            </p>
+          )}
+          <ScoreBoard season={season} seasonScore={seasonScore} t={t} />
+          <p className="text-[11px] text-neutral-500">{t.fanVoteNote}</p>
           <p className="text-[11px] text-neutral-500">{t.aiDisclaimer}</p>
         </div>
       )}
@@ -131,10 +151,12 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
       {/* Carte passée : résultats, liens vers les fiches et vidéo du finish */}
       {e.past && e.results?.length > 0 && (
         <section className="mt-8">
+          <ScoreBoard eventScore={eventScore} season={season} seasonScore={seasonScore} t={t} className="mb-6" />
           <h2 className="mono text-[11px] uppercase tracking-widest text-amber-400 mb-3">{t.results}</h2>
           <div className="rounded-2xl border border-neutral-800 bg-neutral-900 divide-y divide-neutral-800">
             {e.results.map((r, i) => {
               const s = resultSides(r.fight);
+              const v = verdictOf(votes, e.iso, r.fight);
               return (
                 <div key={i} className="row-rise flex items-start justify-between gap-3 px-4 py-3 text-sm" style={{ animationDelay: `${i * 40}ms` }}>
                   <div className="min-w-0">
@@ -148,6 +170,12 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
                       <div className="text-neutral-200">{r.fight}</div>
                     )}
                     {r.note && <div className="text-xs text-neutral-500 mt-0.5">{L(r.note, lang)}</div>}
+                    {v && (v.fans !== null || v.ia !== null) && (
+                      <div className="flex flex-wrap gap-1.5 mt-1.5">
+                        {v.fans !== null && <VerdictBadge ok={v.fans} label={t.fansRight} />}
+                        {v.ia !== null && <VerdictBadge ok={v.ia} label={t.aiRight} />}
+                      </div>
+                    )}
                   </div>
                   <span className="font-semibold text-xs text-amber-400 shrink-0 whitespace-nowrap">{translateMethod(r.method, lang)}</span>
                 </div>
@@ -215,7 +243,7 @@ function Countdown({ e, now, t }) {
 // Pronostics de l'IA déjà reçus pendant la visite (pour ne pas redemander en changeant de page).
 const picks = new Map();
 
-function FightRow({ fight, headline, event, open, fighters, photos, lang, t, onFighter, onSimulate }) {
+function FightRow({ fight, headline, event, open, canVote, votes, fighters, photos, lang, t, onFighter, onSimulate }) {
   const a = findFighter(fighters, fight.a);
   const b = findFighter(fighters, fight.b);
   const odds = a && b ? duelOdds(a, b) : null;
@@ -242,15 +270,34 @@ function FightRow({ fight, headline, event, open, fighters, photos, lang, t, onF
     }
   };
 
-  // Le main event affiche son pronostic tout de suite ; les autres combats sur demande.
+  // Le pronostic de l'IA ne se dévoile qu'aux fans qui ont voté sur ce combat (il arrive tout seul après le vote).
   useEffect(() => {
     const cached = picks.get(key);
     setPick(cached || null);
     setState(cached ? "done" : "idle");
-    if (!cached && headline && open && odds) loadPick();
+    if (!cached && open && odds && myVote(event.iso, fight.a, fight.b)) loadPick();
   }, [key, Boolean(odds)]);
 
   const sameCategory = a && b && a.categorie === b.categorie;
+
+  // Les fans contre l'IA : après son vote, on voit l'avis des fans, puis le pronostic de l'IA arrive.
+  const row = findRow(votes, event.iso, fight.a, fight.b);
+  const [mine, setMine] = useState(() => myVote(event.iso, fight.a, fight.b));
+  const [voteState, setVoteState] = useState("idle");
+  useEffect(() => setMine(myVote(event.iso, fight.a, fight.b)), [key]);
+  const vote = async (name) => {
+    setVoteState("sending");
+    try {
+      setMine(await sendVote({ event: eventSlug(event), iso: event.iso, a: fight.a, b: fight.b, pick: name }));
+      setVoteState("idle");
+      if (odds && state === "idle") loadPick();
+    } catch {
+      setVoteState("error");
+    }
+  };
+
+  // Tant que le fan n'a pas voté : seulement les deux combattants et les boutons de vote (ni stats ni IA).
+  const hidden = canVote && !mine;
 
   return (
     <div className={`row-rise rounded-2xl border bg-neutral-900 p-4 ${headline ? "border-amber-400/40" : "border-neutral-800"}`}>
@@ -273,7 +320,7 @@ function FightRow({ fight, headline, event, open, fighters, photos, lang, t, onF
         <span className="order-2 mono text-[11px] text-neutral-500">VS</span>
       </div>
 
-      {odds ? (
+      {hidden ? null : odds ? (
         <div className="mt-4">
           <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-neutral-500 mb-1.5">
             <span className="mono text-amber-400 text-sm normal-case tracking-normal">{odds.probA}%</span>
@@ -289,22 +336,26 @@ function FightRow({ fight, headline, event, open, fighters, photos, lang, t, onF
         <p className="mt-3 text-[11px] text-neutral-500">{t.aiPickNoData}</p>
       )}
 
-      {odds && open && (
+      {open && (canVote || row) && (
+        <FanVote fight={fight} row={row} mine={mine} canVote={canVote} sending={voteState === "sending"} failed={voteState === "error"} aiPick={state === "done" ? pick?.favori : null} onVote={vote} t={t} />
+      )}
+
+      {odds && open && !hidden && (
         <div className="mt-4">
-          {state === "idle" && (
+          {mine && state === "idle" && (
             <button onClick={loadPick} className="tap w-full rounded-xl border border-amber-400/50 text-amber-300 text-xs font-semibold py-2.5 hover:bg-amber-400/10 flex items-center justify-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> {t.aiPickShow}
             </button>
           )}
-          {state === "loading" && (
+          {mine && state === "loading" && (
             <div className="space-y-2" aria-live="polite">
               <div className="ai-shimmer h-3 rounded-full w-4/5" />
               <div className="ai-shimmer h-3 rounded-full w-3/5" />
               <p className="text-[11px] text-neutral-500">{t.aiPickLoading}</p>
             </div>
           )}
-          {state === "error" && <p className="text-[11px] text-neutral-500">{t.aiPickFailed}</p>}
-          {state === "done" && pick && (
+          {mine && state === "error" && <p className="text-[11px] text-neutral-500">{t.aiPickFailed}</p>}
+          {mine && state === "done" && pick && (
             <div className="row-rise rounded-xl border border-amber-400/40 bg-amber-400/[0.06] p-3.5">
               <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-amber-400 mb-2">
                 <Sparkles className="w-3 h-3" /> {t.aiPick}
@@ -331,5 +382,105 @@ function FightRow({ fight, headline, event, open, fighters, photos, lang, t, onF
         </div>
       )}
     </div>
+  );
+}
+
+// Bloc de vote d'un combat : deux boutons tant qu'on n'a pas voté, puis la répartition des fans.
+function FanVote({ fight, row, mine, canVote, sending, failed, aiPick, onVote, t }) {
+  const share = fanShare(row, fight.a);
+  const fans = fanPick(row);
+  const voted = Boolean(mine);
+  return (
+    <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950/60 p-3.5">
+      <div className="flex items-center justify-between gap-2 mb-2.5">
+        <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-amber-400">
+          <Users className="w-3 h-3" /> {t.fanVoteTitle}
+        </span>
+        {!canVote && <span className="mono text-[10px] uppercase tracking-widest text-neutral-500">{t.fanClosed}</span>}
+      </div>
+
+      {canVote && !voted ? (
+        <>
+          <p className="text-xs text-neutral-400 mb-2.5">{t.fanVoteAsk}</p>
+          <div className="grid grid-cols-2 gap-2">
+            {[fight.a, fight.b].map((n) => (
+              <button
+                key={n}
+                data-vote={n}
+                disabled={sending}
+                onClick={() => onVote(n)}
+                className="tap min-w-0 rounded-xl border border-amber-400/50 bg-amber-400/[0.06] text-amber-200 text-xs sm:text-sm font-semibold px-2 py-2.5 hover:bg-amber-400/15 active:scale-[0.98] transition disabled:opacity-50 break-words leading-tight"
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          {failed && <p className="text-[11px] text-red-400 mt-2">{t.fanVoteFailed}</p>}
+        </>
+      ) : share ? (
+        <div className="row-rise">
+          <div className="flex items-end justify-between gap-3 text-xs mb-1.5">
+            <span className={`min-w-0 ${sameName(fans, fight.a) ? "text-amber-300 font-semibold" : "text-neutral-400"}`}>
+              <span className="mono text-base">{share.a}%</span> <span className="break-words">{fight.a}</span>
+            </span>
+            <span className={`min-w-0 text-right ${sameName(fans, fight.b) ? "text-amber-300 font-semibold" : "text-neutral-400"}`}>
+              <span className="break-words">{fight.b}</span> <span className="mono text-base">{share.b}%</span>
+            </span>
+          </div>
+          <div className="h-2 rounded-full bg-neutral-800 overflow-hidden flex">
+            <div className="fan-bar h-full bg-gradient-to-r from-amber-500 to-amber-300" style={{ width: `${share.a}%` }} />
+            <div className="h-full flex-1 bg-neutral-600" />
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mt-2 text-[11px] text-neutral-500">
+            <span>{t.fanVotes(share.total)}</span>
+            {mine && <span className="text-neutral-300">{t.fanYourPick(mine)}</span>}
+          </div>
+          {aiPick && fans && (
+            <p className={`mt-2 text-xs font-semibold ${sameName(aiPick, fans) ? "text-emerald-400" : "text-amber-300"}`}>
+              {sameName(aiPick, fans) ? t.fanAgree : t.fanDisagree}
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="text-xs text-neutral-500">{voted ? t.fanYourPick(mine) : t.fanNoVotesYet}</p>
+      )}
+    </div>
+  );
+}
+
+function VerdictBadge({ ok, label }) {
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${ok ? "border-emerald-500/50 text-emerald-400" : "border-neutral-700 text-neutral-500"}`}>
+      {ok ? <Check className="w-3 h-3" /> : <Cross className="w-3 h-3" />} {label}
+    </span>
+  );
+}
+
+// Score Fans – IA (événement passé et/ou saison) ; rien tant qu'aucun combat n'a été pronostiqué.
+function ScoreBoard({ eventScore, season, seasonScore, t, className = "" }) {
+  const boxes = [
+    eventScore?.fights ? { label: t.scoreEvent, s: eventScore } : null,
+    seasonScore?.fights ? { label: t.scoreSeason(season), s: seasonScore } : null,
+  ].filter(Boolean);
+  if (!boxes.length) return null;
+  return (
+    <section className={`row-rise rounded-2xl border border-amber-400/35 bg-[radial-gradient(circle_at_50%_0%,rgba(251,191,36,0.12),#0a0a0a_75%)] p-4 ${className}`}>
+      <h2 className="mono text-[11px] uppercase tracking-widest text-amber-400 mb-3 flex items-center gap-1.5">
+        <Users className="w-3.5 h-3.5" /> {t.scoreTitle}
+      </h2>
+      <div className={`grid gap-3 ${boxes.length > 1 ? "sm:grid-cols-2" : ""}`}>
+        {boxes.map(({ label, s }) => (
+          <div key={label} className="rounded-xl bg-neutral-950/70 border border-neutral-800 px-4 py-3 text-center">
+            <div className="mono text-[10px] uppercase tracking-widest text-neutral-500">{label}</div>
+            <div className="flex items-center justify-center gap-3 mt-1.5">
+              <span className={`disp text-3xl ${s.fans >= s.ia ? "text-amber-300" : "text-neutral-400"}`}>{s.fans}</span>
+              <span className="text-[11px] text-neutral-500 leading-tight">{t.fansRight}<br />–<br />{t.aiRight}</span>
+              <span className={`disp text-3xl ${s.ia >= s.fans ? "text-amber-300" : "text-neutral-400"}`}>{s.ia}</span>
+            </div>
+            <div className="text-[10px] text-neutral-500 mt-1">{t.scoreFights(s.fights)}</div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

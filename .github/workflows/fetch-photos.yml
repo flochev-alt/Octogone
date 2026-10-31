@@ -1,5 +1,5 @@
 # Cherche une photo libre de droits pour chaque combattant et enregistre public/photos.json.
-# Chaque lundi, quand le script change, ou à la main (Actions > Photos combattants > Run workflow).
+# Chaque lundi, quand le script ou la liste des combattants change, ou à la main (Actions > Photos combattants > Run workflow).
 # Les photos sont cherchées ici, et non par le site, car Wikipédia bloque les requêtes venant de Vercel.
 name: Photos combattants
 
@@ -10,6 +10,8 @@ on:
     paths:
       - scripts/fetch-photos.mjs
       - .github/workflows/fetch-photos.yml
+      # Nouveaux combattants ajoutés (routine ou à la main) : leur photo est cherchée tout de suite.
+      - src/fightersData.js
   workflow_dispatch:
 
 permissions:

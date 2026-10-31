@@ -1,5 +1,6 @@
 # Recopie les données du site (combattants + fil Média) dans Supabase à chaque mise à jour sur main,
-# et crée la table des analyses IA gardées (supabase/analyses.sql) si elle n'existe pas.
+# et crée les tables des analyses IA gardées (supabase/analyses.sql) et des votes des fans
+# (supabase/votes.sql) si elles n'existent pas.
 # Les fichiers source restent src/fightersData.js et src/mediaData.js : ce workflow régénère les seeds
 # puis les exécute sur la base. Nécessite le secret GitHub SUPABASE_DB_URL
 # (Supabase > Connect > Session pooler, avec le mot de passe de la base).
@@ -14,6 +15,7 @@ on:
       - scripts/generate-fighters-seed.mjs
       - scripts/generate-media-seed.mjs
       - supabase/analyses.sql
+      - supabase/votes.sql
   workflow_dispatch:
 
 concurrency:
@@ -41,4 +43,4 @@ jobs:
             exit 0
           fi
           psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 --single-transaction \
-            -f supabase/analyses.sql -f supabase/seed_fighters.sql -f supabase/seed_media.sql
+            -f supabase/analyses.sql -f supabase/votes.sql -f supabase/seed_fighters.sql -f supabase/seed_media.sql

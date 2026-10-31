@@ -98,6 +98,8 @@ const NO_PHOTO = new Set([
 // Fichiers écartés après contrôle visuel (2026-10-30) : homonymes (basketteur, footballeur, joueur de
 // billard, cardinal…), photos de groupe ou où le combattant n'est pas reconnaissable.
 const REJECTED = new Set([
+  // 2026-10-31 : photo de 2009 d'un homonyme (le combattant Santiago Luna est né en 2004).
+  "Santiago_Luna.JPG",
   "JUDOCA_KAYLA_HARRISON_É_OURO_NA_RIO_2016_(28889814216).jpg", "Song_Yadong.jpg",
   "Alex_Pérez_2_Tofaş_SK_TBSL_20260118_(1).jpg", "Anthony_Hernandez_(Gibraltar).jpg",
   "Charles_Johnson_(28974422378)_(cropped).jpg", "Daniel_Rodriguez_(8180778752).jpg",
