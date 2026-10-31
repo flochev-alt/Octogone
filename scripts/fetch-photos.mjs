@@ -114,13 +114,22 @@ const REJECTED = new Set([
   "President_Donald_Trump_congratulates_Kayla_Harrison_after_her_victory_during_UFC_316_(54577774044).jpg",
   "President_Donald_Trump_congratulates_Kevin_Holland_after_his_victory_during_UFC_316_(54576727207).jpg",
   "Blue_Angels'_VIP_Rider_Max_Holloway_(1).jpg", "Wanderlei_Silva_2013.jpg", "Song_Yadong_at_UFC_Macau.jpg",
+  // 2026-10-31 (Flo) : « Anderson-Silva.jpg » montre le kickboxeur néerlandais du même nom, pas « The Spider ».
+  "Anderson-Silva.jpg",
   "Raquel_Pennington_MCCS_Twentynine_Palms_presents_an_action-packed_MMA_Fight_Night_Live_at_The_Combat_Center_(5).jpg",
 ]);
 // Nom du fichier d'une photo déjà choisie (photos.json garde le lien vers sa page Commons ou Openverse).
 const pageFile = (v) => decodeURIComponent(v.page.split("File:")[1] || v.page.split("/").pop());
 const accepted = (file) => solo(file) && !REJECTED.has(file.replace(/^File:/i, "").replace(/ /g, "_"));
-// Photos choisies par Flo : « infobox » garde la photo de la page Wikipédia du combattant.
-const PINNED = { "Joshua Van": "infobox" };
+// Photos choisies à la main : « infobox » garde la photo de la page Wikipédia du combattant,
+// un nom de fichier Commons impose ce fichier. Une photo choisie est gardée même sous 500 px de large
+// quand Commons n'a rien de mieux (vérifié à l'œil le 2026-10-31 pour Anderson Silva et Sean Strickland).
+const PINNED = {
+  "Joshua Van": "infobox",
+  "Anderson Silva": "Anderson Silva.png",
+  "Sean Strickland": "Sean Strickland at UFN 200.png",
+};
+const pinFile = (name, infobox) => (PINNED[name] === "infobox" ? infobox[name] : PINNED[name]);
 // Date de prise de vue au format AAAA-MM-JJ (Commons mélange « 2024-02-17 », « Taken on 7 February 2024 »…).
 function isoDate(s) {
   const iso = s.match(/\d{4}-\d{2}-\d{2}/);
@@ -132,7 +141,7 @@ function isoDate(s) {
 }
 
 // Fichiers -> URL de la vignette + auteur + licence, uniquement pour ceux présents sur Commons.
-async function commonsInfo(files) {
+async function commonsInfo(files, small = new Set()) {
   const unique = [...new Set(files)];
   const out = {};
   // L'API Commons accepte 50 fichiers par requête.
@@ -148,7 +157,7 @@ async function commonsInfo(files) {
     const ii = p.imageinfo?.[0];
     if (p.missing || !ii) continue;
     const meta = ii.extmetadata || {};
-    if (meta.NonFree?.value === "true" || ii.width < MIN_WIDTH) continue;
+    if (meta.NonFree?.value === "true" || (ii.width < MIN_WIDTH && !small.has(p.title.replace(/^File:/, "").replace(/_/g, " ")))) continue;
     out[p.title.replace(/^File:/, "").replace(/ /g, "_")] = {
       url: ii.thumburl || ii.url,
       author: stripHtml(meta.Artist?.value),
@@ -244,8 +253,9 @@ async function findPhotos(names) {
   const missing = names.filter((n) => !infobox[n]);
   if (missing.length) Object.assign(infobox, await infoboxFiles("fr", missing).catch((e) => (note("infobox fr")(e), {})));
   // Même la photo de l'infobox doit être une photo solo (sauf photo choisie par Flo).
-  const files = names.map((n, k) => [...new Set([PINNED[n] ? infobox[n] : infobox[n] && accepted(infobox[n]) && infobox[n], ...found[k].filter(accepted)].filter(Boolean))]);
-  const info = await commonsInfo(files.flat());
+  const files = names.map((n, k) => [...new Set([PINNED[n] ? pinFile(n, infobox) : infobox[n] && accepted(infobox[n]) && infobox[n], ...found[k].filter(accepted)].filter(Boolean))]);
+  const pins = new Set(names.map((n) => pinFile(n, infobox)).filter(Boolean).map((f) => f.replace(/_/g, " ")));
+  const info = await commonsInfo(files.flat(), pins);
   // Openverse seulement pour ceux sans photo Commons récente (moins de 3 ans), pour ménager son quota.
   const recent = new Date(Date.now() - 3 * 365 * 864e5).toISOString().slice(0, 10);
   // Openverse est lent : un combattant à la fois.
@@ -259,7 +269,8 @@ async function findPhotos(names) {
     // Openverse n'a pas de date : on préfère sa photo d'événement UFC à une photo Commons ancienne.
     const fromCommons = best(files[k].map((f) => info[f.replace(/ /g, "_")]));
     const fromOpenverse = best(others[k]);
-    const pinned = PINNED[name] === "infobox" && infobox[name] && info[infobox[name].replace(/ /g, "_")];
+    const pin = PINNED[name] && pinFile(name, infobox);
+    const pinned = pin && info[pin.replace(/ /g, "_")];
     const pick = pinned || fromCommons && (fromCommons.date >= recent || !fromOpenverse?.ufc) ? fromCommons : fromOpenverse || fromCommons;
     if (pick && !NO_PHOTO.has(name) && (pinned || accepted(pageFile(pick)))) photos[name] = pick;
   });

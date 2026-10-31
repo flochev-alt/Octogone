@@ -676,7 +676,6 @@ export default function App() {
                   </div>
                   );
                 })}
-                <SearchBox query={query} setQuery={setQuery} t={t} className="mt-6" />
               </div>
             ) : (
               <>
