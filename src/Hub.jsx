@@ -1,8 +1,8 @@
-import { Trophy, Swords, Newspaper, ArrowRight } from "lucide-react";
+import { Trophy, Swords, Newspaper, ArrowRight, Info } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
-export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {} }) {
+export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onAbout = () => {} }) {
   const t = T[lang];
   const sections = [
     { id: "combattants", icon: Trophy, title: t.navCombattants, desc: t.navCardCombattantsDesc },
@@ -97,9 +97,17 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
             </button>
           ))}
         </div>
+        <button
+          onClick={onAbout}
+          style={{ animationDelay: "520ms" }}
+          className="hub-rise tap self-center mt-6 sm:mt-8 inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/80 backdrop-blur px-4 py-2.5 text-sm text-neutral-300 hover:text-amber-300 hover:border-amber-400/50"
+        >
+          <Info className="w-4 h-4 text-amber-400" /> {t.aboutCta}
+        </button>
       </main>
       {/* Mentions légales et cookies accessibles depuis chaque page (LCEN, CNIL). */}
       <div className="relative z-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex justify-center gap-4 text-[11px] text-neutral-600">
+        <button onClick={onAbout} className="tap underline hover:text-neutral-300">{t.about}</button>
         <button onClick={onLegal} className="tap underline hover:text-neutral-300">{t.legal}</button>
         <button onClick={onCookies} className="tap underline hover:text-neutral-300">{t.cookies}</button>
       </div>

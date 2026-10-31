@@ -7,6 +7,8 @@ import CategoryBar from "./CategoryBar.jsx";
 import Media, { eventName } from "./Media.jsx";
 import EventPage from "./EventPage.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
+import About from "./About.jsx";
+import { nextVoteEvent } from "./fans.js";
 import ConsentBanner from "./ConsentBanner.jsx";
 import { initVip, activateVip } from "./vip.js";
 import { useInstall } from "./install.js";
@@ -174,6 +176,8 @@ const RESULT_STYLE = {
 };
 
 const SITE_TITLE = "Octogone — Stats MMA";
+const ABOUT_PATH = "/a-propos";
+const ABOUT_TITLE = "Qu'est-ce qu'Octogone.space ? | Octogone";
 const fighterTitle = (f) => `${f.nom} : bilan, stats et derniers combats | Octogone`;
 // Combattant dont l'adresse est /combattant/<slug> (page arrivée depuis Google ou un lien partagé).
 const fighterAt = (path) => {
@@ -185,7 +189,7 @@ const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
 export default function App() {
   const [linked] = useState(() => fighterAt(window.location.pathname));
   const [linkedEvent] = useState(() => eventSlugFromPath(window.location.pathname));
-  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : "landing");
+  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : "landing");
   // Duel déjà choisi pour le Simulateur (bouton « Simuler un duel » d'une fiche ou d'une page d'événement).
   const [simPreset, setSimPreset] = useState(null);
   const changeView = (v) => { setSimPreset(null); setView(v); };
@@ -314,6 +318,24 @@ export default function App() {
     if (view === "landing" || view === "hub") goTo("evenement");
     else setView("evenement");
   };
+  // Page « Qu'est-ce qu'Octogone.space ? » : sa propre adresse, le retour ramène à la page d'avant.
+  const aboutFrom = useRef("landing");
+  const media = useMedia();
+  const openAbout = () => {
+    if (view === "apropos") return;
+    aboutFrom.current = view === "mentions" ? "landing" : view;
+    if (selected) hidePanel();
+    window.history.pushState({ about: true }, "", ABOUT_PATH);
+    if (view === "landing" || view === "hub") goTo("apropos");
+    else changeView("apropos");
+  };
+  const aboutGo = (id) => {
+    const events = upcomingEvents(media, Date.now());
+    const ev = id === "vote" ? nextVoteEvent(events, Date.now()) || events[0] : events[0];
+    if (id === "evenement" || id === "vote") return ev && openEvent(ev);
+    if (id === "combattants") { setCategorie("champions"); setQuery(""); }
+    changeView(id);
+  };
   const leaveEvent = () => {
     if (window.history.state?.event) window.history.back();
     else {
@@ -337,13 +359,16 @@ export default function App() {
         // Une fiche s'ouvre par-dessus la page en cours (événement, médias...), sinon dans Combattants.
         setView((v) => (v === "landing" || v === "hub" || v === "mentions" ? "combattants" : v));
         setSelected(f);
+      } else if (path === ABOUT_PATH) {
+        hidePanel();
+        setView("apropos");
       } else if (ev) {
         hidePanel();
         setEventOpen(ev);
         setView("evenement");
       } else {
         hidePanel();
-        setView((v) => (v === "evenement" ? eventFrom.current : v));
+        setView((v) => (v === "evenement" ? eventFrom.current : v === "apropos" ? aboutFrom.current : v));
       }
     };
     window.addEventListener("popstate", onPop);
@@ -352,9 +377,11 @@ export default function App() {
   // En quittant une page d'événement par les onglets, l'adresse revient à l'accueil du site.
   useEffect(() => {
     if (view !== "evenement" && eventSlugFromPath(window.location.pathname)) window.history.replaceState(null, "", "/");
+    if (view !== "apropos" && window.location.pathname === ABOUT_PATH) window.history.replaceState(null, "", "/");
   }, [view]);
   useEffect(() => {
     if (selected) document.title = fighterTitle(selected);
+    else if (view === "apropos") document.title = ABOUT_TITLE;
     else if (view !== "evenement") document.title = SITE_TITLE;
   }, [selected, view]);
   // Changement de page (« Explorer le site », onglets) : on repart du haut, pas de la position de défilement de l'accueil.
@@ -393,6 +420,7 @@ export default function App() {
           setLang={setLang}
           onLegal={() => changeView("mentions")}
           onCookies={() => setCookiesOpen(true)}
+          onAbout={openAbout}
         />
         {banner}
         {veilEl}
@@ -403,7 +431,7 @@ export default function App() {
   if (view === "hub") {
     return (
       <>
-        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} />
+        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onAbout={openAbout} />
         {banner}
         {veilEl}
       </>
@@ -526,6 +554,8 @@ export default function App() {
         <EventPage slug={eventOpen} lang={lang} onBack={leaveEvent} onFighter={openFighter} onSimulate={simulate} />
       ) : view === "media" ? (
         <Media lang={lang} onEvent={openEvent} onFighter={openFighter} />
+      ) : view === "apropos" ? (
+        <About lang={lang} onGo={aboutGo} hasEvent={upcomingEvents(media, Date.now()).length > 0} />
       ) : view === "mentions" ? (
         <MentionsLegales lang={lang} />
       ) : (
@@ -729,6 +759,9 @@ export default function App() {
 
       <footer className="mt-auto w-full max-w-5xl mx-auto px-5 pt-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span>{t.footer}</span>
+        <button onClick={openAbout} className="tap underline hover:text-neutral-300">
+          {t.about}
+        </button>
         <button onClick={() => changeView("mentions")} className="tap underline hover:text-neutral-300">
           {t.legal}
         </button>
