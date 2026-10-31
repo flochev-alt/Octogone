@@ -89,6 +89,8 @@ body {
   justify-content: center;
   perspective: 900px;
   pointer-events: none;
+  /* Vue en plongée : la cage paraît plus haute que son centre, on la descend un peu pour la centrer dans le petit octogone. */
+  translate: 0 calc(var(--r) * 0.11);
 }
 @media (min-width: 640px) {
   .cage-stage { --r: 215px; perspective: 1200px; }
@@ -137,8 +139,71 @@ body {
   height: calc(var(--r) * 2);
   transform: rotateX(90deg);
   clip-path: polygon(30.9% 3.9%, 69.1% 3.9%, 96.1% 30.9%, 96.1% 69.1%, 69.1% 96.1%, 30.9% 96.1%, 3.9% 69.1%, 3.9% 30.9%);
-  background: radial-gradient(circle, rgba(251, 191, 36, 0.22), rgba(251, 191, 36, 0.05) 60%, rgba(251, 191, 36, 0.12));
+  /* Tapis sombre (il masque le halo doré de l'accueil) avec un liseré doré au bord : le logo ressort mieux. */
+  background: radial-gradient(circle, rgba(10, 10, 10, 0.82), rgba(10, 10, 10, 0.72) 62%, rgba(251, 191, 36, 0.16));
 }
+/* Logo du site estompé au centre du tapis, et bandeaux « sponsor » octogone.space sur le grillage. */
+/* Logo du site (icône de l'appli) : octogone doré, « O » blanc et point carré doré, très estompé.
+   Il flotte un peu au-dessus du tapis (translateZ, sur l'axe de rotation) pour paraître centré dans la cage. */
+.cage-logo {
+  position: absolute;
+  left: calc(var(--r) * -0.33);
+  top: calc(var(--r) * -0.33);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--r) * 0.66);
+  height: calc(var(--r) * 0.66);
+  transform: rotateX(90deg) translateZ(calc(var(--h) * 0.75));
+  opacity: 0.35;
+  /* Cadre octogonal : un octogone doré, puis un octogone noir plus petit par-dessus. */
+  background: #fbbf24;
+  clip-path: polygon(29.3% 0, 70.7% 0, 100% 29.3%, 100% 70.7%, 70.7% 100%, 29.3% 100%, 0 70.7%, 0 29.3%);
+}
+.cage-logo::before {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  background: #0a0a0a;
+  clip-path: polygon(29.3% 0, 70.7% 0, 100% 29.3%, 100% 70.7%, 70.7% 100%, 29.3% 100%, 0 70.7%, 0 29.3%);
+}
+.cage-logo-o {
+  position: relative;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 800;
+  font-size: calc(var(--r) * 0.34);
+  line-height: 1;
+  color: #fff;
+}
+.cage-logo-dot {
+  position: relative;
+  align-self: flex-end;
+  width: calc(var(--r) * 0.058);
+  height: calc(var(--r) * 0.058);
+  margin: 0 0 calc(var(--r) * 0.2) calc(var(--r) * 0.03);
+  background: #fbbf24;
+}
+.cage-ad {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 8%;
+  padding: 2px 0;
+  border-radius: 2px;
+  text-align: center;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 800;
+  font-size: calc(var(--r) * 0.05);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: rgba(10, 10, 10, 0.85);
+  background: rgba(251, 191, 36, 0.55);
+  backface-visibility: hidden;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.cage-ad-back { transform: rotateY(180deg); }
 @keyframes cageSpin {
   from { transform: rotateY(0deg); }
   to { transform: rotateY(360deg); }
