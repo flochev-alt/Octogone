@@ -89,6 +89,8 @@ body {
   justify-content: center;
   perspective: 900px;
   pointer-events: none;
+  /* Vue en plongée : la cage paraît plus haute que son centre, on la descend pour la centrer dans l'octogone plat. */
+  translate: 0 calc(var(--r) * 0.22);
 }
 @media (min-width: 640px) {
   .cage-stage { --r: 215px; perspective: 1200px; }
