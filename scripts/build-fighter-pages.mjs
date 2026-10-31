@@ -213,23 +213,8 @@ for (const e of RECENT_CARDS) writeFileSync(`dist/evenement/${eventSlug(e)}.html
   writeFileSync("dist/a-propos.html", fill(head, `<main><h1>Qu'est-ce qu'Octogone.space ?</h1><p>${esc(desc)}</p></main>`));
 }
 
-// mentions-legales.html et contact.html : leurs propres adresses (le bandeau cookies de Google demande
-// l'adresse de la politique de confidentialité).
-for (const [file, title, desc] of [
-  ["mentions-legales", "Mentions légales et confidentialité | Octogone", "Mentions légales, données personnelles et cookies du site Octogone.space."],
-  ["contact", "Contact | Octogone", "Contacter Octogone.space : signaler une erreur, proposer une idée, une photo ou un partenariat."],
-]) {
-  const url = `${SITE}/${file}`;
-  const head = [
-    `<title>${esc(title)}</title>`,
-    `<meta name="description" content="${esc(desc)}" />`,
-    `<link rel="canonical" href="${url}" />`,
-  ].join("\n    ");
-  writeFileSync(`dist/${file}.html`, fill(head, `<main><h1>${esc(title.split(" | ")[0])}</h1><p>${esc(desc)}</p></main>`));
-}
-
 const today = new Date().toISOString().slice(0, 10);
-const urls = [`${SITE}/`, `${SITE}/a-propos`, `${SITE}/contact`, `${SITE}/mentions-legales`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`)];
+const urls = [`${SITE}/`, `${SITE}/a-propos`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`)];
 writeFileSync("dist/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod></url>`).join("\n")}

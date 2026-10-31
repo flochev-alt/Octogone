@@ -1,31 +1,7 @@
 // Textes des mentions légales dans les 3 langues du site. La version française fait foi.
 // Chaque section : un titre et un ou plusieurs paragraphes. Revue juridique d'octobre 2026 :
 // LCEN (éditeur, hébergeur), RGPD (données, droits, CNIL), cookies, marques, photos libres, paris sportifs.
-import { adsEnabled, adsDemo } from "./ads.js";
-
 const EMAIL = "octogone.space@gmail.com";
-
-// Section « Publicité », affichée seulement quand la pub est active (ou en aperçu ?pubdemo=1), juste avant « Cookies ».
-const ADS = {
-  fr: ["Publicité", [
-    "Le site est financé par la publicité, diffusée par Google AdSense (Google Ireland Ltd). Les pubs sont signalées par la mention « Publicité ».",
-    "En Europe, le choix concernant les cookies est alors recueilli par le bandeau de Google, certifié selon la norme de l'IAB (TCF). Il remplace le bandeau du site et propose d'autoriser, de refuser ou de choisir finalité par finalité. Ton choix vaut aussi pour la mesure d'audience Google Analytics.",
-    "Si tu autorises : Google et ses partenaires peuvent déposer des cookies pour afficher des pubs adaptées à tes centres d'intérêt et mesurer leur efficacité (règles de Google : policies.google.com/technologies/partner-sites). Si tu refuses : des pubs non personnalisées peuvent quand même s'afficher, sans cookie de ciblage.",
-    "Tu peux changer d'avis à tout moment via le lien « Cookies » en bas de page.",
-  ]],
-  en: ["Advertising", [
-    "The site is funded by advertising, served by Google AdSense (Google Ireland Ltd). Ads are labelled \"Advertisement\".",
-    "In Europe, your cookie choice is then collected by Google's banner, certified under the IAB standard (TCF). It replaces the site's banner and lets you allow, refuse or choose purpose by purpose. Your choice also applies to Google Analytics audience measurement.",
-    "If you allow: Google and its partners may set cookies to show ads based on your interests and measure their performance (Google's rules: policies.google.com/technologies/partner-sites). If you refuse: non-personalised ads may still be shown, without targeting cookies.",
-    "You can change your mind at any time via the \"Cookies\" link at the bottom of the page.",
-  ]],
-  es: ["Publicidad", [
-    "El sitio se financia con publicidad, servida por Google AdSense (Google Ireland Ltd). Los anuncios llevan la mención «Publicidad».",
-    "En Europa, tu elección sobre las cookies la recoge entonces el banner de Google, certificado según el estándar de IAB (TCF). Sustituye al banner del sitio y permite aceptar, rechazar o elegir finalidad por finalidad. Tu elección vale también para la medición de audiencia de Google Analytics.",
-    "Si aceptas: Google y sus socios pueden instalar cookies para mostrar anuncios adaptados a tus intereses y medir su eficacia (normas de Google: policies.google.com/technologies/partner-sites). Si rechazas: pueden mostrarse anuncios no personalizados, sin cookies de segmentación.",
-    "Puedes cambiar de opinión en cualquier momento con el enlace «Cookies» al pie de página.",
-  ]],
-};
 
 const CONTENT = {
   fr: {
@@ -180,18 +156,13 @@ const Mail = () => (
 
 export default function MentionsLegales({ lang = "fr" }) {
   const c = CONTENT[lang] || CONTENT.fr;
-  const sections = [...c.sections];
-  if (adsEnabled || adsDemo) {
-    const at = sections.findIndex(([title]) => title === "Cookies");
-    sections.splice(at < 0 ? sections.length - 1 : at, 0, ADS[lang] || ADS.fr);
-  }
   return (
     <div className="w-full max-w-2xl mx-auto px-5 py-10 text-sm text-neutral-300 leading-relaxed">
       <h1 className="disp text-2xl mb-2">{c.title}</h1>
       {c.note && <p className="text-xs text-neutral-500">{c.note}</p>}
       <p className="text-xs text-neutral-500 mb-6">{c.updated}</p>
 
-      {sections.map(([title, paragraphs, withEmail]) => (
+      {c.sections.map(([title, paragraphs, withEmail]) => (
         <section key={title} className="mb-8 last:mb-0">
           <h2 className="disp text-base text-amber-400 mb-2">{title}</h2>
           {paragraphs.map((p, i) => (
