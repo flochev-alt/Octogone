@@ -48,21 +48,18 @@ export default function Cage3D() {
       <div ref={tilt} className="cage-tilt">
         <div className="cage-view">
           <div className="cage-spin">
-            <div className="cage-floor" />
+            {/* Logo au centre du tapis, comme le logo de l'organisation dans une vraie cage. */}
+            <div className="cage-floor">
+              <span className="cage-logo">O<span className="cage-logo-dot" /></span>
+            </div>
             {SIDES.map((a, i) => (
               <div key={a} className="cage-side" style={{ transform: `rotateY(${a}deg) translateZ(var(--apothem))` }}>
                 <span className="cage-post" />
-                {/* « Sponsors » en alternance : bandeau octogone.space, puis logo du site, lisibles de l'extérieur
-                    comme de l'intérieur (une face pour chaque côté, jamais en miroir). */}
-                {i % 2 === 0 ? (
+                {/* Bandeau « sponsor » un grillage sur deux, lisible de l'extérieur comme de l'intérieur. */}
+                {i % 2 === 0 && (
                   <>
                     <span className="cage-ad">octogone.space</span>
                     <span className="cage-ad cage-ad-back">octogone.space</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="cage-badge"><span className="cage-badge-dot" /></span>
-                    <span className="cage-badge cage-ad-back"><span className="cage-badge-dot" /></span>
                   </>
                 )}
               </div>

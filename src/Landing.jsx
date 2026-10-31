@@ -206,7 +206,7 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
             <h1 className="disp text-5xl sm:text-7xl leading-[0.95] mb-5">
               {t.landingTitle1}
               <br />
-              <TitleWithEmblem text={t.landingTitle2} />
+              <span className="shimmer-text">{t.landingTitle2}</span>
             </h1>
 
             <p className="text-neutral-400 text-sm sm:text-base max-w-md mx-auto mb-8">
@@ -252,24 +252,6 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
         <button onClick={onCookies} className="tap underline hover:text-neutral-300">{t.cookies}</button>
       </div>
     </div>
-  );
-}
-
-// « L'OCTOGONE. » : le O entre le T et le G est le logo du site (anneau doré et son point),
-// dessiné à l'épaisseur et à la hauteur des lettres pour se fondre dans le titre.
-// Seulement quand cette lettre est bien un O (en anglais « OCTAGON », on garde le texte tel quel).
-function TitleWithEmblem({ text }) {
-  const i = text.indexOf("OCTOG");
-  if (i < 0) return <span className="shimmer-text">{text}</span>;
-  return (
-    <span className="whitespace-nowrap">
-      <span className="shimmer-text">{text.slice(0, i + 3)}</span>
-      <span className="title-emblem" role="img" aria-label="O">
-        <span className="title-emblem-ring" />
-        <span className="title-emblem-dot" />
-      </span>
-      <span className="shimmer-text">{text.slice(i + 4)}</span>
-    </span>
   );
 }
 
