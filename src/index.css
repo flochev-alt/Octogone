@@ -215,3 +215,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .cage-spin { animation: none; transform: rotateY(22.5deg); }
 }
+
+/* Pub AdSense sans annonce à afficher : l'emplacement (et son libellé « Publicité ») disparaît. */
+.ad-slot:has(ins.adsbygoogle[data-ad-status="unfilled"]) { display: none; }

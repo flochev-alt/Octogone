@@ -12,6 +12,7 @@ import ResultsPopup from "./ResultsPopup.jsx";
 import { nextVoteEvent } from "./fans.js";
 import ConsentBanner from "./ConsentBanner.jsx";
 import Contact from "./Contact.jsx";
+import AdSlot from "./AdSlot.jsx";
 import { initVip, activateVip } from "./vip.js";
 import { useInstall } from "./install.js";
 import { useFighters } from "./useFighters.js";
@@ -179,6 +180,9 @@ const RESULT_STYLE = {
 
 const SITE_TITLE = "Octogone — Stats MMA";
 const ABOUT_PATH = "/a-propos";
+// Pages simples avec leur propre adresse (le bandeau cookies de Google demande l'adresse de la politique de confidentialité).
+const PAGE_PATHS = { mentions: "/mentions-legales", contact: "/contact" };
+const viewAt = (path) => Object.keys(PAGE_PATHS).find((v) => PAGE_PATHS[v] === path) || null;
 const ABOUT_TITLE = "Qu'est-ce qu'Octogone.space ? | Octogone";
 const fighterTitle = (f) => `${f.nom} : bilan, stats et derniers combats | Octogone`;
 // Combattant dont l'adresse est /combattant/<slug> (page arrivée depuis Google ou un lien partagé).
@@ -191,7 +195,7 @@ const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
 export default function App() {
   const [linked] = useState(() => fighterAt(window.location.pathname));
   const [linkedEvent] = useState(() => eventSlugFromPath(window.location.pathname));
-  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : "landing");
+  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : viewAt(window.location.pathname) || "landing");
   // Duel déjà choisi pour le Simulateur (bouton « Simuler un duel » d'une fiche ou d'une page d'événement).
   const [simPreset, setSimPreset] = useState(null);
   const changeView = (v) => { setSimPreset(null); setView(v); };
@@ -383,6 +387,8 @@ export default function App() {
   useEffect(() => {
     if (view !== "evenement" && eventSlugFromPath(window.location.pathname)) window.history.replaceState(null, "", "/");
     if (view !== "apropos" && window.location.pathname === ABOUT_PATH) window.history.replaceState(null, "", "/");
+    if (PAGE_PATHS[view] && window.location.pathname !== PAGE_PATHS[view]) window.history.replaceState(null, "", PAGE_PATHS[view]);
+    else if (!PAGE_PATHS[view] && viewAt(window.location.pathname)) window.history.replaceState(null, "", "/");
   }, [view]);
   useEffect(() => {
     if (selected) document.title = fighterTitle(selected);
@@ -764,6 +770,9 @@ export default function App() {
       {shown && view !== "mentions" && view !== "contact" && (
         <FighterPanel fighter={shown} photo={photoOf(shown)} closing={closing} onClose={closePanel} lang={lang} t={t} onSimulate={simulate} onEvent={openEvent} />
       )}
+
+      {/* Un seul emplacement de pub par page, sous le contenu et au-dessus du pied de page. */}
+      {!["apropos", "mentions", "contact"].includes(view) && <AdSlot lang={lang} vip={vip} className="mt-auto" />}
 
       <footer className="mt-auto w-full max-w-5xl mx-auto px-5 pt-10 pb-[max(2.5rem,env(safe-area-inset-bottom))] text-[11px] text-neutral-500 flex flex-wrap items-center gap-x-3 gap-y-1">
         <span>{t.footer}</span>
