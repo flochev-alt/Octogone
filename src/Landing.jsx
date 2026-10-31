@@ -16,7 +16,7 @@ const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   delay: i * 0.18,
 }));
 
-export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, onOpenEvent = onEnterMedia, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onAbout = () => {} }) {
+export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, onOpenEvent = onEnterMedia, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
   const now = useNow();
@@ -247,10 +247,11 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
       </section>
 
       {/* Mentions légales et cookies accessibles depuis chaque page (LCEN, CNIL). */}
-      <div className="relative z-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex justify-center gap-4 text-[11px] text-neutral-600">
+      <div className="relative z-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex flex-wrap justify-center gap-x-4 gap-y-1 px-4 text-[11px] text-neutral-600">
         <button onClick={onAbout} className="tap underline hover:text-neutral-300">{t.about}</button>
         <button onClick={onLegal} className="tap underline hover:text-neutral-300">{t.legal}</button>
         <button onClick={onCookies} className="tap underline hover:text-neutral-300">{t.cookies}</button>
+        <button onClick={onContact} className="tap underline hover:text-neutral-300">{t.contact}</button>
       </div>
     </div>
   );
