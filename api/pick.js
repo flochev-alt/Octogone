@@ -11,6 +11,8 @@ import { eventSlug, cardOf, findFighter, sameName } from "../src/events.js";
 import { duelOdds } from "../src/score.js";
 import { duelKey, getAnalysis, saveAnalysis } from "./_analyses.js";
 import { generateAnalysis, hasApiKey } from "./_ai.js";
+import { setAiPick } from "./_fans.js";
+import { votingOpen } from "../src/fans.js";
 
 const LANGS = ["fr", "en", "es"];
 const short = ({ favori, tendance, confiance, verdict }) => ({ favori, tendance, confiance, verdict });
@@ -28,14 +30,21 @@ export default async function handler(req, res) {
   const fighterB = withRecent(findFighter(FIGHTERS, fight.b));
   if (!fighterA || !fighterB) return res.status(404).json({ error: "Combattant absent de la base" });
 
+  // Le favori de l'IA est figé pour « Les fans contre l'IA » (le premier pronostic donné compte).
+  const freeze = async (analysis) => votingOpen(e, Date.now()) && setAiPick({ event, iso: e.iso, a: fight.a, b: fight.b, favori: analysis?.favori }).catch(console.error);
+
   const key = duelKey(fighterA, fighterB, lang);
   const known = await getAnalysis(key);
-  if (known) return res.status(200).json({ analysis: short(known), cached: true });
+  if (known) {
+    await freeze(known);
+    return res.status(200).json({ analysis: short(known), cached: true });
+  }
   if (!hasApiKey()) return res.status(501).json({ error: "ANTHROPIC_API_KEY non configurée" });
 
   try {
-    const analysis = await generateAnalysis({ fighterA, fighterB, ...duelOdds(fighterA, fighterB), lang });
-    res.status(200).json({ analysis: short(await saveAnalysis(key, analysis)) });
+    const analysis = await saveAnalysis(key, await generateAnalysis({ fighterA, fighterB, ...duelOdds(fighterA, fighterB), lang }));
+    await freeze(analysis);
+    res.status(200).json({ analysis: short(analysis) });
   } catch (err) {
     console.error(err);
     res.status(502).json({ error: "Impossible de générer le pronostic pour le moment." });
