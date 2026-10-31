@@ -10,7 +10,7 @@ import { RECENT_FIGHTS } from "../src/recentFights.js";
 import { eventSlug, cardOf, findFighter, sameName } from "../src/events.js";
 import { duelOdds } from "../src/score.js";
 import { duelKey, getAnalysis, saveAnalysis } from "./_analyses.js";
-import { generateAnalysis, hasApiKey } from "./_ai.js";
+import { analyzeDuel, hasApiKey } from "./_ai.js";
 import { setAiPick } from "./_fans.js";
 import { votingOpen } from "../src/fans.js";
 
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   const fight = e && cardOf(e).find((f) => (sameName(f.a, a) && sameName(f.b, b)) || (sameName(f.a, b) && sameName(f.b, a)));
   if (!fight || !LANGS.includes(lang)) return res.status(404).json({ error: "Combat introuvable" });
 
-  const withRecent = (f) => f && { ...f, recent: f.recent || RECENT_FIGHTS[f.id] || [] };
+  const withRecent = (f) => f && { ...f, recent: RECENT_FIGHTS[f.id] || [] };
   const fighterA = withRecent(findFighter(FIGHTERS, fight.a));
   const fighterB = withRecent(findFighter(FIGHTERS, fight.b));
   if (!fighterA || !fighterB) return res.status(404).json({ error: "Combattant absent de la base" });
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   if (!hasApiKey()) return res.status(501).json({ error: "ANTHROPIC_API_KEY non configurée" });
 
   try {
-    const analysis = await saveAnalysis(key, await generateAnalysis({ fighterA, fighterB, ...duelOdds(fighterA, fighterB), lang }));
+    const analysis = await saveAnalysis(key, await analyzeDuel({ fighterA, fighterB, ...duelOdds(fighterA, fighterB), lang }));
     await freeze(analysis);
     res.status(200).json({ analysis: short(analysis) });
   } catch (err) {

@@ -6,7 +6,6 @@ import { usePhotos, creditOf } from "./usePhotos.js";
 import FighterAvatar from "./FighterAvatar.jsx";
 import CategoryBar from "./CategoryBar.jsx";
 import { getVipCode } from "./vip.js";
-import { RECENT_FIGHTS } from "./recentFights.js";
 import { makeShareImage } from "./shareImage.js";
 import { duelOdds } from "./score.js";
 
@@ -121,8 +120,8 @@ export default function Simulator({ lang = "fr", vip = false, preset = null }) {
     genererAnalyseIA();
   };
 
-  // Les 5 derniers combats donnent à l'IA la forme du moment.
-  const withRecent = (f) => ({ ...f, recent: f.recent || RECENT_FIGHTS[f.id] || [] });
+  // Le serveur reprend les stats vérifiées de la base du site : on n'envoie que les combattants choisis.
+  const pick = (f) => ({ id: f.id, nom: f.nom });
 
   async function genererAnalyseIA() {
     const id = ++requestId.current;
@@ -131,7 +130,7 @@ export default function Simulator({ lang = "fr", vip = false, preset = null }) {
       const r = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-vip-code": vip ? getVipCode() || "" : "" },
-        body: JSON.stringify({ fighterA: withRecent(fighterA), fighterB: withRecent(fighterB), probA, probB, lang }),
+        body: JSON.stringify({ fighterA: pick(fighterA), fighterB: pick(fighterB), lang }),
       });
       if (id !== requestId.current) return;
       if (r.status === 429) {

@@ -6,8 +6,11 @@
 import { createHash } from "node:crypto";
 
 // À augmenter quand on change la consigne de l'IA, pour refaire toutes les analyses.
-const PROMPT_VERSION = 1;
-const FIELDS = ["nom", "victoires", "defaites", "nuls", "ufcV", "ufcD", "ufcN", "rang", "naissance", "taille", "allonge", "style", "ko", "sub", "dec", "striking", "tdAcc", "tdDef"];
+// v2 (31/10/2026) : chiffres officiels UFCStats, circonstances des combats, face-à-face, actualité du web.
+const PROMPT_VERSION = 2;
+// L'actualité change : une analyse est refaite au plus tard toutes les 2 semaines (à la première demande).
+const PERIOD_DAYS = 14;
+const FIELDS = ["nom", "categorie", "nc", "ufcNc", "victoires", "defaites", "nuls", "ufcV", "ufcD", "ufcN", "rang", "naissance", "taille", "allonge", "style", "ko", "sub", "dec", "striking", "tdAcc", "tdDef"];
 
 const URL = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim().replace(/\/+$/, "").replace(/\/rest\/v1$/, "");
 const KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -15,12 +18,12 @@ const enabled = Boolean(URL && KEY);
 const memory = new Map();
 
 const fingerprint = (f) =>
-  JSON.stringify([...FIELDS.map((k) => f[k] ?? null), (f.recent || []).slice(0, 5).map((r) => [r.result, r.opponent, r.method, r.event])]);
+  JSON.stringify([...FIELDS.map((k) => f[k] ?? null), (f.recent || []).slice(0, 5).map((r) => [r.result, r.opponent, r.method, r.event, r.note ?? null])]);
 
 // Le même duel donne la même clé, dans un sens comme dans l'autre (A contre B = B contre A).
 export function duelKey(fighterA, fighterB, lang) {
   const sides = [fingerprint(fighterA), fingerprint(fighterB)].sort();
-  const hash = createHash("sha256").update(JSON.stringify([PROMPT_VERSION, lang, ...sides])).digest("hex");
+  const hash = createHash("sha256").update(JSON.stringify([PROMPT_VERSION, Math.floor(Date.now() / (PERIOD_DAYS * 86400000)), lang, ...sides])).digest("hex");
   return { cle: hash, combat: [fighterA.nom, fighterB.nom].sort().join(" vs "), langue: lang };
 }
 

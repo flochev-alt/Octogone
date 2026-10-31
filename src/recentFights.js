@@ -2,6 +2,7 @@
 // Sources croisées : ufc.com (fiche athlète) + Wikipédia (tableau "Mixed martial arts record"),
 // complétées par Sherdog / ufcalendar / presse MMA quand une page manque ou n'est pas à jour.
 // result : "V" victoire, "D" défaite, "N" match nul, "NC" sans décision.
+// note (facultatif) : circonstances à connaître (arrêt sur faute, résultat annulé...), lues par l'analyse IA.
 export const RECENT_FIGHTS = {
   // Islam Makhachev
   f001: [
@@ -93,7 +94,7 @@ export const RECENT_FIGHTS = {
   ],
   // Tom Aspinall
   f012: [
-    { opponent: "Ciryl Gane", result: "NC", method: "Sans décision", event: "UFC 321" },
+    { opponent: "Ciryl Gane", result: "NC", method: "Sans décision", event: "UFC 321", note: "combat pour le titre arrêté au 1er round (4:35) : doigts de Gane dans les yeux d'Aspinall, qui n'a pas pu continuer ; ni victoire ni défaite" },
     { opponent: "Curtis Blaydes", result: "V", method: "KO", event: "UFC 304" },
     { opponent: "Sergei Pavlovich", result: "V", method: "KO", event: "UFC 295" },
     { opponent: "Marcin Tybura", result: "V", method: "TKO", event: "UFC Fight Night : Aspinall vs. Tybura" },
@@ -102,7 +103,7 @@ export const RECENT_FIGHTS = {
   // Ciryl Gane
   f013: [
     { opponent: "Alex Pereira", result: "V", method: "TKO", event: "UFC Freedom 250" },
-    { opponent: "Tom Aspinall", result: "NC", method: "Sans décision", event: "UFC 321" },
+    { opponent: "Tom Aspinall", result: "NC", method: "Sans décision", event: "UFC 321", note: "combat pour le titre arrêté au 1er round (4:35) : doigts de Gane dans les yeux d'Aspinall, qui n'a pas pu continuer ; ni victoire ni défaite" },
     { opponent: "Alexander Volkov", result: "V", method: "Décision partagée", event: "UFC 310" },
     { opponent: "Serghei Spivac", result: "V", method: "TKO", event: "UFC Fight Night : Gane vs. Spivac" },
     { opponent: "Jon Jones", result: "D", method: "Soumission", event: "UFC 285" },
@@ -1230,7 +1231,7 @@ export const RECENT_FIGHTS = {
   // Sumudaerji
   f154: [
     { opponent: "Alex Perez", result: "V", method: "Décision unanime", event: "UFC Fight Night : Nurmagomedov vs. Song" },
-    { opponent: "Alex Perez", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo" },
+    { opponent: "Alex Perez", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo", note: "arrêté au 2e round sur un coup bas involontaire de Sumudaerji, Perez n'a pas pu continuer" },
     { opponent: "Jesús Santos Aguilar", result: "V", method: "Décision unanime", event: "UFC 326" },
     { opponent: "Kevin Borjas", result: "V", method: "Décision unanime", event: "UFC Fight Night : Walker vs. Zhang" },
     { opponent: "Mitch Raposo", result: "V", method: "Décision partagée", event: "UFC 314" },
@@ -1246,7 +1247,7 @@ export const RECENT_FIGHTS = {
   // Alex Perez
   f156: [
     { opponent: "Sumudaerji", result: "D", method: "Décision unanime", event: "UFC Fight Night : Nurmagomedov vs. Song" },
-    { opponent: "Sumudaerji", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo" },
+    { opponent: "Sumudaerji", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo", note: "arrêté au 2e round sur un coup bas involontaire de Sumudaerji, Perez n'a pas pu continuer" },
     { opponent: "Charles Johnson", result: "V", method: "TKO", event: "UFC 324" },
     { opponent: "Asu Almabayev", result: "D", method: "Soumission", event: "UFC Fight Night : Tsarukyan vs. Hooker" },
     { opponent: "Tatsuro Taira", result: "D", method: "TKO", event: "UFC on ESPN : Perez vs. Taira" },
@@ -1674,7 +1675,7 @@ export const RECENT_FIGHTS = {
   ],
   // Ode Osbourne
   f222: [
-    { opponent: "Alibi Idiris", result: "NC", method: "Sans décision", event: "UFC Fight Night : Strickland vs. Hernandez" },
+    { opponent: "Alibi Idiris", result: "NC", method: "Sans décision", event: "UFC Fight Night : Strickland vs. Hernandez", note: "Osbourne avait perdu aux points, mais la victoire d'Idiris a été annulée après un contrôle antidopage positif" },
     { opponent: "Steve Erceg", result: "D", method: "Décision unanime", event: "UFC on ESPN : Dolidze vs. Hernandez" },
     { opponent: "Luis Gurule", result: "V", method: "TKO", event: "UFC on ESPN : Emmett vs. Murphy" },
     { opponent: "Ronaldo Rodríguez", result: "D", method: "Décision unanime", event: "UFC 306" },
