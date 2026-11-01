@@ -2,7 +2,6 @@
 // Sources croisées : ufc.com (fiche athlète) + Wikipédia (tableau "Mixed martial arts record"),
 // complétées par Sherdog / ufcalendar / presse MMA quand une page manque ou n'est pas à jour.
 // result : "V" victoire, "D" défaite, "N" match nul, "NC" sans décision.
-// note (facultatif) : circonstances à connaître (arrêt sur faute, résultat annulé...), lues par l'analyse IA.
 export const RECENT_FIGHTS = {
   // Islam Makhachev
   f001: [
@@ -94,7 +93,7 @@ export const RECENT_FIGHTS = {
   ],
   // Tom Aspinall
   f012: [
-    { opponent: "Ciryl Gane", result: "NC", method: "Sans décision", event: "UFC 321", note: "combat pour le titre arrêté au 1er round (4:35) : doigts de Gane dans les yeux d'Aspinall, qui n'a pas pu continuer ; ni victoire ni défaite" },
+    { opponent: "Ciryl Gane", result: "NC", method: "Sans décision", event: "UFC 321" },
     { opponent: "Curtis Blaydes", result: "V", method: "KO", event: "UFC 304" },
     { opponent: "Sergei Pavlovich", result: "V", method: "KO", event: "UFC 295" },
     { opponent: "Marcin Tybura", result: "V", method: "TKO", event: "UFC Fight Night : Aspinall vs. Tybura" },
@@ -103,7 +102,7 @@ export const RECENT_FIGHTS = {
   // Ciryl Gane
   f013: [
     { opponent: "Alex Pereira", result: "V", method: "TKO", event: "UFC Freedom 250" },
-    { opponent: "Tom Aspinall", result: "NC", method: "Sans décision", event: "UFC 321", note: "combat pour le titre arrêté au 1er round (4:35) : doigts de Gane dans les yeux d'Aspinall, qui n'a pas pu continuer ; ni victoire ni défaite" },
+    { opponent: "Tom Aspinall", result: "NC", method: "Sans décision", event: "UFC 321" },
     { opponent: "Alexander Volkov", result: "V", method: "Décision partagée", event: "UFC 310" },
     { opponent: "Serghei Spivac", result: "V", method: "TKO", event: "UFC Fight Night : Gane vs. Spivac" },
     { opponent: "Jon Jones", result: "D", method: "Soumission", event: "UFC 285" },
@@ -254,11 +253,11 @@ export const RECENT_FIGHTS = {
   ],
   // Renato Moicano
   f032: [
+    { opponent: "Tom Nolan", result: "D", method: "TKO", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Chris Duncan", result: "V", method: "Soumission", event: "UFC Fight Night : Moicano vs. Duncan" },
     { opponent: "Beneil Dariush", result: "D", method: "Décision unanime", event: "UFC 317" },
     { opponent: "Islam Makhachev", result: "D", method: "Soumission", event: "UFC 311" },
     { opponent: "Benoît Saint Denis", result: "V", method: "TKO", event: "UFC Fight Night : Moicano vs. Saint Denis" },
-    { opponent: "Jalin Turner", result: "V", method: "TKO", event: "UFC 300" },
   ],
   // Rafael Fiziev
   f033: [
@@ -830,11 +829,11 @@ export const RECENT_FIGHTS = {
   ],
   // Tom Nolan
   f104: [
+    { opponent: "Renato Moicano", result: "V", method: "TKO", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Farès Ziam", result: "V", method: "Décision unanime", event: "UFC Fight Night : Muhammad vs. Bonfim" },
     { opponent: "Charlie Campbell", result: "V", method: "Soumission", event: "UFC Fight Night : Ulberg vs. Reyes" },
     { opponent: "Viacheslav Borshchev", result: "V", method: "Décision unanime", event: "UFC 312" },
     { opponent: "Alex Reyes", result: "V", method: "Décision unanime", event: "UFC 305" },
-    { opponent: "Victor Martinez", result: "V", method: "TKO", event: "UFC Fight Night : Barboza vs. Murphy" },
   ],
   // Melquizael Costa
   f105: [
@@ -1231,7 +1230,7 @@ export const RECENT_FIGHTS = {
   // Sumudaerji
   f154: [
     { opponent: "Alex Perez", result: "V", method: "Décision unanime", event: "UFC Fight Night : Nurmagomedov vs. Song" },
-    { opponent: "Alex Perez", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo", note: "arrêté au 2e round sur un coup bas involontaire de Sumudaerji, Perez n'a pas pu continuer" },
+    { opponent: "Alex Perez", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo" },
     { opponent: "Jesús Santos Aguilar", result: "V", method: "Décision unanime", event: "UFC 326" },
     { opponent: "Kevin Borjas", result: "V", method: "Décision unanime", event: "UFC Fight Night : Walker vs. Zhang" },
     { opponent: "Mitch Raposo", result: "V", method: "Décision partagée", event: "UFC 314" },
@@ -1247,7 +1246,7 @@ export const RECENT_FIGHTS = {
   // Alex Perez
   f156: [
     { opponent: "Sumudaerji", result: "D", method: "Décision unanime", event: "UFC Fight Night : Nurmagomedov vs. Song" },
-    { opponent: "Sumudaerji", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo", note: "arrêté au 2e round sur un coup bas involontaire de Sumudaerji, Perez n'a pas pu continuer" },
+    { opponent: "Sumudaerji", result: "NC", method: "Sans décision", event: "UFC Fight Night : Song vs. Figueiredo" },
     { opponent: "Charles Johnson", result: "V", method: "TKO", event: "UFC 324" },
     { opponent: "Asu Almabayev", result: "D", method: "Soumission", event: "UFC Fight Night : Tsarukyan vs. Hooker" },
     { opponent: "Tatsuro Taira", result: "D", method: "TKO", event: "UFC on ESPN : Perez vs. Taira" },
@@ -1318,19 +1317,19 @@ export const RECENT_FIGHTS = {
   ],
   // Yana Santos
   f165: [
+    { opponent: "Luana Santos", result: "D", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Macy Chiasson", result: "V", method: "Décision unanime", event: "UFC 320" },
     { opponent: "Miesha Tate", result: "V", method: "Décision unanime", event: "UFC on ESPN : Sandhagen vs. Figueiredo" },
     { opponent: "Chelsea Chandler", result: "V", method: "Décision unanime", event: "UFC on ESPN : Tybura vs. Spivac 2" },
     { opponent: "Karol Rosa", result: "D", method: "Décision partagée", event: "UFC on ESPN : Strickland vs. Magomedov" },
-    { opponent: "Holly Holm", result: "D", method: "Décision unanime", event: "UFC on ESPN : Vera vs. Sandhagen" },
   ],
   // Luana Santos
   f166: [
+    { opponent: "Yana Santos", result: "V", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Karol Rosa", result: "V", method: "Décision unanime", event: "UFC Fight Night : Kape vs. Horiguchi" },
     { opponent: "Melissa Croden", result: "V", method: "Décision unanime", event: "UFC on ESPN : Royval vs. Kape" },
     { opponent: "Tainara Lisboa", result: "V", method: "Soumission", event: "UFC Fight Night : Burns vs. Morales" },
     { opponent: "Casey O'Neill", result: "D", method: "Décision unanime", event: "UFC 305" },
-    { opponent: "Mariya Agapova", result: "V", method: "Soumission", event: "UFC on ESPN : Namajunas vs. Cortez" },
   ],
   // Macy Chiasson
   f167: [
@@ -1644,30 +1643,31 @@ export const RECENT_FIGHTS = {
   ],
   // Piera Rodriguez
   f206: [
+    { opponent: "Talita Alencar", result: "V", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Sam Hughes", result: "V", method: "Décision unanime", event: "UFC Fight Night : Emmett vs. Vallejos" },
     { opponent: "Ketlen Souza", result: "V", method: "Décision partagée", event: "UFC on ESPN : Taira vs. Park" },
     { opponent: "Josefine Knutsson", result: "V", method: "Décision unanime", event: "UFC on ESPN : Covington vs. Buckley" },
     { opponent: "Ariane Carnelossi", result: "D", method: "Disqualification", event: "UFC Fight Night : Barboza vs. Murphy" },
-    { opponent: "Gillian Robertson", result: "D", method: "Soumission", event: "UFC on ESPN : Holloway vs. Allen" },
   ],
   // Talita Alencar
   f207: [
+    { opponent: "Piera Rodriguez", result: "D", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Julia Polastri", result: "V", method: "Décision unanime", event: "UFC Fight Night : Sterling vs. Zalal" },
     { opponent: "Ariane Carnelossi", result: "V", method: "Soumission", event: "UFC Fight Night : Garcia vs. Onama" },
     { opponent: "Vanessa Demopoulos", result: "V", method: "Décision unanime", event: "UFC on ESPN : Emmett vs. Murphy" },
     { opponent: "Stephanie Luciano", result: "D", method: "Décision unanime", event: "UFC on ESPN : Tybura vs. Spivac 2" },
-    { opponent: "Rayanne dos Santos", result: "V", method: "Décision partagée", event: "UFC Fight Night : Song vs. Gutiérrez" },
   ],
   // Randy Brown
   f220: [
+    { opponent: "Jacobe Smith", result: "D", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Kevin Holland", result: "D", method: "Décision unanime", event: "UFC 327" },
     { opponent: "Gabriel Bonfim", result: "D", method: "TKO", event: "UFC Fight Night : Bonfim vs. Brown" },
     { opponent: "Nicolas Dalby", result: "V", method: "KO", event: "UFC on ESPN : Machado Garry vs. Prates" },
     { opponent: "Bryan Battle", result: "D", method: "Décision partagée", event: "UFC 310" },
-    { opponent: "Elizeu Zaleski dos Santos", result: "V", method: "Décision unanime", event: "UFC 302" },
   ],
   // Jacobe Smith
   f221: [
+    { opponent: "Randy Brown", result: "V", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Bruce Whitehead", result: "V", method: "TKO", event: "UFC 332" },
     { opponent: "Josiah Harrell", result: "V", method: "TKO", event: "UFC Fight Night : Strickland vs. Hernandez" },
     { opponent: "Niko Price", result: "V", method: "Soumission", event: "UFC 317" },
@@ -1675,27 +1675,29 @@ export const RECENT_FIGHTS = {
   ],
   // Ode Osbourne
   f222: [
-    { opponent: "Alibi Idiris", result: "NC", method: "Sans décision", event: "UFC Fight Night : Strickland vs. Hernandez", note: "Osbourne avait perdu aux points, mais la victoire d'Idiris a été annulée après un contrôle antidopage positif" },
+    { opponent: "Cody Durden", result: "D", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Nolan" },
+    { opponent: "Alibi Idiris", result: "NC", method: "Sans décision", event: "UFC Fight Night : Strickland vs. Hernandez" },
     { opponent: "Steve Erceg", result: "D", method: "Décision unanime", event: "UFC on ESPN : Dolidze vs. Hernandez" },
     { opponent: "Luis Gurule", result: "V", method: "TKO", event: "UFC on ESPN : Emmett vs. Murphy" },
     { opponent: "Ronaldo Rodríguez", result: "D", method: "Décision unanime", event: "UFC 306" },
-    { opponent: "Jafel Filho", result: "D", method: "Soumission", event: "UFC Fight Night : Tuivasa vs. Tybura" },
   ],
   // Cody Durden
   f223: [
+    { opponent: "Ode Osbourne", result: "V", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Alessandro Costa", result: "D", method: "Soumission", event: "UFC 329" },
     { opponent: "Jafel Filho", result: "V", method: "Décision unanime", event: "UFC Fight Night : Sterling vs. Zalal" },
     { opponent: "Nyamjargal Tumendemberel", result: "D", method: "Décision unanime", event: "UFC 326" },
     { opponent: "Allan Nascimento", result: "D", method: "Soumission", event: "UFC Fight Night : Garcia vs. Onama" },
-    { opponent: "Jose Ochoa", result: "D", method: "KO", event: "UFC on ESPN : Usman vs. Buckley" },
   ],
   // Jean-Paul Lebosnoyani
   f224: [
+    { opponent: "Farman Hasanov", result: "V", method: "TKO", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Seokhyeon Ko", result: "V", method: "Décision unanime", event: "UFC Fight Night 281" },
     { opponent: "Phil Rowe", result: "V", method: "Décision partagée", event: "UFC Fight Night : Strickland vs. Hernandez" },
   ],
   // Farman Hasanov
   f225: [
+    { opponent: "Jean-Paul Lebosnoyani", result: "D", method: "TKO", event: "UFC Fight Night : Moicano vs. Nolan" },
     { opponent: "Eric Nolan", result: "V", method: "Décision unanime", event: "UFC Fight Night : Fiziev vs. Torres" },
   ],
   // Davey Grant
