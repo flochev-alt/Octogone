@@ -55,6 +55,7 @@ export function recapOf(card, votes, mine) {
       method: r.method,
       ok: sameName(pick, s.winner),
       ia: row?.ia_favori ? sameName(row.ia_favori, s.winner) : false,
+      iaPick: row?.ia_favori || null,
       fans: fans ? sameName(fans, s.winner) : false,
     });
   }
@@ -88,7 +89,7 @@ const TEXT = {
     subDraw: (m) => `${m} partout avec l'IA. La revanche, c'est au prochain event.`,
     subLose: (m, n) => `${m} bon${m > 1 ? "s" : ""} prono${m > 1 ? "s" : ""} sur ${n} cette fois. Prends ta revanche au prochain event !`,
     fans: "Les fans", fansBetter: "tu fais mieux que la moyenne des fans", fansTop: "tu fais partie des meilleurs pronostiqueurs", fansNext: "la prochaine fois sera la bonne",
-    wins: (n) => `${n} gagne`, cta: "Défier l'IA au prochain événement", ctaLose: "Prendre ma revanche", next: "Prochain vote",
+    wins: (n) => `${n} gagne`, cta: "Défier l'IA au prochain événement", ctaLose: "Prendre ma revanche", next: "Prochain vote", history: "Voir tout mon historique de pronos",
   },
   en: {
     you: "You", ai: "The AI", vsAi: "You vs the AI", winner: "Winner", close: "Close",
@@ -99,7 +100,7 @@ const TEXT = {
     subDraw: (m) => `${m} each with the AI. Get your rematch at the next event.`,
     subLose: (m, n) => `${m} right pick${m > 1 ? "s" : ""} out of ${n} this time. Get your revenge at the next event!`,
     fans: "The fans", fansBetter: "you beat the fans' average", fansTop: "you're among the best predictors", fansNext: "next time's the one",
-    wins: (n) => `${n} wins`, cta: "Take on the AI at the next event", ctaLose: "Get my revenge", next: "Next vote",
+    wins: (n) => `${n} wins`, cta: "Take on the AI at the next event", ctaLose: "Get my revenge", next: "Next vote", history: "See all my past picks",
   },
   es: {
     you: "Tú", ai: "La IA", vsAi: "Tú contra la IA", winner: "Ganador", close: "Cerrar",
@@ -110,7 +111,7 @@ const TEXT = {
     subDraw: (m) => `${m} a ${m} con la IA. La revancha, en el próximo evento.`,
     subLose: (m, n) => `${m} acierto${m > 1 ? "s" : ""} de ${n} esta vez. ¡Toma la revancha en el próximo evento!`,
     fans: "Los fans", fansBetter: "superas la media de los fans", fansTop: "estás entre los mejores pronosticadores", fansNext: "la próxima será la buena",
-    wins: (n) => `gana ${n}`, cta: "Desafía a la IA en el próximo evento", ctaLose: "Tomar la revancha", next: "Próxima votación",
+    wins: (n) => `gana ${n}`, cta: "Desafía a la IA en el próximo evento", ctaLose: "Tomar la revancha", next: "Próxima votación", history: "Ver todo mi historial de pronósticos",
   },
 };
 
@@ -138,7 +139,7 @@ const lastName = (n) => n.split(" ").slice(1).join(" ") || n;
 // Nom court dans les petites cartes (nom de famille), sauf si les deux combattants ont le même.
 const short = (n, other) => (lastName(n) === lastName(other) ? n : lastName(n));
 
-export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onNext = () => {}, paused = false }) {
+export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onNext = () => {}, onHistory = null, paused = false }) {
   const tx = TEXT[lang] || TEXT.fr;
   const votes = useFanVotes();
   const ready = fanVotesReady();
@@ -389,6 +390,11 @@ export default function ResultsPopup({ cards, lang = "fr", nextEvent = null, onN
             ) : (
               <button onClick={close} className="pr-cta tap w-full mt-4 py-3.5 rounded-full text-neutral-950 font-extrabold text-[14.5px]">
                 {tx.close}
+              </button>
+            )}
+            {onHistory && (
+              <button onClick={() => { close(); onHistory(); }} className="tap mt-3 text-xs font-semibold text-amber-300 hover:text-amber-200 underline underline-offset-4">
+                {tx.history}
               </button>
             )}
           </div>

@@ -214,6 +214,15 @@ for (const e of RECENT_CARDS) writeFileSync(`dist/evenement/${eventSlug(e)}.html
 }
 
 const today = new Date().toISOString().slice(0, 10);
+// mes-pronos.html : l'historique des pronos du visiteur (gardé sur son appareil), page personnelle non indexée.
+writeFileSync(
+  "dist/mes-pronos.html",
+  fill(
+    [`<title>Mes pronos | Octogone</title>`, `<meta name="robots" content="noindex" />`, `<link rel="canonical" href="${SITE}/mes-pronos" />`].join("\n    "),
+    `<main><h1>Mes pronos</h1><p>L'historique de tes pronos « Toi contre l'IA », gardé sur ton appareil.</p></main>`
+  )
+);
+
 const urls = [`${SITE}/`, `${SITE}/a-propos`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`)];
 writeFileSync("dist/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
