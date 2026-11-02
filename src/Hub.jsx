@@ -1,8 +1,8 @@
-import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote } from "lucide-react";
+import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote, History } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
-export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {} }) {
+export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {}, onPronos = null }) {
   const t = T[lang];
   // Affiche du prochain événement ouvert au vote « Toi contre l'IA » (noms de famille : « Moicano vs. Nolan »).
   const lastName = (n) => n.split(" ").slice(-1)[0];
@@ -120,13 +120,23 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
             </span>
           </button>
         )}
-        <button
-          onClick={onAbout}
-          style={{ animationDelay: "520ms" }}
-          className="hub-rise tap self-center mt-6 sm:mt-8 inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/80 backdrop-blur px-4 py-2.5 text-sm text-neutral-300 hover:text-amber-300 hover:border-amber-400/50"
-        >
-          <Info className="w-4 h-4 text-amber-400" /> {t.aboutCta}
-        </button>
+        <div style={{ animationDelay: "520ms" }} className="hub-rise self-center mt-6 sm:mt-8 flex flex-wrap justify-center gap-2.5">
+          {/* « Mes pronos » : seulement si ce visiteur a déjà fait au moins un prono sur cet appareil. */}
+          {onPronos && (
+            <button
+              onClick={onPronos}
+              className="tap inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-neutral-900/80 backdrop-blur px-4 py-2.5 text-sm text-amber-300 hover:text-amber-200 hover:border-amber-400/70"
+            >
+              <History className="w-4 h-4 text-amber-400" /> {t.myPronos}
+            </button>
+          )}
+          <button
+            onClick={onAbout}
+            className="tap inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/80 backdrop-blur px-4 py-2.5 text-sm text-neutral-300 hover:text-amber-300 hover:border-amber-400/50"
+          >
+            <Info className="w-4 h-4 text-amber-400" /> {t.aboutCta}
+          </button>
+        </div>
       </main>
       {/* Mentions légales et cookies accessibles depuis chaque page (LCEN, CNIL). */}
       <div className="relative z-10 pb-[max(1.25rem,env(safe-area-inset-bottom))] flex flex-wrap justify-center gap-x-4 gap-y-1 px-4 text-[11px] text-neutral-600">

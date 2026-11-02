@@ -9,6 +9,7 @@ import EventPage from "./EventPage.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import About from "./About.jsx";
 import ResultsPopup from "./ResultsPopup.jsx";
+import MyPronos, { hasPronos } from "./MyPronos.jsx";
 import { nextVoteEvent } from "./fans.js";
 import ConsentBanner from "./ConsentBanner.jsx";
 import Contact from "./Contact.jsx";
@@ -179,6 +180,8 @@ const RESULT_STYLE = {
 
 const SITE_TITLE = "Octogone — Stats MMA";
 const ABOUT_PATH = "/a-propos";
+const PRONOS_PATH = "/mes-pronos";
+const PRONOS_TITLE = "Mes pronos | Octogone";
 const ABOUT_TITLE = "Qu'est-ce qu'Octogone.space ? | Octogone";
 const fighterTitle = (f) => `${f.nom} : bilan, stats et derniers combats | Octogone`;
 // Combattant dont l'adresse est /combattant/<slug> (page arrivée depuis Google ou un lien partagé).
@@ -191,7 +194,7 @@ const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
 export default function App() {
   const [linked] = useState(() => fighterAt(window.location.pathname));
   const [linkedEvent] = useState(() => eventSlugFromPath(window.location.pathname));
-  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : "landing");
+  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : window.location.pathname === PRONOS_PATH ? "pronos" : "landing");
   // Duel déjà choisi pour le Simulateur (bouton « Simuler un duel » d'une fiche ou d'une page d'événement).
   const [simPreset, setSimPreset] = useState(null);
   const changeView = (v) => { setSimPreset(null); setView(v); };
@@ -344,6 +347,14 @@ export default function App() {
     if (id === "combattants") { setCategorie("champions"); setQuery(""); }
     changeView(id);
   };
+  // Page « Mes pronos » (/mes-pronos) : historique des pronos faits sur cet appareil.
+  const openPronos = () => {
+    if (view === "pronos") return;
+    if (selected) hidePanel();
+    window.history.pushState({ pronos: true }, "", PRONOS_PATH);
+    if (view === "landing" || view === "hub") goTo("pronos");
+    else changeView("pronos");
+  };
   const leaveEvent = () => {
     if (window.history.state?.event) window.history.back();
     else {
@@ -372,6 +383,9 @@ export default function App() {
       } else if (path === ABOUT_PATH) {
         hidePanel();
         setView("apropos");
+      } else if (path === PRONOS_PATH) {
+        hidePanel();
+        setView("pronos");
       } else if (ev) {
         hidePanel();
         setEventOpen(ev);
@@ -388,10 +402,12 @@ export default function App() {
   useEffect(() => {
     if (view !== "evenement" && eventSlugFromPath(window.location.pathname)) window.history.replaceState(null, "", "/");
     if (view !== "apropos" && window.location.pathname === ABOUT_PATH) window.history.replaceState(null, "", "/");
+    if (view !== "pronos" && window.location.pathname === PRONOS_PATH) window.history.replaceState(null, "", "/");
   }, [view]);
   useEffect(() => {
     if (selected) document.title = fighterTitle(selected);
     else if (view === "apropos") document.title = ABOUT_TITLE;
+    else if (view === "pronos") document.title = PRONOS_TITLE;
     else if (view !== "evenement") document.title = SITE_TITLE;
   }, [selected, view]);
   // Changement de page (« Explorer le site », onglets) : on repart du haut, pas de la position de défilement de l'accueil.
@@ -403,7 +419,7 @@ export default function App() {
 
   const banner = (
     <>
-    <ResultsPopup cards={recapCards} lang={lang} nextEvent={voteEvent} onNext={openEvent} paused={Boolean(veil) || view === "mentions" || view === "contact"} />
+    <ResultsPopup cards={recapCards} lang={lang} nextEvent={voteEvent} onNext={openEvent} onHistory={openPronos} paused={Boolean(veil) || view === "mentions" || view === "contact"} />
     {vipToast && (
       <div role="status" className="fixed z-[60] bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full text-sm font-semibold shadow-lg border bg-neutral-900 border-amber-400/60 text-amber-300 whitespace-nowrap">
         {vipToast === "on" ? t.vipOn : t.vipBad}
@@ -444,7 +460,7 @@ export default function App() {
   if (view === "hub") {
     return (
       <>
-        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} />
+        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} onPronos={hasPronos() ? openPronos : null} />
         {banner}
         {veilEl}
       </>
@@ -580,6 +596,8 @@ export default function App() {
         <Media lang={lang} onEvent={openEvent} onFighter={openFighter} />
       ) : view === "apropos" ? (
         <About lang={lang} onGo={aboutGo} hasEvent={upcomingEvents(media, Date.now()).length > 0} />
+      ) : view === "pronos" ? (
+        <MyPronos lang={lang} cards={recapCards} upcoming={upcomingEvents(media, Date.now())} voteEvent={voteEvent} onEvent={openEvent} />
       ) : view === "mentions" ? (
         <MentionsLegales lang={lang} />
       ) : view === "contact" ? (
