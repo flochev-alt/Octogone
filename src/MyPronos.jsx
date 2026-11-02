@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Vote, Check, X, Clock, ArrowRight, Smartphone } from "lucide-react";
+import { Vote, Check, X, Clock, ArrowRight, Smartphone, Trophy } from "lucide-react";
 import { norm, sameName, cardOf } from "./events.js";
 import { useFanVotes, myVotes } from "./useFanVotes.js";
 import { recapOf } from "./ResultsPopup.jsx";
@@ -16,7 +16,9 @@ const TEXT = {
   fr: {
     kicker: "Toi contre l'IA", title: "Mes pronos",
     intro: "Tous tes pronos, événement par événement, face à l'IA.",
-    you: "Toi", ai: "L'IA",
+    you: "Toi", ai: "L'IA", vs: "VS", made: (n) => (n > 1 ? "pronos" : "prono"), right: (n) => (n > 1 ? "bons pronos" : "bon prono"), rate: "réussite",
+    lead: "Tu mènes face à l'IA", tie: "Égalité parfaite", behind: "L'IA mène… pour l'instant",
+    pendingN: (n) => `+ ${n} prono${n > 1 ? "s" : ""} en attente des résultats`,
     pending: "En attente des résultats", soon: "Résultats bientôt", past: "Événements passés",
     yourPick: "Ton choix", won: (n, m) => `${n} gagne${m ? ` · ${m}` : ""}`,
     empty: "Tu n'as pas encore fait de prono.",
@@ -28,7 +30,9 @@ const TEXT = {
   en: {
     kicker: "You vs the AI", title: "My picks",
     intro: "All your picks, event by event, against the AI.",
-    you: "You", ai: "AI",
+    you: "You", ai: "AI", vs: "VS", made: (n) => (n === 1 ? "pick" : "picks"), right: (n) => (n === 1 ? "right pick" : "right picks"), rate: "success",
+    lead: "You're ahead of the AI", tie: "Dead even", behind: "The AI leads… for now",
+    pendingN: (n) => `+ ${n} pick${n > 1 ? "s" : ""} waiting for results`,
     pending: "Waiting for results", soon: "Results coming soon", past: "Past events",
     yourPick: "Your pick", won: (n, m) => `${n} wins${m ? ` · ${m}` : ""}`,
     empty: "You haven't made any picks yet.",
@@ -40,7 +44,9 @@ const TEXT = {
   es: {
     kicker: "Tú contra la IA", title: "Mis pronósticos",
     intro: "Todos tus pronósticos, evento por evento, contra la IA.",
-    you: "Tú", ai: "IA",
+    you: "Tú", ai: "IA", vs: "VS", made: (n) => (n === 1 ? "pronóstico" : "pronósticos"), right: (n) => (n === 1 ? "acierto" : "aciertos"), rate: "acierto",
+    lead: "Vas por delante de la IA", tie: "Empate total", behind: "La IA va ganando… por ahora",
+    pendingN: (n) => `+ ${n} pronóstico${n > 1 ? "s" : ""} esperando resultados`,
     pending: "Esperando resultados", soon: "Resultados pronto", past: "Eventos pasados",
     yourPick: "Tu elección", won: (n, m) => `gana ${n}${m ? ` · ${m}` : ""}`,
     empty: "Todavía no has hecho ningún pronóstico.",
@@ -100,6 +106,11 @@ export default function MyPronos({ lang = "fr", cards = [], upcoming = [], voteE
   }, [cards, upcoming, votes, mine]);
 
   const empty = !past.length && !waiting.length;
+  // Compteur Toi VS IA : combats terminés où tu as fait un prono ; l'IA compte seulement là où elle a donné le sien.
+  const fights = past.flatMap((r) => r.fights);
+  const me = { made: fights.length, right: fights.filter((f) => f.ok).length };
+  const ia = { made: fights.filter((f) => f.iaPick).length, right: fights.filter((f) => f.iaPick && f.ia).length };
+  const pendingN = waiting.reduce((n, w) => n + w.picks.length, 0);
   const canVoteMore = voteEvent && !waiting.some((w) => w.event === voteEvent && w.picks.length >= cardOf(voteEvent).length);
 
   return (
@@ -123,6 +134,24 @@ export default function MyPronos({ lang = "fr", cards = [], upcoming = [], voteE
         </div>
       ) : (
         <>
+          <section className="mt-6 rounded-3xl border border-amber-400/40 bg-gradient-to-b from-amber-400/15 via-neutral-900/80 to-neutral-900/60 px-4 py-6 sm:px-8 sm:py-8 shadow-[0_0_40px_-12px_rgba(251,191,36,0.35)]">
+            <p className="text-center text-sm sm:text-base font-black tracking-[0.25em] text-amber-400">
+              {tx.you.toUpperCase()} <span className="text-neutral-500">{tx.vs}</span> {tx.ai.toUpperCase()}
+            </p>
+            <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-6">
+              <Side label={tx.you} s={me} lead={me.right > ia.right} tx={tx} />
+              <span className="text-3xl sm:text-5xl font-light text-neutral-600">–</span>
+              <Side label={tx.ai} s={ia} lead={ia.right > me.right} tx={tx} />
+            </div>
+            {me.made > 0 && (
+              <p className="mt-4 text-center text-sm font-semibold text-amber-300 flex items-center justify-center gap-1.5">
+                {me.right > ia.right && <Trophy className="w-4 h-4" />}
+                {me.right > ia.right ? tx.lead : me.right === ia.right ? tx.tie : tx.behind}
+              </p>
+            )}
+            {pendingN > 0 && <p className="mt-1.5 text-center text-xs text-neutral-500">{tx.pendingN(pendingN)}</p>}
+          </section>
+
           {canVoteMore && (
             <button onClick={() => onEvent(voteEvent, { vote: true })} className="tap group mt-4 w-full text-left rounded-2xl border border-amber-400/30 hover:border-amber-400/60 bg-neutral-900/80 px-4 py-3 flex items-center gap-3">
               <Vote className="w-4 h-4 text-amber-400 shrink-0" />
@@ -202,6 +231,21 @@ export default function MyPronos({ lang = "fr", cards = [], upcoming = [], voteE
         <Smartphone className="w-4 h-4 shrink-0" /> {tx.device}
       </p>
     </main>
+  );
+}
+
+function Side({ label, s, lead, tx }) {
+  const pct = s.made ? Math.round((s.right / s.made) * 100) : 0;
+  return (
+    <div className="text-center min-w-0">
+      <div className={`text-6xl sm:text-8xl font-black tabular-nums leading-none ${lead ? "text-amber-300" : "text-neutral-100"}`}>{s.right}</div>
+      <div className="mt-2 text-xs sm:text-sm uppercase tracking-widest font-bold text-neutral-300">{label}</div>
+      <div className="mt-3 space-y-0.5 text-[11.5px] sm:text-sm text-neutral-400">
+        <div><b className="text-neutral-100 tabular-nums">{s.made}</b> {tx.made(s.made)}</div>
+        <div><b className="text-neutral-100 tabular-nums">{s.right}</b> {tx.right(s.right)}</div>
+        <div><b className="text-neutral-100 tabular-nums">{pct} %</b> {tx.rate}</div>
+      </div>
+    </div>
   );
 }
 
