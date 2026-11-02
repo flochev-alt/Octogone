@@ -1,4 +1,4 @@
-import { Trophy, Swords, Newspaper, ArrowRight, Info, Sparkles, Vote } from "lucide-react";
+import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
@@ -76,35 +76,6 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
           </p>
         </div>
 
-        {/* Pronostics ouverts sur le prochain événement : bandeau doré au-dessus des rubriques. */}
-        {voteEvent && (
-          <button
-            onClick={() => onVote(voteEvent)}
-            style={{ animationDelay: "180ms" }}
-            className="hub-rise prono-cta tap group relative mb-3 sm:mb-4 w-full text-left rounded-3xl border border-amber-400/60 bg-[radial-gradient(circle_at_85%_50%,rgba(251,191,36,0.28),rgba(23,23,23,0.9)_60%)] p-5 sm:p-6 flex items-center gap-4"
-          >
-            <span className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 flex items-center justify-center">
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" aria-hidden="true">
-                <polygon points="32,6 68,6 94,32 94,68 68,94 32,94 6,68 6,32" className="fill-amber-400 stroke-amber-300" strokeWidth="4" />
-              </svg>
-              <Vote className="relative w-6 h-6 text-neutral-950" />
-            </span>
-            <span className="flex-1 min-w-0">
-              <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-amber-400">
-                <Sparkles className="w-3 h-3" /> {t.hubPronoKicker}
-              </span>
-              <span className="disp block text-xl sm:text-2xl mt-1">{t.hubPronoTitle(duel)}</span>
-              <span className="block text-xs sm:text-sm text-neutral-400 mt-1">{t.hubPronoDesc}</span>
-            </span>
-            <span className="shrink-0 hidden sm:inline-flex items-center gap-2 rounded-full bg-amber-400 text-neutral-950 text-sm font-bold px-4 py-2.5 group-hover:bg-amber-300">
-              {t.pronoCta} <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-            <span className="shrink-0 sm:hidden w-9 h-9 rounded-full bg-amber-400 text-neutral-950 flex items-center justify-center">
-              <ArrowRight className="w-4 h-4" />
-            </span>
-          </button>
-        )}
-
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
           {sections.map(({ id, icon: Icon, title, desc }, i) => (
             <button
@@ -129,6 +100,26 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
             </button>
           ))}
         </div>
+        {/* Pronostics ouverts sur le prochain événement : bandeau fin et discret sous les rubriques. */}
+        {voteEvent && (
+          <button
+            onClick={() => onVote(voteEvent)}
+            style={{ animationDelay: "500ms" }}
+            className="hub-rise tap group mt-3 sm:mt-4 w-full text-left rounded-2xl border border-amber-400/30 hover:border-amber-400/60 bg-neutral-900/80 backdrop-blur hover:bg-neutral-900 px-4 py-3 sm:px-5 flex items-center gap-3"
+          >
+            <span className="w-8 h-8 shrink-0 rounded-full bg-amber-400/10 border border-amber-400/40 flex items-center justify-center">
+              <Vote className="w-4 h-4 text-amber-400" />
+            </span>
+            <span className="flex-1 min-w-0 text-sm leading-snug">
+              <span className="text-amber-400 font-semibold">{t.hubPronoKicker}</span>
+              <span className="text-neutral-300"> · {t.hubPronoTitle(duel)}</span>
+            </span>
+            <span className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300 group-hover:text-amber-200">
+              <span className="hidden sm:inline">{t.pronoCta}</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </button>
+        )}
         <button
           onClick={onAbout}
           style={{ animationDelay: "520ms" }}
