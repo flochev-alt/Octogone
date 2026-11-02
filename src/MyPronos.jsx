@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Vote, Check, X, Clock, ArrowRight, Trophy, Smartphone } from "lucide-react";
+import { Vote, Check, X, Clock, ArrowRight, Smartphone } from "lucide-react";
 import { norm, sameName, cardOf } from "./events.js";
 import { useFanVotes, myVotes } from "./useFanVotes.js";
 import { recapOf } from "./ResultsPopup.jsx";
@@ -15,9 +15,8 @@ const cap = (s) => s.replace(/\b\p{L}/gu, (c) => c.toUpperCase());
 const TEXT = {
   fr: {
     kicker: "Toi contre l'IA", title: "Mes pronos",
-    intro: "Tous tes pronos, événement par événement, et ton score face à l'IA.",
-    you: "Toi", ai: "L'IA", fans: "Fans", over: (n) => `sur ${n} combat${n > 1 ? "s" : ""}`, rate: (p) => `${p} % de bons pronos`,
-    lead: "Tu mènes face à l'IA", tie: "Égalité avec l'IA", behind: "L'IA mène… pour l'instant",
+    intro: "Tous tes pronos, événement par événement, face à l'IA.",
+    you: "Toi", ai: "L'IA",
     pending: "En attente des résultats", soon: "Résultats bientôt", past: "Événements passés",
     yourPick: "Ton choix", won: (n, m) => `${n} gagne${m ? ` · ${m}` : ""}`,
     empty: "Tu n'as pas encore fait de prono.",
@@ -28,9 +27,8 @@ const TEXT = {
   },
   en: {
     kicker: "You vs the AI", title: "My picks",
-    intro: "All your picks, event by event, and your score against the AI.",
-    you: "You", ai: "AI", fans: "Fans", over: (n) => `over ${n} fight${n > 1 ? "s" : ""}`, rate: (p) => `${p}% right picks`,
-    lead: "You're ahead of the AI", tie: "Tied with the AI", behind: "The AI leads… for now",
+    intro: "All your picks, event by event, against the AI.",
+    you: "You", ai: "AI",
     pending: "Waiting for results", soon: "Results coming soon", past: "Past events",
     yourPick: "Your pick", won: (n, m) => `${n} wins${m ? ` · ${m}` : ""}`,
     empty: "You haven't made any picks yet.",
@@ -41,9 +39,8 @@ const TEXT = {
   },
   es: {
     kicker: "Tú contra la IA", title: "Mis pronósticos",
-    intro: "Todos tus pronósticos, evento por evento, y tu marcador contra la IA.",
-    you: "Tú", ai: "IA", fans: "Fans", over: (n) => `en ${n} combate${n > 1 ? "s" : ""}`, rate: (p) => `${p} % de aciertos`,
-    lead: "Vas por delante de la IA", tie: "Empate con la IA", behind: "La IA va ganando… por ahora",
+    intro: "Todos tus pronósticos, evento por evento, contra la IA.",
+    you: "Tú", ai: "IA",
     pending: "Esperando resultados", soon: "Resultados pronto", past: "Eventos pasados",
     yourPick: "Tu elección", won: (n, m) => `gana ${n}${m ? ` · ${m}` : ""}`,
     empty: "Todavía no has hecho ningún pronóstico.",
@@ -63,7 +60,7 @@ export default function MyPronos({ lang = "fr", cards = [], upcoming = [], voteE
   const mine = useMemo(() => myVotes(), []);
   const date = (iso) => formatDate(iso, lang, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 
-  const { past, waiting, total } = useMemo(() => {
+  const { past, waiting } = useMemo(() => {
     const keys = Object.keys(mine);
     const used = new Set();
     const keyOf = (iso, a, b) => {
@@ -99,13 +96,10 @@ export default function MyPronos({ lang = "fr", cards = [], upcoming = [], voteE
       (orphans[d] ||= []).push({ pick: mine[k], opp: cap(sameName(mine[k], x) ? y : x) });
     }
     for (const [d, picks] of Object.entries(orphans)) waiting.push({ iso: d, picks, soon: true });
-    const total = past.reduce((s, r) => ({ n: s.n + r.total, me: s.me + r.me, ia: s.ia + r.ia, fans: s.fans + r.fans }), { n: 0, me: 0, ia: 0, fans: 0 });
-    return { past, waiting, total };
+    return { past, waiting };
   }, [cards, upcoming, votes, mine]);
 
   const empty = !past.length && !waiting.length;
-  const pct = total.n ? Math.round((total.me / total.n) * 100) : 0;
-  const verdict = total.me > total.ia ? tx.lead : total.me === total.ia ? tx.tie : tx.behind;
   const canVoteMore = voteEvent && !waiting.some((w) => w.event === voteEvent && w.picks.length >= cardOf(voteEvent).length);
 
   return (
@@ -129,22 +123,6 @@ export default function MyPronos({ lang = "fr", cards = [], upcoming = [], voteE
         </div>
       ) : (
         <>
-          {total.n > 0 && (
-            <section className="mt-6 rounded-2xl border border-amber-400/30 bg-gradient-to-b from-amber-400/10 to-neutral-900/60 p-5">
-              <div className="flex items-center justify-center gap-5 sm:gap-8">
-                <Score label={tx.you} value={total.me} lead={total.me > total.ia} />
-                <span className="text-neutral-600 text-2xl font-light">–</span>
-                <Score label={tx.ai} value={total.ia} lead={total.ia > total.me} />
-              </div>
-              <p className="text-center text-sm font-semibold text-amber-300 mt-3 flex items-center justify-center gap-1.5">
-                {total.me > total.ia && <Trophy className="w-4 h-4" />} {verdict}
-              </p>
-              <p className="text-center text-xs text-neutral-400 mt-1">
-                {tx.over(total.n)} · {tx.rate(pct)} · {tx.fans} {total.fans}/{total.n}
-              </p>
-            </section>
-          )}
-
           {canVoteMore && (
             <button onClick={() => onEvent(voteEvent, { vote: true })} className="tap group mt-4 w-full text-left rounded-2xl border border-amber-400/30 hover:border-amber-400/60 bg-neutral-900/80 px-4 py-3 flex items-center gap-3">
               <Vote className="w-4 h-4 text-amber-400 shrink-0" />
@@ -224,15 +202,6 @@ export default function MyPronos({ lang = "fr", cards = [], upcoming = [], voteE
         <Smartphone className="w-4 h-4 shrink-0" /> {tx.device}
       </p>
     </main>
-  );
-}
-
-function Score({ label, value, lead }) {
-  return (
-    <div className="text-center">
-      <div className={`text-4xl sm:text-5xl font-extrabold tabular-nums ${lead ? "text-amber-300" : "text-neutral-100"}`}>{value}</div>
-      <div className="text-[11px] uppercase tracking-widest text-neutral-400 mt-1">{label}</div>
-    </div>
   );
 }
 
