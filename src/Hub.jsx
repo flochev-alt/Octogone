@@ -1,9 +1,12 @@
-import { Trophy, Swords, Newspaper, ArrowRight, Info } from "lucide-react";
+import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
-export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {} }) {
+export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {} }) {
   const t = T[lang];
+  // Affiche du prochain événement ouvert au vote « Toi contre l'IA » (noms de famille : « Moicano vs. Nolan »).
+  const lastName = (n) => n.split(" ").slice(-1)[0];
+  const duel = voteEvent?.fighters?.length === 2 ? `${lastName(voteEvent.fighters[0])} vs. ${lastName(voteEvent.fighters[1])}` : null;
   const sections = [
     { id: "combattants", icon: Trophy, title: t.navCombattants, desc: t.navCardCombattantsDesc },
     { id: "simulateur", icon: Swords, title: t.navSimulateur, desc: t.navCardSimulateurDesc },
@@ -97,6 +100,26 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
             </button>
           ))}
         </div>
+        {/* Pronostics ouverts sur le prochain événement : bandeau fin et discret sous les rubriques. */}
+        {voteEvent && (
+          <button
+            onClick={() => onVote(voteEvent)}
+            style={{ animationDelay: "500ms" }}
+            className="hub-rise tap group mt-3 sm:mt-4 w-full text-left rounded-2xl border border-amber-400/30 hover:border-amber-400/60 bg-neutral-900/80 backdrop-blur hover:bg-neutral-900 px-4 py-3 sm:px-5 flex items-center gap-3"
+          >
+            <span className="w-8 h-8 shrink-0 rounded-full bg-amber-400/10 border border-amber-400/40 flex items-center justify-center">
+              <Vote className="w-4 h-4 text-amber-400" />
+            </span>
+            <span className="flex-1 min-w-0 text-sm leading-snug">
+              <span className="text-amber-400 font-semibold">{t.hubPronoKicker}</span>
+              <span className="text-neutral-300"> · {t.hubPronoTitle(duel)}</span>
+            </span>
+            <span className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300 group-hover:text-amber-200">
+              <span className="hidden sm:inline">{t.pronoCta}</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </button>
+        )}
         <button
           onClick={onAbout}
           style={{ animationDelay: "520ms" }}

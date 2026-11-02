@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, MapPin, Sparkles, Trophy, Target, Swords, CalendarDays, Users, Check, X as Cross } from "lucide-react";
+import { ChevronLeft, MapPin, Sparkles, Trophy, Target, Swords, CalendarDays, Users, Check, X as Cross, Lightbulb } from "lucide-react";
 import { T, L, formatDate, translateCategory, translateMethod } from "./i18n.js";
 import { eventName, TweetEmbed } from "./Media.jsx";
 import { useMedia } from "./useMedia.js";
@@ -23,7 +23,7 @@ const PARTS = ["main", "prelims", "early"];
 const PART_LABEL = { main: "mainCard", prelims: "prelims", early: "earlyPrelims" };
 
 // Page d'un événement : affiche, compte à rebours, carte complète avec pronostics (ou résultats si l'événement est passé).
-export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimulate }) {
+export default function EventPage({ slug, lang = "fr", focusVote = 0, onBack, onFighter, onSimulate }) {
   const t = T[lang];
   const e = useEvent(slug);
   const media = useMedia();
@@ -35,6 +35,20 @@ export default function EventPage({ slug, lang = "fr", onBack, onFighter, onSimu
   useEffect(() => {
     if (title) document.title = title;
   }, [title]);
+  // Arrivée par « Fais ton prono » : on descend jusqu'au premier combat encore à voter, et on le fait briller.
+  useEffect(() => {
+    if (!focusVote) return;
+    let tries = 0;
+    const timer = setInterval(() => {
+      const block = document.querySelector("[data-vote]")?.closest("[data-vote-block]");
+      if (block || ++tries > 30) clearInterval(timer);
+      if (!block) return;
+      block.scrollIntoView({ behavior: "smooth", block: "center" });
+      block.style.boxShadow = "0 0 0 2px rgba(251,191,36,0.8), 0 0 28px rgba(251,191,36,0.35)";
+      setTimeout(() => { block.style.boxShadow = ""; }, 2200);
+    }, 100);
+    return () => clearInterval(timer);
+  }, [focusVote]);
 
   if (!e) {
     return (
@@ -337,7 +351,7 @@ function FightRow({ fight, headline, event, open, canVote, votes, fighters, phot
       )}
 
       {open && (canVote || row) && (
-        <FanVote fight={fight} row={row} mine={mine} canVote={canVote} sending={voteState === "sending"} failed={voteState === "error"} aiPick={state === "done" ? pick?.favori : null} onVote={vote} t={t} />
+        <FanVote fight={fight} row={row} mine={mine} canVote={canVote} sending={voteState === "sending"} failed={voteState === "error"} aiPick={state === "done" ? pick?.favori : null} onVote={vote} onHelp={sameCategory ? () => onSimulate(a, b, { backToVote: true }) : null} t={t} />
       )}
 
       {odds && open && !hidden && (
@@ -386,12 +400,12 @@ function FightRow({ fight, headline, event, open, canVote, votes, fighters, phot
 }
 
 // Bloc de vote d'un combat : deux boutons tant qu'on n'a pas voté, puis la répartition des fans.
-function FanVote({ fight, row, mine, canVote, sending, failed, aiPick, onVote, t }) {
+function FanVote({ fight, row, mine, canVote, sending, failed, aiPick, onVote, onHelp, t }) {
   const share = fanShare(row, fight.a);
   const fans = fanPick(row);
   const voted = Boolean(mine);
   return (
-    <div className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950/60 p-3.5">
+    <div data-vote-block className="mt-4 rounded-xl border border-neutral-800 bg-neutral-950/60 p-3.5 transition-shadow duration-700">
       <div className="flex items-center justify-between gap-2 mb-2.5">
         <span className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-amber-400">
           <Users className="w-3 h-3" /> {t.fanVoteTitle}
@@ -415,6 +429,14 @@ function FanVote({ fight, row, mine, canVote, sending, failed, aiPick, onVote, t
               </button>
             ))}
           </div>
+          {/* Tu hésites ? Le Simulateur donne les stats et l'analyse complète de l'IA, puis on revient voter. */}
+          {onHelp && (
+            <button onClick={onHelp} className="tap mt-2.5 w-full rounded-lg border border-dashed border-neutral-700 hover:border-amber-400/50 text-left text-[11px] text-neutral-400 hover:text-amber-200 flex items-center gap-2 px-3 py-2">
+              <Lightbulb className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+              <span className="flex-1">{t.voteHelp}</span>
+              <Swords className="w-3.5 h-3.5 shrink-0" />
+            </button>
+          )}
           {failed && <p className="text-[11px] text-red-400 mt-2">{t.fanVoteFailed}</p>}
         </>
       ) : share ? (
