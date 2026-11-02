@@ -109,15 +109,15 @@ export const UPCOMING = [
     iso: "2026-11-07",
     // Début de la carte principale (UTC) : 20 h ET (ufc.com).
     start: "2026-11-08T01:00:00Z",
-    name: "UFC Fight Night : Bonfim vs. Brady",
+    name: "UFC Fight Night : Cortes-Acosta vs. Walker",
     location: "Meta Apex, Las Vegas",
     main: {
-      fr: "Gabriel Bonfim vs. Sean Brady (poids welter)",
-      en: "Gabriel Bonfim vs. Sean Brady (welterweight)",
-      es: "Gabriel Bonfim vs. Sean Brady (peso wélter)",
+      fr: "Waldo Cortes-Acosta vs. Johnny Walker (poids lourd)",
+      en: "Waldo Cortes-Acosta vs. Johnny Walker (heavyweight)",
+      es: "Waldo Cortes-Acosta vs. Johnny Walker (peso pesado)",
     },
     card: [
-      { a: "Gabriel Bonfim", b: "Sean Brady", cat: "Poids welter" },
+      { a: "Waldo Cortes-Acosta", b: "Johnny Walker", cat: "Poids lourd" },
       { a: "Tatiana Suarez", b: "Virna Jandiroba", cat: "Poids paille feminin" },
       { a: "Davey Grant", b: "Elijah Smith", cat: "Poids coq" },
       { a: "Seokhyeon Ko", b: "Wellington Turman", cat: "Poids welter" },
@@ -131,39 +131,29 @@ export const UPCOMING = [
       { a: "Austin Bashi", b: "Lucas Brennan", cat: "Poids plume", part: "prelims" },
       { a: "Priscila Cachoeira", b: "Nina Milošević", cat: "Poids coq feminin", part: "prelims" },
     ],
-    fighters: ["Gabriel Bonfim", "Sean Brady"],
-  },
-  {
-    iso: "2026-10-31",
-    // Début de la carte principale (UTC) : 20 h ET / minuit GMT (ufcalendar.com, boxingnews.com).
-    start: "2026-11-01T00:00:00Z",
-    name: "UFC Fight Night : Moicano vs. Nolan",
-    location: "Las Vegas",
-    main: {
-      fr: "Renato Moicano vs. Tom Nolan (poids léger)",
-      en: "Renato Moicano vs. Tom Nolan (lightweight)",
-      es: "Renato Moicano vs. Tom Nolan (peso ligero)",
-    },
-    card: [
-      { a: "Renato Moicano", b: "Tom Nolan", cat: "Poids leger" },
-      { a: "Randy Brown", b: "Jacobe Smith", cat: "Poids welter" },
-      { a: "Ode Osbourne", b: "Cody Durden", cat: "Poids mouche" },
-      { a: "Yana Santos", b: "Luana Santos", cat: "Poids coq feminin" },
-      { a: "Jean-Paul Lebosnoyani", b: "Farman Hasanov", cat: "Poids welter" },
-      { a: "Francis Marshall", b: "Dakota Hope", cat: "Poids plume", part: "prelims" },
-      { a: "Rodrigo Sezinando", b: "Theodor Berggren", cat: "Poids welter", part: "prelims" },
-      { a: "Julian Erosa", b: "Jeong Yeong Lee", cat: "Poids plume", part: "prelims" },
-      { a: "Zach Reese", b: "Mickey Gall", cat: "Poids moyen", part: "prelims" },
-      { a: "Nick Klein", b: "Joseph Kropschot", cat: "Poids moyen", part: "prelims" },
-      { a: "Talita Alencar", b: "Piera Rodriguez", cat: "Poids paille feminin", part: "prelims" },
-      { a: "Lucia Szabová", b: "Tainara Lisboa", cat: "Poids mouche feminin", part: "prelims" },
-    ],
-    fighters: ["Renato Moicano", "Tom Nolan"],
+    fighters: ["Waldo Cortes-Acosta", "Johnny Walker"],
   },
 ];
 
 // "UFC Fight Night : X" garde l'espace avant les deux-points en français uniquement.
 export const RECENT_CARDS = [
+  {
+    iso: "2026-10-31",
+    name: "UFC Fight Night : Moicano vs. Nolan",
+    location: "Meta Apex, Las Vegas",
+    results: [
+      { fight: "Tom Nolan def. Renato Moicano", method: "TKO", note: { fr: "Main event · R3, 1:28", en: "Main event · R3, 1:28", es: "Main event · R3, 1:28" } },
+      { fight: "Jacobe Smith def. Randy Brown", method: "Décision unanime", note: "Co-main event" },
+      { fight: "Cody Durden def. Ode Osbourne", method: "Décision unanime", note: "29-28 x3" },
+      { fight: "Luana Santos def. Yana Santos", method: "Décision unanime", note: "29-28 x3" },
+      { fight: "Jean-Paul Lebosnoyani def. Farman Hasanov", method: "TKO", note: { fr: "Arrêt médical (coupure) · R3, 2:11", en: "Doctor stoppage (cut) · R3, 2:11", es: "Detención médica (corte) · R3, 2:11" } },
+    ],
+    note: {
+      fr: "Dominé au sol pendant un round et demi, Nolan profite d'une remise debout contestée de l'arbitre pour finir Moicano aux coudes au 3e round. Jacobe Smith reste invaincu (14-0) et Julian Erosa signe un KO pour son dernier combat.",
+      en: "Controlled on the ground for a round and a half, Nolan made the most of a disputed referee stand-up to finish Moicano with elbows in round 3. Jacobe Smith stays unbeaten (14-0) and Julian Erosa scored a knockout in his final fight.",
+      es: "Dominado en el suelo durante asalto y medio, Nolan aprovechó una polémica orden del árbitro de levantarse para terminar a Moicano con codazos en el tercer asalto. Jacobe Smith sigue invicto (14-0) y Julian Erosa firmó un KO en su último combate.",
+    },
+  },
   {
     iso: "2026-10-24",
     name: "UFC 333 : Volkanovski vs. Evloev",
