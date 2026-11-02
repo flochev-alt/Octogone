@@ -226,6 +226,3 @@ body {
 }
 @keyframes pronoShine { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
 @media (prefers-reduced-motion: reduce) { .prono-cta::after { animation: none; display: none; } }
-
-/* Pub AdSense sans annonce à afficher : l'emplacement (et son libellé « Publicité ») disparaît. */
-.ad-slot:has(ins.adsbygoogle[data-ad-status="unfilled"]) { display: none; }
