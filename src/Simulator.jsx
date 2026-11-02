@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Swords, Sparkles, TrendingUp, ChevronDown, Trophy, Lock, KeyRound, Activity, Film, AlertTriangle, Target, Share2, Download, X } from "lucide-react";
+import { Swords, Sparkles, TrendingUp, ChevronDown, ChevronLeft, Trophy, Lock, KeyRound, Activity, Film, AlertTriangle, Target, Share2, Download, X } from "lucide-react";
 import { useFighters } from "./useFighters.js";
 import { T, translateCategory, formatHeight, formatStyle, ageFrom, CATEGORY_ORDER } from "./i18n.js";
 import { usePhotos, creditOf } from "./usePhotos.js";
@@ -30,7 +30,7 @@ function incrementDailyUsage() {
 }
 
 // preset : duel déjà choisi en venant d'une fiche ou d'une page d'événement ({ cat, a, b } : catégorie et ids).
-export default function Simulator({ lang = "fr", vip = false, preset = null }) {
+export default function Simulator({ lang = "fr", vip = false, preset = null, onBackToVote = () => {} }) {
   const t = T[lang];
   const fighters = useFighters();
   // Toutes les catégories de la base, dans l'ordre du plus léger au plus lourd (puis femmes et légendes).
@@ -158,6 +158,16 @@ export default function Simulator({ lang = "fr", vip = false, preset = null }) {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-5 py-8">
+      {/* Venu du vote d'une page d'événement : un bouton pour y retourner voter une fois renseigné. */}
+      {preset?.back && (
+        <button
+          onClick={() => onBackToVote(preset.back)}
+          className="tap mb-5 w-full rounded-xl border border-amber-400/50 bg-amber-400/10 hover:bg-amber-400/15 text-amber-200 text-sm font-semibold px-4 py-3 flex items-center gap-2.5 text-left"
+        >
+          <ChevronLeft className="w-4 h-4 shrink-0" />
+          <span className="flex-1">{t.backToVote}</span>
+        </button>
+      )}
       <style>{`
         @keyframes clashInLeft {
           0% { transform: translateX(-60px) scale(0.85); opacity: 0.4; }

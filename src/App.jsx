@@ -312,7 +312,10 @@ export default function App() {
     }
   };
   // Chaque événement a aussi sa propre adresse ; le retour ramène à la page d'où l'on vient.
-  const openEvent = (e) => {
+  // `vote` : on arrive par « Fais ton prono » → la page descend jusqu'au premier vote.
+  const [voteFocus, setVoteFocus] = useState(0);
+  const openEvent = (e, { vote = false } = {}) => {
+    setVoteFocus(vote ? Date.now() : 0);
     if (view !== "evenement") eventFrom.current = view === "hub" ? "hub" : view === "landing" ? "landing" : view;
     if (selected) hidePanel();
     setEventOpen(eventSlug(e));
@@ -349,10 +352,12 @@ export default function App() {
     }
   };
   // Simulateur prérempli avec ce duel (b facultatif : le Simulateur choisit alors l'adversaire).
-  const simulate = (a, b = null) => {
+  // `backToVote` : on vient du vote d'une page d'événement → le Simulateur propose d'y revenir.
+  const simulate = (a, b = null, { backToVote = false } = {}) => {
     if (selected) hidePanel();
+    const back = backToVote && view === "evenement" ? eventOpen : null;
     window.history.replaceState(null, "", "/");
-    setSimPreset({ n: Date.now(), cat: a.categorie, a: a.id, b: b?.id });
+    setSimPreset({ n: Date.now(), cat: a.categorie, a: a.id, b: b?.id, back });
     setView("simulateur");
   };
   useEffect(() => {
@@ -422,6 +427,7 @@ export default function App() {
           onEnterSimulator={() => goTo("simulateur")}
           onEnterMedia={() => goTo("media")}
           onOpenEvent={openEvent}
+          voteEvent={voteEvent}
           lang={lang}
           setLang={setLang}
           onLegal={() => changeView("mentions")}
@@ -438,7 +444,7 @@ export default function App() {
   if (view === "hub") {
     return (
       <>
-        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} />
+        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} />
         {banner}
         {veilEl}
       </>
@@ -556,9 +562,20 @@ export default function App() {
       </header>
 
       {view === "simulateur" ? (
-        <Simulator key={simPreset?.n} lang={lang} vip={vip} preset={simPreset} />
+        <Simulator
+          key={simPreset?.n}
+          lang={lang}
+          vip={vip}
+          preset={simPreset}
+          onBackToVote={(slug) => {
+            setVoteFocus(Date.now());
+            setEventOpen(slug);
+            window.history.pushState({ event: true }, "", `/evenement/${slug}`);
+            setView("evenement");
+          }}
+        />
       ) : view === "evenement" ? (
-        <EventPage slug={eventOpen} lang={lang} onBack={leaveEvent} onFighter={openFighter} onSimulate={simulate} />
+        <EventPage slug={eventOpen} lang={lang} focusVote={voteFocus} onBack={leaveEvent} onFighter={openFighter} onSimulate={simulate} />
       ) : view === "media" ? (
         <Media lang={lang} onEvent={openEvent} onFighter={openFighter} />
       ) : view === "apropos" ? (

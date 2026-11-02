@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Swords, Trophy, Newspaper } from "lucide-react";
+import { ArrowRight, Swords, Trophy, Newspaper, Vote } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 import { eventName } from "./Media.jsx";
 import { useMedia } from "./useMedia.js";
@@ -16,7 +16,7 @@ const SPARKS = Array.from({ length: 12 }, (_, i) => ({
   delay: i * 0.18,
 }));
 
-export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, onOpenEvent = onEnterMedia, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {} }) {
+export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnterSimulator = () => {}, onEnterMedia = () => {}, onOpenEvent = onEnterMedia, voteEvent = null, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {} }) {
   const t = T[lang];
   const [mounted, setMounted] = useState(false);
   const now = useNow();
@@ -144,7 +144,7 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
         {/* Prochain événement, au-dessus de l'octogone (dans le flux, pour ne jamais le chevaucher) */}
         {nextEvent && (
           <div className="blur-in relative z-20 w-full pt-[calc(6rem_+_env(safe-area-inset-top))] sm:pt-[calc(5rem_+_env(safe-area-inset-top))]" style={{ animationDelay: "150ms" }}>
-            <NextEventCard e={nextEvent} now={now} lang={lang} t={t} onClick={() => onOpenEvent(nextEvent)} />
+            <NextEventCard e={nextEvent} now={now} lang={lang} t={t} canVote={Boolean(voteEvent && voteEvent.iso === nextEvent.iso && voteEvent.name === nextEvent.name)} onClick={(vote) => onOpenEvent(nextEvent, { vote })} />
           </div>
         )}
 
@@ -258,7 +258,7 @@ export default function Landing({ onEnter = () => {}, onExplore = onEnter, onEnt
 }
 
 // Carte du prochain événement : bordure dorée animée, affiche du combat et compte à rebours.
-function NextEventCard({ e, now, lang, t, onClick }) {
+function NextEventCard({ e, now, lang, t, canVote, onClick }) {
   const start = e.start ? Date.parse(e.start) : null;
   const live = start != null && now >= start;
   const daysLeft = Math.round((Date.parse(e.iso) - Date.parse(parisDay(now))) / 864e5);
@@ -270,7 +270,7 @@ function NextEventCard({ e, now, lang, t, onClick }) {
     : null;
 
   return (
-    <button onClick={onClick} className="tap event-card group relative mx-auto block w-full max-w-sm overflow-hidden rounded-2xl p-[1.5px] text-left">
+    <button onClick={() => onClick(canVote)} className="tap event-card group relative mx-auto block w-full max-w-sm overflow-hidden rounded-2xl p-[1.5px] text-left">
       <span className="event-border absolute -inset-full" aria-hidden />
       <span className="relative block rounded-2xl bg-neutral-950/95 px-4 py-3.5 sm:px-5 sm:py-4">
         <span className="flex items-center justify-between gap-3">
@@ -295,6 +295,17 @@ function NextEventCard({ e, now, lang, t, onClick }) {
         {!parts && !live && daysLeft > 0 && (
           <span className="mono mt-2 inline-block rounded-md bg-amber-400/10 px-2 py-1 text-xs text-amber-300">
             {`${t.countdownUnits[0].toUpperCase()}-${daysLeft}`}
+          </span>
+        )}
+        {/* Le vote « Toi contre l'IA » est ouvert sur cet événement : on le dit clairement. */}
+        {canVote && !live && (
+          <span className="prono-cta mt-3 flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-300 text-neutral-950 px-3 py-2.5">
+            <Vote className="w-4 h-4 shrink-0" />
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block text-sm font-extrabold">{t.pronoCta}</span>
+              <span className="block text-[11px] font-medium opacity-80 truncate">{t.pronoCtaSub}</span>
+            </span>
+            <ArrowRight className="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
           </span>
         )}
       </span>
