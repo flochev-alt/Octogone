@@ -8,6 +8,7 @@ import CategoryBar from "./CategoryBar.jsx";
 import { getVipCode } from "./vip.js";
 import { makeShareImage } from "./shareImage.js";
 import { duelOdds } from "./score.js";
+import { HowWeCalc } from "./Transparency.jsx";
 import { duelPath } from "./slug.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -360,6 +361,7 @@ export default function Simulator({ lang = "fr", vip = false, preset = null, onB
                     <div className="relative text-center text-[11px] text-neutral-500 mt-3">
                       {t.probLabel(translateCategory(categorie, lang))}
                     </div>
+                    <HowWeCalc fighterA={fighterA} fighterB={fighterB} lang={lang} />
                   </div>
 
                 </div>
