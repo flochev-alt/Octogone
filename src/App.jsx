@@ -9,7 +9,7 @@ import EventPage from "./EventPage.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import About from "./About.jsx";
 import ResultsPopup from "./ResultsPopup.jsx";
-import MyPronos, { hasPronos } from "./MyPronos.jsx";
+import MyPronos from "./MyPronos.jsx";
 import Calendar from "./Calendar.jsx";
 import { nextVoteEvent } from "./fans.js";
 import ConsentBanner from "./ConsentBanner.jsx";
@@ -491,7 +491,7 @@ export default function App() {
   if (view === "hub") {
     return (
       <>
-        <Hub onPick={goTo} onHome={() => goTo("landing")} onBack={goBack} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} onPronos={hasPronos() ? openPronos : null} onCalendar={openCalendar} />
+        <Hub onPick={goTo} onHome={() => goTo("landing")} onBack={goBack} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} onPronos={openPronos} onCalendar={openCalendar} />
         {banner}
         {veilEl}
       </>

@@ -80,6 +80,13 @@ export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setL
           <p className="hub-rise text-neutral-400 text-sm sm:text-base mt-4" style={{ animationDelay: "140ms" }}>
             {t.hubSubtitle}
           </p>
+          <button
+            onClick={onAbout}
+            style={{ animationDelay: "180ms" }}
+            className="hub-rise tap mt-5 inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/80 backdrop-blur px-4 py-2 text-sm text-neutral-300 hover:text-amber-300 hover:border-amber-400/50"
+          >
+            <Info className="w-4 h-4 text-amber-400" /> {t.aboutCta}
+          </button>
         </div>
 
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
@@ -147,12 +154,6 @@ export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setL
               <CalendarDays className="w-4 h-4 text-amber-400" /> {t.calendar}
             </button>
           )}
-          <button
-            onClick={onAbout}
-            className="tap inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/80 backdrop-blur px-4 py-2.5 text-sm text-neutral-300 hover:text-amber-300 hover:border-amber-400/50"
-          >
-            <Info className="w-4 h-4 text-amber-400" /> {t.aboutCta}
-          </button>
         </div>
       </main>
       {/* Mentions légales et cookies accessibles depuis chaque page (LCEN, CNIL). */}
