@@ -22,7 +22,7 @@ import { RECENT_FIGHTS } from "./recentFights.js";
 import { LEAGUES, LEAGUE_FIGHTERS, VACANT } from "./otherLeagues.js";
 import { LEGENDS } from "./legends.js";
 import { FIGHTERS } from "./fightersData.js";
-import { fighterPath, slugFromPath, slugify } from "./slug.js";
+import { fighterPath, slugFromPath, slugify, duelPath, duelFromPath } from "./slug.js";
 import { eventSlug, eventPath, eventSlugFromPath, upcomingEvents, nextFightOf, findFighter } from "./events.js";
 import { useMedia } from "./useMedia.js";
 import {
@@ -194,14 +194,18 @@ const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
 export default function App() {
   const [linked] = useState(() => fighterAt(window.location.pathname));
   const [linkedEvent] = useState(() => eventSlugFromPath(window.location.pathname));
+  // Lien partagé d'un duel du Simulateur (/comparer/<a>-vs-<b>).
+  const [linkedDuel] = useState(() => duelFromPath(window.location.pathname, FIGHTERS));
   // Page rechargée : l'historique garde la page où l'on était (Médias, sommaire…), on y reste.
   const [view, setView] = useState(() => {
     const st = window.history.state;
     if (st?.v && (st.v === "evenement" ? Boolean(linkedEvent) : !linkedEvent)) return st.v;
+    if (linkedDuel) return "simulateur";
     return linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : window.location.pathname === PRONOS_PATH ? "pronos" : "landing";
   });
   // Duel déjà choisi pour le Simulateur (bouton « Simuler un duel » d'une fiche ou d'une page d'événement).
-  const [simPreset, setSimPreset] = useState(null);
+  const presetOf = (d) => (d ? { n: Date.now(), cat: d.a.categorie, a: d.a.id, b: d.b?.categorie === d.a.categorie ? d.b.id : undefined } : null);
+  const [simPreset, setSimPreset] = useState(() => presetOf(linkedDuel));
   // Page d'événement ouverte (/evenement/<slug>).
   const [eventOpen, setEventOpen] = useState(linkedEvent);
   // Changement de page animé (accueil → page de choix → section) : un voile noir et un octogone doré
@@ -303,7 +307,15 @@ export default function App() {
   // Navigation : chaque page a sa propre entrée dans l'historique du navigateur. Le bouton retour du site,
   // celui du navigateur, le geste retour d'Android et le glissement depuis le bord gauche sur iPhone
   // ramènent donc tous à la page d'où l'on vient. `depth` = nombre de pages ouvertes avant celle-ci sur le site.
-  const pathOf = (v, ev) => (v === "evenement" && ev ? `/evenement/${ev}` : v === "apropos" ? ABOUT_PATH : v === "pronos" ? PRONOS_PATH : "/");
+  const pathOf = (v, ev) => (v === "evenement" && ev ? `/evenement/${ev}` : v === "apropos" ? ABOUT_PATH : v === "pronos" ? PRONOS_PATH : v === "simulateur" && duelRef.current ? duelRef.current : "/");
+  // Duel affiché dans le Simulateur : l'adresse suit les deux combattants choisis (lien à partager).
+  const duelRef = useRef(linkedDuel ? window.location.pathname : null);
+  const onDuel = (a, b) => {
+    if (!a || !b || a === b) return;
+    duelRef.current = duelPath(a, b);
+    if (view === "simulateur" && !selected && window.location.pathname !== duelRef.current)
+      window.history.replaceState({ ...window.history.state, v: "simulateur" }, "", duelRef.current);
+  };
   const depth = useRef(0);
   useEffect(() => {
     const st = window.history.state;
@@ -316,6 +328,7 @@ export default function App() {
     if (selected) hidePanel();
     if (v === "evenement") setEventOpen(ev);
     if (v === view && (v !== "evenement" || ev === eventOpen)) return window.scrollTo(0, 0);
+    if (v === "simulateur") duelRef.current = null;
     depth.current += 1;
     window.history.pushState({ v, ev, depth: depth.current }, "", pathOf(v, ev));
     showView(v, view === "landing" || view === "hub" || v === "landing" || v === "hub");
@@ -378,11 +391,13 @@ export default function App() {
     const path = window.location.pathname;
     const f = fighterAt(path);
     depth.current = st?.depth || 0;
-    const v = st?.v || (f ? "combattants" : eventSlugFromPath(path) ? "evenement" : path === ABOUT_PATH ? "apropos" : path === PRONOS_PATH ? "pronos" : "landing");
+    const v = st?.v || (f ? "combattants" : duelFromPath(path, FIGHTERS) ? "simulateur" : eventSlugFromPath(path) ? "evenement" : path === ABOUT_PATH ? "apropos" : path === PRONOS_PATH ? "pronos" : "landing");
     if (v === "evenement") setEventOpen(st?.ev || eventSlugFromPath(path));
     if (f) setSelected(f);
     else if (selected) hidePanel();
     // Pas de voile animé en revenant en arrière : il arriverait en décalage après le geste.
+    const duel = v === "simulateur" ? duelFromPath(path, FIGHTERS) : null;
+    if (duel && v !== view) { duelRef.current = path; setSimPreset(presetOf(duel)); }
     if (v !== view) {
       if (v !== "simulateur") setSimPreset(null);
       showView(v, false);
@@ -419,7 +434,7 @@ export default function App() {
     if (selected) document.title = fighterTitle(selected);
     else if (view === "apropos") document.title = ABOUT_TITLE;
     else if (view === "pronos") document.title = PRONOS_TITLE;
-    else if (view !== "evenement") document.title = SITE_TITLE;
+    else if (view !== "evenement" && view !== "simulateur") document.title = SITE_TITLE; // le Simulateur met le nom du duel
   }, [selected, view]);
   // Changement de page (« Explorer le site », onglets) : on repart du haut, pas de la position de défilement de l'accueil.
   useEffect(() => {
@@ -600,6 +615,7 @@ export default function App() {
           lang={lang}
           vip={vip}
           preset={simPreset}
+          onDuel={onDuel}
           onBackToVote={(slug) => {
             setVoteFocus(Date.now());
             navigate("evenement", { ev: slug });

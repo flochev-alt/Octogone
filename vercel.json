@@ -1,7 +1,17 @@
 {
   "cleanUrls": true,
   "functions": {
-    "api/analyze.js": { "maxDuration": 180 },
-    "api/pick.js": { "maxDuration": 180 }
-  }
+    "api/analyze.js": {
+      "maxDuration": 180
+    },
+    "api/pick.js": {
+      "maxDuration": 180
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/comparer/:duel",
+      "destination": "/index.html"
+    }
+  ]
 }
