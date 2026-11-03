@@ -808,7 +808,12 @@ export default function App() {
                       <div className="mono text-2xl text-amber-400 mt-3 tracking-tight">
                         {formatRecord(champion.victoires, champion.defaites, champion.nuls, champion.nc)}
                       </div>
-                      {champion.ko > 0 && <div className="text-xs text-neutral-400 mt-1">{t.koShare(champion.ko)}</div>}
+                      {/* Point fort mis en avant : KO ou soumission, le plus élevé des deux (jamais la décision). */}
+                      {Math.max(champion.ko || 0, champion.sub || 0) > 0 && (
+                        <div className="text-xs text-neutral-400 mt-1">
+                          {(champion.sub || 0) > (champion.ko || 0) ? t.subShare(champion.sub) : t.koShare(champion.ko)}
+                        </div>
+                      )}
                     </div>
                   </button>
                 )}
