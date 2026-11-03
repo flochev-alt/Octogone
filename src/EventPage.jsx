@@ -209,6 +209,7 @@ export default function EventPage({ slug, lang = "fr", focusVote = 0, onBack, on
 }
 
 function BackButton({ onBack, t }) {
+  if (!onBack) return null; // le retour est dans l'en-tête du site
   return (
     <button onClick={onBack} className="tap inline-flex items-center gap-1 text-xs font-semibold text-neutral-400 hover:text-amber-300">
       <ChevronLeft className="w-4 h-4" /> {t.backToMedia}

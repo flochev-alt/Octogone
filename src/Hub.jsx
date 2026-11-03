@@ -1,8 +1,8 @@
-import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote, History } from "lucide-react";
+import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote, History, ChevronLeft } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
-export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {}, onPronos = null }) {
+export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {}, onPronos = null }) {
   const t = T[lang];
   // Affiche du prochain événement ouvert au vote « Toi contre l'IA » (noms de famille : « Moicano vs. Nolan »).
   const lastName = (n) => n.split(" ").slice(-1)[0];
@@ -62,6 +62,12 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
           ))}
         </div>
       </header>
+      {/* Retour : sous l'en-tête, ramène à la page d'où l'on vient (l'accueil le plus souvent). */}
+      <div className="relative z-10 pt-2 pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))]">
+        <button onClick={onBack} className="tap inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/70 backdrop-blur pl-2 pr-3.5 py-1.5 text-xs font-semibold text-neutral-300 hover:text-amber-300 hover:border-amber-400/50">
+          <ChevronLeft className="w-4 h-4" /> {t.back}
+        </button>
+      </div>
 
       <main className="relative z-10 flex-1 w-full max-w-5xl mx-auto px-5 py-10 flex flex-col justify-center">
         <div className="text-center mb-8 sm:mb-12">

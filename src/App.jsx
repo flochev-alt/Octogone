@@ -194,30 +194,28 @@ const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
 export default function App() {
   const [linked] = useState(() => fighterAt(window.location.pathname));
   const [linkedEvent] = useState(() => eventSlugFromPath(window.location.pathname));
-  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : window.location.pathname === PRONOS_PATH ? "pronos" : "landing");
+  // Page rechargée : l'historique garde la page où l'on était (Médias, sommaire…), on y reste.
+  const [view, setView] = useState(() => {
+    const st = window.history.state;
+    if (st?.v && (st.v === "evenement" ? Boolean(linkedEvent) : !linkedEvent)) return st.v;
+    return linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : window.location.pathname === PRONOS_PATH ? "pronos" : "landing";
+  });
   // Duel déjà choisi pour le Simulateur (bouton « Simuler un duel » d'une fiche ou d'une page d'événement).
   const [simPreset, setSimPreset] = useState(null);
-  const changeView = (v) => { setSimPreset(null); setView(v); };
-  // Page d'événement ouverte (/evenement/<slug>) et page d'où l'on vient, pour le bouton retour.
+  // Page d'événement ouverte (/evenement/<slug>).
   const [eventOpen, setEventOpen] = useState(linkedEvent);
-  const eventFrom = useRef("media");
   // Changement de page animé (accueil → page de choix → section) : un voile noir et un octogone doré
   // couvrent l'écran, la page change dessous, puis le voile s'efface.
   const [veil, setVeil] = useState(null);
-  const goTo = (v) => {
-    if (veil) return;
-    if (v !== "evenement") setSimPreset(null);
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      if (v === "combattants") { setCategorie("champions"); setQuery(""); }
-      return setView(v);
-    }
-    setVeil("in");
-    setTimeout(() => {
-      // On entre dans Combattants par l'onglet Champions.
-      if (v === "combattants") { setCategorie("champions"); setQuery(""); }
+  const showView = (v, animate) => {
+    // On entre dans Combattants par l'onglet Champions quand on vient de l'accueil ou du sommaire.
+    const enter = () => {
+      if (v === "combattants" && animate) { setCategorie("champions"); setQuery(""); }
       setView(v);
-      setVeil("out");
-    }, 420);
+    };
+    if (!animate || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return enter();
+    setVeil("in");
+    setTimeout(() => { enter(); setVeil("out"); }, 420);
     setTimeout(() => setVeil(null), 900);
   };
   const veilEl = veil && (
@@ -302,41 +300,58 @@ export default function App() {
     setClosing(true);
     setTimeout(() => { setSelected(null); setClosing(false); }, 260);
   };
-  // Chaque fiche a sa propre adresse : le bouton retour du téléphone ou du navigateur la referme.
+  // Navigation : chaque page a sa propre entrée dans l'historique du navigateur. Le bouton retour du site,
+  // celui du navigateur, le geste retour d'Android et le glissement depuis le bord gauche sur iPhone
+  // ramènent donc tous à la page d'où l'on vient. `depth` = nombre de pages ouvertes avant celle-ci sur le site.
+  const pathOf = (v, ev) => (v === "evenement" && ev ? `/evenement/${ev}` : v === "apropos" ? ABOUT_PATH : v === "pronos" ? PRONOS_PATH : "/");
+  const depth = useRef(0);
+  useEffect(() => {
+    const st = window.history.state;
+    if (st?.v) depth.current = st.depth || 0;
+    else window.history.replaceState({ v: view, ev: eventOpen, depth: 0, fighter: Boolean(linked) }, "", window.location.pathname);
+  }, []);
+  const navigate = (v, { ev = null, keepPreset = false } = {}) => {
+    if (veil) return;
+    if (!keepPreset) setSimPreset(null);
+    if (selected) hidePanel();
+    if (v === "evenement") setEventOpen(ev);
+    if (v === view && (v !== "evenement" || ev === eventOpen)) return window.scrollTo(0, 0);
+    depth.current += 1;
+    window.history.pushState({ v, ev, depth: depth.current }, "", pathOf(v, ev));
+    showView(v, view === "landing" || view === "hub" || v === "landing" || v === "hub");
+  };
+  // Page parente quand on arrive directement sur une page (lien partagé, Google) : rien à « dépiler ».
+  const goBack = () => {
+    if (depth.current > 0) return window.history.back();
+    const parent = view === "hub" ? "landing" : "hub";
+    window.history.replaceState({ v: parent, ev: null, depth: 0 }, "", "/");
+    if (selected) hidePanel();
+    showView(parent, false);
+  };
+  const goTo = (v) => navigate(v);
+  const changeView = (v) => navigate(v);
+  // Chaque fiche a aussi sa propre adresse, ouverte par-dessus la page en cours.
   const openFighter = (f) => {
     setSelected(f);
-    if (window.location.pathname !== fighterPath(f)) window.history.pushState({ fighter: true }, "", fighterPath(f));
+    if (window.location.pathname === fighterPath(f)) return;
+    depth.current += 1;
+    window.history.pushState({ v: view, ev: eventOpen, depth: depth.current, fighter: true }, "", fighterPath(f));
   };
   const closePanel = () => {
-    if (window.history.state?.fighter) window.history.back();
+    if (window.history.state?.fighter && depth.current > 0) window.history.back();
     else {
       hidePanel();
-      window.history.replaceState(null, "", view === "evenement" && eventOpen ? `/evenement/${eventOpen}` : "/");
+      window.history.replaceState({ v: view, ev: eventOpen, depth: depth.current }, "", pathOf(view, eventOpen));
     }
   };
-  // Chaque événement a aussi sa propre adresse ; le retour ramène à la page d'où l'on vient.
   // `vote` : on arrive par « Fais ton prono » → la page descend jusqu'au premier vote.
   const [voteFocus, setVoteFocus] = useState(0);
   const openEvent = (e, { vote = false } = {}) => {
     setVoteFocus(vote ? Date.now() : 0);
-    if (view !== "evenement") eventFrom.current = view === "hub" ? "hub" : view === "landing" ? "landing" : view;
-    if (selected) hidePanel();
-    setEventOpen(eventSlug(e));
-    if (window.location.pathname !== eventPath(e)) window.history.pushState({ event: true }, "", eventPath(e));
-    if (view === "landing" || view === "hub") goTo("evenement");
-    else setView("evenement");
+    navigate("evenement", { ev: eventSlug(e) });
   };
-  // Page « Qu'est-ce qu'Octogone.space ? » : sa propre adresse, le retour ramène à la page d'avant.
-  const aboutFrom = useRef("landing");
   const media = useMedia();
-  const openAbout = () => {
-    if (view === "apropos") return;
-    aboutFrom.current = view === "mentions" || view === "contact" ? "landing" : view;
-    if (selected) hidePanel();
-    window.history.pushState({ about: true }, "", ABOUT_PATH);
-    if (view === "landing" || view === "hub") goTo("apropos");
-    else changeView("apropos");
-  };
+  const openAbout = () => navigate("apropos");
   // Pop-up « Toi contre l'IA » : cartes passées (résultats) et prochain événement ouvert au vote.
   const recapCards = useMemo(() => media.filter((i) => i.type === "recap").map((i) => i.data), [media]);
   const voteEvent = useMemo(() => nextVoteEvent(upcomingEvents(media, Date.now()), Date.now()), [media]);
@@ -348,62 +363,58 @@ export default function App() {
     changeView(id);
   };
   // Page « Mes pronos » (/mes-pronos) : historique des pronos faits sur cet appareil.
-  const openPronos = () => {
-    if (view === "pronos") return;
-    if (selected) hidePanel();
-    window.history.pushState({ pronos: true }, "", PRONOS_PATH);
-    if (view === "landing" || view === "hub") goTo("pronos");
-    else changeView("pronos");
-  };
-  const leaveEvent = () => {
-    if (window.history.state?.event) window.history.back();
-    else {
-      window.history.replaceState(null, "", "/");
-      setView(eventFrom.current);
-    }
-  };
+  const openPronos = () => navigate("pronos");
   // Simulateur prérempli avec ce duel (b facultatif : le Simulateur choisit alors l'adversaire).
   // `backToVote` : on vient du vote d'une page d'événement → le Simulateur propose d'y revenir.
   const simulate = (a, b = null, { backToVote = false } = {}) => {
-    if (selected) hidePanel();
     const back = backToVote && view === "evenement" ? eventOpen : null;
-    window.history.replaceState(null, "", "/");
     setSimPreset({ n: Date.now(), cat: a.categorie, a: a.id, b: b?.id, back });
-    setView("simulateur");
+    navigate("simulateur", { keepPreset: true });
+  };
+  // Retour arrière (navigateur, Android, iPhone) : on remet la page enregistrée dans l'historique.
+  const onPop = useRef();
+  onPop.current = (e) => {
+    const st = e.state;
+    const path = window.location.pathname;
+    const f = fighterAt(path);
+    depth.current = st?.depth || 0;
+    const v = st?.v || (f ? "combattants" : eventSlugFromPath(path) ? "evenement" : path === ABOUT_PATH ? "apropos" : path === PRONOS_PATH ? "pronos" : "landing");
+    if (v === "evenement") setEventOpen(st?.ev || eventSlugFromPath(path));
+    if (f) setSelected(f);
+    else if (selected) hidePanel();
+    // Pas de voile animé en revenant en arrière : il arriverait en décalage après le geste.
+    if (v !== view) {
+      if (v !== "simulateur") setSimPreset(null);
+      showView(v, false);
+    }
   };
   useEffect(() => {
-    const onPop = () => {
-      const path = window.location.pathname;
-      const f = fighterAt(path);
-      const ev = eventSlugFromPath(path);
-      if (f) {
-        // Une fiche s'ouvre par-dessus la page en cours (événement, médias...), sinon dans Combattants.
-        setView((v) => (v === "landing" || v === "hub" || v === "mentions" || v === "contact" ? "combattants" : v));
-        setSelected(f);
-      } else if (path === ABOUT_PATH) {
-        hidePanel();
-        setView("apropos");
-      } else if (path === PRONOS_PATH) {
-        hidePanel();
-        setView("pronos");
-      } else if (ev) {
-        hidePanel();
-        setEventOpen(ev);
-        setView("evenement");
-      } else {
-        hidePanel();
-        setView((v) => (v === "evenement" ? eventFrom.current : v === "apropos" ? aboutFrom.current : v));
-      }
-    };
-    window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
+    const h = (e) => onPop.current(e);
+    window.addEventListener("popstate", h);
+    return () => window.removeEventListener("popstate", h);
   }, []);
-  // En quittant une page d'événement par les onglets, l'adresse revient à l'accueil du site.
+  // Appli installée sur l'écran d'accueil (iPhone) : pas de geste retour natif, on glisse depuis le bord gauche.
   useEffect(() => {
-    if (view !== "evenement" && eventSlugFromPath(window.location.pathname)) window.history.replaceState(null, "", "/");
-    if (view !== "apropos" && window.location.pathname === ABOUT_PATH) window.history.replaceState(null, "", "/");
-    if (view !== "pronos" && window.location.pathname === PRONOS_PATH) window.history.replaceState(null, "", "/");
-  }, [view]);
+    const standalone = window.navigator.standalone === true || window.matchMedia?.("(display-mode: standalone)").matches;
+    if (!standalone) return; // dans Safari/Chrome, le glissement natif utilise déjà l'historique
+    let start = null;
+    const down = (e) => {
+      const p = e.touches[0];
+      start = p.clientX < 28 ? { x: p.clientX, y: p.clientY } : null;
+    };
+    const up = (e) => {
+      if (!start) return;
+      const p = e.changedTouches[0];
+      const dx = p.clientX - start.x, dy = Math.abs(p.clientY - start.y);
+      start = null;
+      if (dx > 80 && dy < dx * 0.6) backRef.current();
+    };
+    window.addEventListener("touchstart", down, { passive: true });
+    window.addEventListener("touchend", up, { passive: true });
+    return () => { window.removeEventListener("touchstart", down); window.removeEventListener("touchend", up); };
+  }, []);
+  const backRef = useRef();
+  backRef.current = () => (selected ? closePanel() : view !== "landing" && goBack());
   useEffect(() => {
     if (selected) document.title = fighterTitle(selected);
     else if (view === "apropos") document.title = ABOUT_TITLE;
@@ -429,7 +440,7 @@ export default function App() {
       lang={lang}
       forceOpen={cookiesOpen}
       onClose={() => setCookiesOpen(false)}
-      onLegal={() => setView("mentions")}
+      onLegal={() => navigate("mentions")}
     />
     </>
   );
@@ -460,7 +471,7 @@ export default function App() {
   if (view === "hub") {
     return (
       <>
-        <Hub onPick={goTo} onHome={() => goTo("landing")} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} onPronos={hasPronos() ? openPronos : null} />
+        <Hub onPick={goTo} onHome={() => goTo("landing")} onBack={goBack} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} onPronos={hasPronos() ? openPronos : null} />
         {banner}
         {veilEl}
       </>
@@ -576,6 +587,12 @@ export default function App() {
           </div>
         </div>
       </header>
+      {/* Retour : même bouton sur toutes les pages, sous l'en-tête ; il ramène à la page d'où l'on vient. */}
+      <div className="w-full max-w-5xl mx-auto px-3 sm:px-5 pt-3 pl-[max(0.75rem,env(safe-area-inset-left))]">
+        <button onClick={goBack} className="tap inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/70 pl-2 pr-3.5 py-1.5 text-xs font-semibold text-neutral-300 hover:text-amber-300 hover:border-amber-400/50">
+          <ChevronLeft className="w-4 h-4" /> {t.back}
+        </button>
+      </div>
 
       {view === "simulateur" ? (
         <Simulator
@@ -585,13 +602,11 @@ export default function App() {
           preset={simPreset}
           onBackToVote={(slug) => {
             setVoteFocus(Date.now());
-            setEventOpen(slug);
-            window.history.pushState({ event: true }, "", `/evenement/${slug}`);
-            setView("evenement");
+            navigate("evenement", { ev: slug });
           }}
         />
       ) : view === "evenement" ? (
-        <EventPage slug={eventOpen} lang={lang} focusVote={voteFocus} onBack={leaveEvent} onFighter={openFighter} onSimulate={simulate} />
+        <EventPage slug={eventOpen} lang={lang} focusVote={voteFocus} onFighter={openFighter} onSimulate={simulate} />
       ) : view === "media" ? (
         <Media lang={lang} onEvent={openEvent} onFighter={openFighter} />
       ) : view === "apropos" ? (
