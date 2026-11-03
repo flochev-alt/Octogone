@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Swords, Sparkles, TrendingUp, ChevronDown, ChevronLeft, Trophy, Lock, KeyRound, Activity, Film, AlertTriangle, Target, Share2, Download, X } from "lucide-react";
+import { Swords, Sparkles, TrendingUp, ChevronDown, ChevronLeft, Trophy, Lock, KeyRound, Activity, Film, AlertTriangle, Target, Share2, Download, X, Link2, Check } from "lucide-react";
 import { useFighters } from "./useFighters.js";
 import { T, translateCategory, formatHeight, formatStyle, ageFrom, CATEGORY_ORDER } from "./i18n.js";
 import { usePhotos, creditOf } from "./usePhotos.js";
@@ -8,6 +8,7 @@ import CategoryBar from "./CategoryBar.jsx";
 import { getVipCode } from "./vip.js";
 import { makeShareImage } from "./shareImage.js";
 import { duelOdds } from "./score.js";
+import { duelPath } from "./slug.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
 
@@ -30,7 +31,7 @@ function incrementDailyUsage() {
 }
 
 // preset : duel déjà choisi en venant d'une fiche ou d'une page d'événement ({ cat, a, b } : catégorie et ids).
-export default function Simulator({ lang = "fr", vip = false, preset = null, onBackToVote = () => {} }) {
+export default function Simulator({ lang = "fr", vip = false, preset = null, onBackToVote = () => {}, onDuel = () => {} }) {
   const t = T[lang];
   const fighters = useFighters();
   // Toutes les catégories de la base, dans l'ordre du plus léger au plus lourd (puis femmes et légendes).
@@ -80,6 +81,20 @@ export default function Simulator({ lang = "fr", vip = false, preset = null, onB
 
   const fighterA = fightersInCategorie.find((f) => f.id === idA);
   const fighterB = fightersInCategorie.find((f) => f.id === idB);
+  // L'adresse de la page suit le duel choisi : /comparer/<a>-vs-<b>, à copier ou partager.
+  useEffect(() => {
+    onDuel(fighterA, fighterB);
+    document.title = fighterA && fighterB && fighterA !== fighterB ? `${fighterA.nom} vs ${fighterB.nom} : stats et pronostic | Octogone` : "Simulateur de duels MMA | Octogone";
+  }, [fighterA?.id, fighterB?.id]);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const copyDuelLink = async () => {
+    const url = `https://octogone.space${duelPath(fighterA, fighterB)}`;
+    try {
+      if (navigator.share && window.matchMedia?.("(pointer: coarse)").matches) await navigator.share({ title: `${fighterA.nom} vs ${fighterB.nom}`, url });
+      else { await navigator.clipboard.writeText(url); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2200); }
+      window.gtag?.("event", "share", { method: "duel_link", content_type: "duel" });
+    } catch {}
+  };
 
   const { probA, probB } = useMemo(() => {
     if (!fighterA || !fighterB) return { probA: 50, probB: 50 };
@@ -265,6 +280,14 @@ export default function Simulator({ lang = "fr", vip = false, preset = null, onB
             >
               <Swords className="w-4 h-4" /> {t.analyze}
             </button>
+            {fighterA && fighterB && fighterA !== fighterB && (
+              <div className="-mt-3 mb-6 flex justify-center">
+                <button onClick={copyDuelLink} className="tap inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-amber-300">
+                  {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Link2 className="w-3.5 h-3.5" />}
+                  {linkCopied ? t.duelLinkCopied : t.duelLink}
+                </button>
+              </div>
+            )}
 
             {/* Face-à-face et résultat, après « Analyser le duel » */}
             {limitHit && (
@@ -382,7 +405,7 @@ function ShareButton({ data, t }) {
   const canShare = file && typeof navigator !== "undefined" && navigator.canShare?.({ files: [file] });
   const share = async () => {
     try {
-      await navigator.share({ files: [file], title: "Octogone", text: `${t.shareText(data.fighterA.nom, data.fighterB.nom)} https://octogone.space` });
+      await navigator.share({ files: [file], title: "Octogone", text: `${t.shareText(data.fighterA.nom, data.fighterB.nom)} https://octogone.space${duelPath(data.fighterA, data.fighterB)}` });
       window.gtag?.("event", "share", { method: "share_sheet", content_type: "pronostic" });
     } catch {
       // Partage annulé : rien à faire.

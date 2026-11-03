@@ -8,7 +8,7 @@ import { LEAGUE_FIGHTERS, LEAGUES } from "../src/otherLeagues.js";
 import { RECENT_FIGHTS } from "../src/recentFights.js";
 import { LEGENDS } from "../src/legends.js";
 import { translateCategory, translateMethod, formatDate, ageFrom, formatStyle, L } from "../src/i18n.js";
-import { slugify } from "../src/slug.js";
+import { slugify, duelPath } from "../src/slug.js";
 import { UPCOMING, RECENT_CARDS } from "../src/mediaData.js";
 import { eventSlug, cardOf, findFighter, resultSides, nextFightOf } from "../src/events.js";
 
@@ -223,11 +223,57 @@ writeFileSync(
   )
 );
 
-const urls = [`${SITE}/`, `${SITE}/a-propos`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`)];
+// comparer/<a>-vs-<b>.html : les duels des cartes à venir (même catégorie, les deux dans notre base),
+// lisibles par Google. Les autres duels s'ouvrent quand même grâce à la réécriture de vercel.json.
+const duels = [];
+for (const e of upcoming) {
+  for (const fight of cardOf(e)) {
+    const a = findFighter(FIGHTERS, fight.a), b = findFighter(FIGHTERS, fight.b);
+    if (a && b && a.categorie === b.categorie && !duels.some((d) => d.path === duelPath(a, b))) duels.push({ a, b, e, path: duelPath(a, b) });
+  }
+}
+mkdirSync("dist/comparer", { recursive: true });
+for (const { a, b, e, path } of duels) {
+  const url = `${SITE}${path}`;
+  const title = `${a.nom} vs ${b.nom} : stats, comparaison et pronostic | Octogone`;
+  const desc = `${a.nom} (${record(a)}) contre ${b.nom} (${record(b)}) à ${e.name.replace(/\s*:.*/, "")} le ${formatDate(e.iso, "fr")} : comparaison des stats, probabilités et analyse du duel sur Octogone.`;
+  const rows = [
+    ["Bilan", record(a), record(b)],
+    ["Âge", ageFrom(a.naissance) ? `${ageFrom(a.naissance)} ans` : "—", ageFrom(b.naissance) ? `${ageFrom(b.naissance)} ans` : "—"],
+    ["Taille", a.taille ? `${a.taille} cm` : "—", b.taille ? `${b.taille} cm` : "—"],
+    ["Allonge", a.allonge ? `${a.allonge} cm` : "—", b.allonge ? `${b.allonge} cm` : "—"],
+    ["Victoires par KO", a.ko != null ? `${a.ko} %` : "—", b.ko != null ? `${b.ko} %` : "—"],
+    ["Victoires par soumission", a.sub != null ? `${a.sub} %` : "—", b.sub != null ? `${b.sub} %` : "—"],
+    ["Précision des frappes", a.striking != null ? `${a.striking} %` : "—", b.striking != null ? `${b.striking} %` : "—"],
+    ["Défense de lutte", a.tdDef != null ? `${a.tdDef} %` : "—", b.tdDef != null ? `${b.tdDef} %` : "—"],
+  ];
+  const head = [
+    `<title>${esc(title)}</title>`,
+    `<meta name="description" content="${esc(desc)}" />`,
+    `<link rel="canonical" href="${url}" />`,
+    `<meta property="og:type" content="website" />`,
+    `<meta property="og:site_name" content="Octogone" />`,
+    `<meta property="og:title" content="${esc(title)}" />`,
+    `<meta property="og:description" content="${esc(desc)}" />`,
+    `<meta property="og:url" content="${url}" />`,
+    `<meta property="og:image" content="${SITE}/og-image.jpg" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
+  ].join("\n    ");
+  const html = `<main style="max-width:720px;margin:0 auto;padding:24px 16px;color:#f5f5f5;font-family:Inter,system-ui,sans-serif;line-height:1.5">
+<p><a href="/" style="color:#fbbf24">Octogone</a> › Simulateur</p>
+<h1 style="font-size:2rem;margin:8px 0">${esc(a.nom)} vs ${esc(b.nom)}</h1>
+<p>${esc(category(a))} · <a href="/evenement/${eventSlug(e)}" style="color:#fbbf24">${esc(e.name)}</a>, ${formatDate(e.iso, "fr")}</p>
+<table><thead><tr><th></th><th><a href="/combattant/${slugify(a.nom)}" style="color:#fbbf24">${esc(a.nom)}</a></th><th><a href="/combattant/${slugify(b.nom)}" style="color:#fbbf24">${esc(b.nom)}</a></th></tr></thead>
+<tbody>${rows.map(([k, x, y]) => `<tr><td style="color:#a3a3a3">${esc(k)}</td><td>${esc(x)}</td><td>${esc(y)}</td></tr>`).join("")}</tbody></table>
+</main>`;
+  writeFileSync(`dist/comparer/${path.slice("/comparer/".length)}.html`, fill(head, html));
+}
+
+const urls = [`${SITE}/`, `${SITE}/a-propos`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`), ...duels.map((d) => `${SITE}${d.path}`)];
 writeFileSync("dist/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod></url>`).join("\n")}
 </urlset>
 `);
 writeFileSync("dist/robots.txt", `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
-console.log(`${all.length} pages combattants, ${events.length} pages événements, sitemap.xml et robots.txt écrits.`);
+console.log(`${all.length} pages combattants, ${events.length} pages événements, ${duels.length} duels, sitemap.xml et robots.txt écrits.`);
