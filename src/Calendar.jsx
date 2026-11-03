@@ -3,6 +3,7 @@ import { CalendarDays, MapPin, Vote, ArrowRight, Trophy } from "lucide-react";
 import { L, formatDate, translateMethod } from "./i18n.js";
 import { eventName } from "./Media.jsx";
 import { eventSlug, resultSides } from "./events.js";
+import { AiRecord } from "./Transparency.jsx";
 
 // Page « Calendrier » (/evenements) : tous les événements à venir, puis les résultats des cartes passées,
 // mois par mois. Chaque carte ouvre la page de l'événement.
@@ -74,6 +75,8 @@ export default function Calendar({ lang = "fr", upcoming = [], past = [], voteEv
           </button>
         ))}
       </div>
+
+      {tab === "results" && <AiRecord cards={past} lang={lang} className="mt-5" />}
 
       {!months.length && <p className="mt-8 text-sm text-neutral-500">{tab === "upcoming" ? tx.empty : tx.emptyPast}</p>}
 

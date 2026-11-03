@@ -620,6 +620,7 @@ export default function App() {
           lang={lang}
           vip={vip}
           preset={simPreset}
+          recapCards={recapCards}
           onDuel={onDuel}
           onBackToVote={(slug) => {
             setVoteFocus(Date.now());

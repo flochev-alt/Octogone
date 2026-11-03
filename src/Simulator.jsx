@@ -8,6 +8,7 @@ import CategoryBar from "./CategoryBar.jsx";
 import { getVipCode } from "./vip.js";
 import { makeShareImage } from "./shareImage.js";
 import { duelOdds } from "./score.js";
+import { HowWeCalc, AiRecord } from "./Transparency.jsx";
 import { duelPath } from "./slug.js";
 
 const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -31,7 +32,7 @@ function incrementDailyUsage() {
 }
 
 // preset : duel déjà choisi en venant d'une fiche ou d'une page d'événement ({ cat, a, b } : catégorie et ids).
-export default function Simulator({ lang = "fr", vip = false, preset = null, onBackToVote = () => {}, onDuel = () => {} }) {
+export default function Simulator({ lang = "fr", vip = false, preset = null, recapCards = [], onBackToVote = () => {}, onDuel = () => {} }) {
   const t = T[lang];
   const fighters = useFighters();
   // Toutes les catégories de la base, dans l'ordre du plus léger au plus lourd (puis femmes et légendes).
@@ -301,6 +302,7 @@ export default function Simulator({ lang = "fr", vip = false, preset = null, onB
             {showResult && (
             <div key={idA + idB} className="row-rise space-y-5">
             <ExpertAnalysis analysis={aiText} loading={aiLoading} error={aiError} vip={vip} left={Math.max(0, DAILY_LIMIT - dailyUsage)} fighterA={fighterA} t={t} />
+            <AiRecord cards={recapCards} lang={lang} />
             {!aiLoading && (
               <ShareButton
                 t={t}
@@ -360,6 +362,7 @@ export default function Simulator({ lang = "fr", vip = false, preset = null, onB
                     <div className="relative text-center text-[11px] text-neutral-500 mt-3">
                       {t.probLabel(translateCategory(categorie, lang))}
                     </div>
+                    <HowWeCalc fighterA={fighterA} fighterB={fighterB} lang={lang} />
                   </div>
 
                 </div>
