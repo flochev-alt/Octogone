@@ -10,13 +10,19 @@ permissions:
 jobs:
   candidats:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
-      - run: node scripts/photo-candidates.mjs
-      - run: |
-          cd candidats && git init -q -b controle-photos-candidats && git add .
+      - run: timeout 85m node scripts/photo-candidates.mjs || true
+        env: { SHARD: "${{ matrix.shard }}", SHARDS: "6" }
+      - if: always()
+        run: |
+          cd candidats && git init -q -b controle-photos-candidats-${{ matrix.shard }} && git add .
           git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Photos candidates"
-          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" controle-photos-candidats
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" controle-photos-candidats-${{ matrix.shard }}

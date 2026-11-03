@@ -7,10 +7,10 @@ const UA = "OctogonePhotos/1.0 (https://octogone.space)";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function get(url) {
   for (let a = 0; ; a++) {
-    const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(20000) }).catch(() => null);
+    const r = await fetch(url, { headers: { "User-Agent": UA }, signal: AbortSignal.timeout(12000) }).catch(() => null);
     if (r && r.status !== 429) return r;
-    if (a >= 4) return r;
-    await sleep(5000 * 2 ** a);
+    if (a >= 2) return r;
+    await sleep(3000 * 2 ** a);
   }
 }
 const j = async (url) => { const r = await get(url); return r && r.ok ? r.json() : {}; };
@@ -19,10 +19,11 @@ const strip = (s = "") => s.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 const photos = JSON.parse(readFileSync("public/photos.json", "utf8"));
 const only = process.env.ONLY ? process.env.ONLY.split(",") : null;
 const list = FIGHTERS.filter((f) => !photos[f.nom] && f.categorie !== "Legendes" || (only && only.includes(f.nom)))
-  .filter((f) => !only || only.includes(f.nom));
+  .filter((f) => !only || only.includes(f.nom))
+  .filter((f, i) => !process.env.SHARD || i % Number(process.env.SHARDS) === Number(process.env.SHARD));
 mkdirSync("candidats", { recursive: true });
 const index = {};
-const LANGS = ["en", "fr", "pt", "es", "ru", "pl", "de", "it", "zh", "ja"];
+const LANGS = ["en", "fr", "pt", "es", "ru", "pl"];
 for (const f of list) {
   const name = f.nom;
   const files = new Map(); // file -> origins
@@ -63,7 +64,7 @@ for (const f of list) {
     (d.query?.search || []).forEach((r) => add(r.title, `recherche Commons ${q}`));
   }
   // Infos fichiers
-  const arr = [...files.keys()].slice(0, 60);
+  const arr = [...files.keys()].slice(0, 45);
   const cands = [];
   for (let i = 0; i < arr.length; i += 40) {
     const d = await api("commons.wikimedia.org", { action: "query", titles: arr.slice(i, i + 40).map((x) => "File:" + x).join("|"), prop: "imageinfo|categories", cllimit: "max", iiprop: "url|size|extmetadata", iiurlwidth: "500" });
@@ -87,13 +88,11 @@ for (const f of list) {
   const slug = name.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "_");
   let k = 0;
   for (const c of cands) {
-    if (!c.thumb) continue;
+    if (!c.thumb || (c.width && c.width < 400)) continue;
     const r = await get(c.thumb);
     if (r?.ok) { c.local = `${slug}__${String(k++).padStart(2, "0")}.jpg`; writeFileSync(`candidats/${c.local}`, Buffer.from(await r.arrayBuffer())); }
-    await sleep(200);
   }
   index[name] = { rang: f.rang, categorie: f.categorie, naissance: f.naissance, wiki, wikidata: wdInfo, cands };
   console.log(name, cands.length);
-  await sleep(500);
+  writeFileSync("candidats/index-" + (process.env.SHARD || "all") + ".json", JSON.stringify(index, null, 1));
 }
-writeFileSync("candidats/index.json", JSON.stringify(index, null, 1));
