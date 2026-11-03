@@ -117,9 +117,8 @@ const REJECTED = new Set([
   // 2026-10-31 (Flo) : « Anderson-Silva.jpg » montre le kickboxeur néerlandais du même nom, pas « The Spider ».
   "Anderson-Silva.jpg",
   // 2026-11-03 : photos officielles UFC republiées sous une fausse licence libre (Quillan Salkilld, Raoni Barcelos),
-  // capture d'une vidéo OnlyFans (Norma Dumont), photos d'une autre combattante (Miranda Maverick).
+  // capture d'une vidéo OnlyFans (Norma Dumont).
   "QuillanSalkilld4.png", "Qsalkilld.png", "Photo_of_Raoni_Barcelos.png", "Norma_Dumont_OF.jpg",
-  "Jasmine_Jasudavicius_in_2023_01.png", "Jasmine_Jasudavicius_in_2023_02.png", "Jasmine_Jasudavicius_2023.png",
   "Raquel_Pennington_MCCS_Twentynine_Palms_presents_an_action-packed_MMA_Fight_Night_Live_at_The_Combat_Center_(5).jpg",
 ]);
 // Nom du fichier d'une photo déjà choisie (photos.json garde le lien vers sa page Commons ou Openverse).
