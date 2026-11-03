@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, Swords, Trophy, Newspaper, Vote } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
-import { eventName } from "./Media.jsx";
+import { eventName } from "./events.js";
 import { useMedia } from "./useMedia.js";
 import Cage3D from "./Cage3D.jsx";
 import { upcomingEvents, parisDay, useNow } from "./events.js";

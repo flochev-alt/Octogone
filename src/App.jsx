@@ -1,35 +1,60 @@
-import { useState, useEffect, useMemo, useRef, Fragment } from "react";
+import { useState, useEffect, useMemo, useRef, Fragment, lazy, Suspense } from "react";
 import { Search, X, ChevronLeft, ChevronRight, Trophy, MapPin, Users, Swords, Instagram, Cake, Dumbbell, Medal, CalendarDays } from "lucide-react";
-import Simulator from "./Simulator.jsx";
+
 import Landing from "./Landing.jsx";
 import Hub from "./Hub.jsx";
 import CategoryBar from "./CategoryBar.jsx";
-import Media, { eventName } from "./Media.jsx";
-import EventPage from "./EventPage.jsx";
-import MentionsLegales from "./MentionsLegales.jsx";
-import About from "./About.jsx";
-import ResultsPopup from "./ResultsPopup.jsx";
-import MyPronos from "./MyPronos.jsx";
-import Calendar from "./Calendar.jsx";
+
+
+
+
+
+
+
 import { nextVoteEvent } from "./fans.js";
 import ConsentBanner from "./ConsentBanner.jsx";
-import Contact from "./Contact.jsx";
+
 import { initVip, activateVip } from "./vip.js";
 import { useInstall } from "./install.js";
 import { useFighters } from "./useFighters.js";
 import FighterAvatar, { initialsOf } from "./FighterAvatar.jsx";
 import { usePhotos, creditOf } from "./usePhotos.js";
-import { RECENT_FIGHTS } from "./recentFights.js";
 import { LEAGUES, LEAGUE_FIGHTERS, VACANT } from "./otherLeagues.js";
 import { LEGENDS } from "./legends.js";
 import { FIGHTERS } from "./fightersData.js";
 import { fighterPath, slugFromPath, slugify, duelPath, duelFromPath } from "./slug.js";
 import { eventSlug, eventPath, eventSlugFromPath, upcomingEvents, nextFightOf, findFighter } from "./events.js";
 import { useMedia } from "./useMedia.js";
+import { eventName } from "./events.js";
+import { loadRecentFights, useRecentFights } from "./useRecentFights.js";
 import {
   LANGUAGES, T, L, CATEGORY_ORDER, translateCategory, translateMethod, formatStyle,
   formatHeight, formatDate, ageFrom, getInitialLang, setStoredLang,
 } from "./i18n.js";
+
+// Vitesse sur mobile : chaque page est chargée à part. L'accueil n'attend que ce qu'il affiche ;
+// le reste se télécharge en arrière-plan juste après (preloadPages), donc la navigation reste instantanée.
+const PAGES = {
+  Simulator: () => import("./Simulator.jsx"),
+  EventPage: () => import("./EventPage.jsx"),
+  Media: () => import("./Media.jsx"),
+  MentionsLegales: () => import("./MentionsLegales.jsx"),
+  About: () => import("./About.jsx"),
+  ResultsPopup: () => import("./ResultsPopup.jsx"),
+  MyPronos: () => import("./MyPronos.jsx"),
+  Calendar: () => import("./Calendar.jsx"),
+  Contact: () => import("./Contact.jsx"),
+};
+const Simulator = lazy(PAGES.Simulator);
+const EventPage = lazy(PAGES.EventPage);
+const Media = lazy(PAGES.Media);
+const MentionsLegales = lazy(PAGES.MentionsLegales);
+const About = lazy(PAGES.About);
+const ResultsPopup = lazy(PAGES.ResultsPopup);
+const MyPronos = lazy(PAGES.MyPronos);
+const Calendar = lazy(PAGES.Calendar);
+const Contact = lazy(PAGES.Contact);
+const preloadPages = () => Object.values(PAGES).forEach((load) => load().catch(() => {}));
 
 // Comptes Instagram officiels vérifiés manuellement — recherche par nom (pas exhaustif,
 // à compléter au fur et à mesure). Un fighter absent de cette liste n'affiche pas la bulle.
@@ -195,6 +220,13 @@ const fighterAt = (path) => {
 const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
 
 export default function App() {
+  // Une fois la première page affichée et le téléphone au repos, on précharge les autres pages.
+  useEffect(() => {
+    const go = () => { preloadPages(); loadRecentFights(); };
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 1500));
+    const id = idle(go, { timeout: 4000 });
+    return () => (window.cancelIdleCallback ? window.cancelIdleCallback(id) : clearTimeout(id));
+  }, []);
   const [linked] = useState(() => fighterAt(window.location.pathname));
   const [linkedEvent] = useState(() => eventSlugFromPath(window.location.pathname));
   // Lien partagé d'un duel du Simulateur (/comparer/<a>-vs-<b>).
@@ -450,7 +482,7 @@ export default function App() {
 
   const banner = (
     <>
-    <ResultsPopup cards={recapCards} lang={lang} nextEvent={voteEvent} onNext={openEvent} onHistory={openPronos} paused={Boolean(veil) || view === "mentions" || view === "contact"} />
+    <Suspense fallback={null}><ResultsPopup cards={recapCards} lang={lang} nextEvent={voteEvent} onNext={openEvent} onHistory={openPronos} paused={Boolean(veil) || view === "mentions" || view === "contact"} /></Suspense>
     {vipToast && (
       <div role="status" className="fixed z-[60] bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-full text-sm font-semibold shadow-lg border bg-neutral-900 border-amber-400/60 text-amber-300 whitespace-nowrap">
         {vipToast === "on" ? t.vipOn : t.vipBad}
@@ -614,6 +646,7 @@ export default function App() {
         </button>
       </div>
 
+      <Suspense fallback={<div className="min-h-[70vh]" />}>
       {view === "simulateur" ? (
         <Simulator
           key={simPreset?.n}
@@ -833,6 +866,7 @@ export default function App() {
           </main>
         </>
       )}
+      </Suspense>
 
       {shown && view !== "mentions" && view !== "contact" && (
         <FighterPanel fighter={shown} photo={photoOf(shown)} closing={closing} onClose={closePanel} lang={lang} t={t} onSimulate={simulate} onEvent={openEvent} />
@@ -910,7 +944,8 @@ function FighterPanel({ fighter, photo, onClose, closing, lang, t, onSimulate, o
     return () => { cancelled = true; };
   }, [fighter.nom, ligue]);
 
-  const recent = fighter.recent || RECENT_FIGHTS[fighter.id];
+  const recentAll = useRecentFights();
+  const recent = fighter.recent || recentAll?.[fighter.id];
   // Prochain combat inscrit sur une carte à venir (fil Média), avec lien vers la page de l'événement.
   const media = useMedia();
   const next = useMemo(() => nextFightOf(fighter.nom, upcomingEvents(media, Date.now())), [fighter.nom, media]);

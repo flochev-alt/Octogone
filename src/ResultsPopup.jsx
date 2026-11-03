@@ -4,7 +4,7 @@ import { norm, sameName, resultSides } from "./events.js";
 import { findRow, fanPick } from "./fans.js";
 import { useFanVotes, fanVotesReady, myVotes } from "./useFanVotes.js";
 import { formatDate, translateMethod } from "./i18n.js";
-import { eventName } from "./Media.jsx";
+import { eventName } from "./events.js";
 
 // Pop-up « Toi contre l'IA » : à la première visite après les résultats d'un événement où le visiteur
 // a voté (sur cet appareil), son score face à celui de l'IA et des fans. Une seule fois par événement.
