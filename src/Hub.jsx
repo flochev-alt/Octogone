@@ -1,8 +1,8 @@
-import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote, History } from "lucide-react";
+import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote, History, ChevronLeft } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
-export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {}, onPronos = null }) {
+export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {}, onPronos = null }) {
   const t = T[lang];
   // Affiche du prochain événement ouvert au vote « Toi contre l'IA » (noms de famille : « Moicano vs. Nolan »).
   const lastName = (n) => n.split(" ").slice(-1)[0];
@@ -43,10 +43,16 @@ export default function Hub({ onPick, onHome, lang = "fr", setLang = () => {}, o
 
       {/* Appli installée sur iPhone : le haut de page passe sous l'heure et la batterie, on décale d'autant (safe-area). */}
       <header className="relative z-10 flex items-center justify-between pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-[calc(1.25rem_+_env(safe-area-inset-top))]">
-        <button onClick={onHome} aria-label="Octogone" className="tap h-12 flex items-center gap-2.5">
-          <span className="w-2 h-2 rounded-full bg-amber-400" />
-          <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
-        </button>
+        <div className="flex items-center gap-1.5">
+          {/* Retour : ramène à la page d'où l'on vient (l'accueil le plus souvent). */}
+          <button onClick={onBack} aria-label={t.back} title={t.back} className="tap w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-neutral-300 hover:text-amber-300 hover:bg-neutral-900/80">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button onClick={onHome} aria-label="Octogone" className="tap h-12 flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
+          </button>
+        </div>
         <div className="flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
           {LANGUAGES.map((l) => (
             <button
