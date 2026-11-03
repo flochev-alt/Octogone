@@ -43,16 +43,10 @@ export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setL
 
       {/* Appli installée sur iPhone : le haut de page passe sous l'heure et la batterie, on décale d'autant (safe-area). */}
       <header className="relative z-10 flex items-center justify-between pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-[calc(1.25rem_+_env(safe-area-inset-top))]">
-        <div className="flex items-center gap-1.5">
-          {/* Retour : ramène à la page d'où l'on vient (l'accueil le plus souvent). */}
-          <button onClick={onBack} aria-label={t.back} title={t.back} className="tap w-10 h-10 -ml-2 rounded-full flex items-center justify-center text-neutral-300 hover:text-amber-300 hover:bg-neutral-900/80">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button onClick={onHome} aria-label="Octogone" className="tap h-12 flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
-          </button>
-        </div>
+        <button onClick={onHome} aria-label="Octogone" className="tap h-12 flex items-center gap-2.5">
+          <span className="w-2 h-2 rounded-full bg-amber-400" />
+          <span className="disp text-lg tracking-tight">OCTOGONE<span className="text-amber-400">.</span></span>
+        </button>
         <div className="flex items-center gap-1 bg-neutral-900/80 backdrop-blur rounded-full p-1 border border-neutral-800">
           {LANGUAGES.map((l) => (
             <button
@@ -68,6 +62,12 @@ export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setL
           ))}
         </div>
       </header>
+      {/* Retour : sous l'en-tête, ramène à la page d'où l'on vient (l'accueil le plus souvent). */}
+      <div className="relative z-10 pt-2 pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))]">
+        <button onClick={onBack} className="tap inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/70 backdrop-blur pl-2 pr-3.5 py-1.5 text-xs font-semibold text-neutral-300 hover:text-amber-300 hover:border-amber-400/50">
+          <ChevronLeft className="w-4 h-4" /> {t.back}
+        </button>
+      </div>
 
       <main className="relative z-10 flex-1 w-full max-w-5xl mx-auto px-5 py-10 flex flex-col justify-center">
         <div className="text-center mb-8 sm:mb-12">

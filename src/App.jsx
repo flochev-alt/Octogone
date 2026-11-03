@@ -194,7 +194,12 @@ const categoryOf = (f) => (f.ligue ? `league:${f.ligue}` : f.categorie);
 export default function App() {
   const [linked] = useState(() => fighterAt(window.location.pathname));
   const [linkedEvent] = useState(() => eventSlugFromPath(window.location.pathname));
-  const [view, setView] = useState(linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : window.location.pathname === PRONOS_PATH ? "pronos" : "landing");
+  // Page rechargée : l'historique garde la page où l'on était (Médias, sommaire…), on y reste.
+  const [view, setView] = useState(() => {
+    const st = window.history.state;
+    if (st?.v && (st.v === "evenement" ? Boolean(linkedEvent) : !linkedEvent)) return st.v;
+    return linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : window.location.pathname === PRONOS_PATH ? "pronos" : "landing";
+  });
   // Duel déjà choisi pour le Simulateur (bouton « Simuler un duel » d'une fiche ou d'une page d'événement).
   const [simPreset, setSimPreset] = useState(null);
   // Page d'événement ouverte (/evenement/<slug>).
@@ -321,7 +326,7 @@ export default function App() {
     const parent = view === "hub" ? "landing" : "hub";
     window.history.replaceState({ v: parent, ev: null, depth: 0 }, "", "/");
     if (selected) hidePanel();
-    showView(parent, true);
+    showView(parent, false);
   };
   const goTo = (v) => navigate(v);
   const changeView = (v) => navigate(v);
@@ -377,9 +382,10 @@ export default function App() {
     if (v === "evenement") setEventOpen(st?.ev || eventSlugFromPath(path));
     if (f) setSelected(f);
     else if (selected) hidePanel();
+    // Pas de voile animé en revenant en arrière : il arriverait en décalage après le geste.
     if (v !== view) {
       if (v !== "simulateur") setSimPreset(null);
-      showView(v, view === "landing" || view === "hub" || v === "landing" || v === "hub");
+      showView(v, false);
     }
   };
   useEffect(() => {
@@ -514,11 +520,6 @@ export default function App() {
       {/* Appli installée sur iPhone : l'en-tête commence sous l'heure et la batterie (safe-area), fond compris. */}
       <header className="sticky top-0 z-40 bg-neutral-950/95 backdrop-blur border-b border-neutral-800 overflow-x-hidden pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
         <div className="max-w-5xl mx-auto px-3 sm:px-5 h-16 flex items-center justify-between gap-1.5 sm:gap-3">
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-          {/* Retour : même bouton sur toutes les pages, il ramène à la page d'où l'on vient. */}
-          <button onClick={goBack} aria-label={t.back} title={t.back} className="tap w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-neutral-300 hover:text-amber-300 hover:bg-neutral-900 border border-transparent hover:border-neutral-800">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
           <button onClick={() => changeView("landing")} className="tap flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <div className="w-2 h-2 rounded-full bg-amber-400" />
             <span className="disp text-lg tracking-tight">
@@ -527,7 +528,6 @@ export default function App() {
               <span className="text-amber-400">.</span>
             </span>
           </button>
-          </div>
 
           <nav className="flex-1 flex items-center justify-center min-w-0">
             <div className="flex items-center gap-0.5 sm:gap-1 bg-neutral-900 rounded-full p-1 border border-neutral-800 max-w-full">
@@ -587,6 +587,12 @@ export default function App() {
           </div>
         </div>
       </header>
+      {/* Retour : même bouton sur toutes les pages, sous l'en-tête ; il ramène à la page d'où l'on vient. */}
+      <div className="w-full max-w-5xl mx-auto px-3 sm:px-5 pt-3 pl-[max(0.75rem,env(safe-area-inset-left))]">
+        <button onClick={goBack} className="tap inline-flex items-center gap-1 rounded-full border border-neutral-800 bg-neutral-900/70 pl-2 pr-3.5 py-1.5 text-xs font-semibold text-neutral-300 hover:text-amber-300 hover:border-amber-400/50">
+          <ChevronLeft className="w-4 h-4" /> {t.back}
+        </button>
+      </div>
 
       {view === "simulateur" ? (
         <Simulator
