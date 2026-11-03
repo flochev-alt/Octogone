@@ -1,0 +1,22 @@
+# TEMPORAIRE : recherche large des photos candidates pour les combattants sans photo (contrôle d'identité).
+name: Photos candidates (controle)
+on:
+  push:
+    branches: [claude/project-thread-iazch7]
+    paths: [scripts/photo-candidates.mjs, .github/workflows/photo-candidates.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  candidats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/photo-candidates.mjs
+      - run: |
+          cd candidats && git init -q -b controle-photos-candidats && git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Photos candidates"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" controle-photos-candidats
