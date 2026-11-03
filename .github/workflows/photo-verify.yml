@@ -1,0 +1,22 @@
+# TEMPORAIRE : vérifications d'identité / licence des photos candidates.
+name: Photos verification (controle)
+on:
+  push:
+    branches: [claude/project-thread-iazch7]
+    paths: [scripts/photo-verify.mjs]
+permissions:
+  contents: write
+jobs:
+  verif:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node scripts/photo-verify.mjs
+      - if: always()
+        run: |
+          cd verif && git init -q -b controle-photos-verif && git add .
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm verif
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" controle-photos-verif
