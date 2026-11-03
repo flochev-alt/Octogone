@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, MapPin, Vote, ArrowRight, Trophy } from "lucide-react";
 import { L, formatDate, translateMethod } from "./i18n.js";
-import { eventName } from "./Media.jsx";
+import { eventName } from "./events.js";
 import { eventSlug, resultSides } from "./events.js";
 import { AiRecord } from "./Transparency.jsx";
 

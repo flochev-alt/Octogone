@@ -4,7 +4,7 @@ import { norm, sameName, cardOf } from "./events.js";
 import { useFanVotes, myVotes } from "./useFanVotes.js";
 import { recapOf } from "./ResultsPopup.jsx";
 import { formatDate, translateMethod } from "./i18n.js";
-import { eventName } from "./Media.jsx";
+import { eventName } from "./events.js";
 
 // Page « Mes pronos » : l'historique des pronos faits sur cet appareil (pas de compte),
 // événement par événement, avec le score face à l'IA. Les événements à venir montrent les choix en attente.

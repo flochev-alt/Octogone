@@ -58,3 +58,6 @@ export function useNow() {
   }, []);
   return now;
 }
+
+// Nom d'un événement : « UFC 333 : X vs. Y » en français, « UFC 333: X vs. Y » ailleurs.
+export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" : ", ": "));

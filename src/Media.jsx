@@ -8,7 +8,8 @@ import FighterAvatar from "./FighterAvatar.jsx";
 import FighterLink from "./FighterLink.jsx";
 import { useFighters } from "./useFighters.js";
 
-export const eventName = (name, lang) => (lang === "fr" ? name : name.replace(" : ", ": "));
+export { eventName } from "./events.js";
+import { eventName } from "./events.js";
 
 // Fil unique, trié par date décroissante (le plus lointain/récent en haut).
 const byIsoDesc = (a, b) => (a.iso < b.iso ? 1 : -1);
