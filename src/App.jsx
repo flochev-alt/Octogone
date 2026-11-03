@@ -9,7 +9,8 @@ import EventPage from "./EventPage.jsx";
 import MentionsLegales from "./MentionsLegales.jsx";
 import About from "./About.jsx";
 import ResultsPopup from "./ResultsPopup.jsx";
-import MyPronos, { hasPronos } from "./MyPronos.jsx";
+import MyPronos from "./MyPronos.jsx";
+import Calendar from "./Calendar.jsx";
 import { nextVoteEvent } from "./fans.js";
 import ConsentBanner from "./ConsentBanner.jsx";
 import Contact from "./Contact.jsx";
@@ -182,6 +183,8 @@ const SITE_TITLE = "Octogone — Stats MMA";
 const ABOUT_PATH = "/a-propos";
 const PRONOS_PATH = "/mes-pronos";
 const PRONOS_TITLE = "Mes pronos | Octogone";
+const CALENDAR_PATH = "/evenements";
+const CALENDAR_TITLE = "Calendrier des événements MMA et UFC | Octogone";
 const ABOUT_TITLE = "Qu'est-ce qu'Octogone.space ? | Octogone";
 const fighterTitle = (f) => `${f.nom} : bilan, stats et derniers combats | Octogone`;
 // Combattant dont l'adresse est /combattant/<slug> (page arrivée depuis Google ou un lien partagé).
@@ -201,7 +204,7 @@ export default function App() {
     const st = window.history.state;
     if (st?.v && (st.v === "evenement" ? Boolean(linkedEvent) : !linkedEvent)) return st.v;
     if (linkedDuel) return "simulateur";
-    return linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : window.location.pathname === PRONOS_PATH ? "pronos" : "landing";
+    return linked ? "combattants" : linkedEvent ? "evenement" : window.location.pathname === ABOUT_PATH ? "apropos" : window.location.pathname === PRONOS_PATH ? "pronos" : window.location.pathname === CALENDAR_PATH ? "calendrier" : "landing";
   });
   // Duel déjà choisi pour le Simulateur (bouton « Simuler un duel » d'une fiche ou d'une page d'événement).
   const presetOf = (d) => (d ? { n: Date.now(), cat: d.a.categorie, a: d.a.id, b: d.b?.categorie === d.a.categorie ? d.b.id : undefined } : null);
@@ -307,7 +310,7 @@ export default function App() {
   // Navigation : chaque page a sa propre entrée dans l'historique du navigateur. Le bouton retour du site,
   // celui du navigateur, le geste retour d'Android et le glissement depuis le bord gauche sur iPhone
   // ramènent donc tous à la page d'où l'on vient. `depth` = nombre de pages ouvertes avant celle-ci sur le site.
-  const pathOf = (v, ev) => (v === "evenement" && ev ? `/evenement/${ev}` : v === "apropos" ? ABOUT_PATH : v === "pronos" ? PRONOS_PATH : v === "simulateur" && duelRef.current ? duelRef.current : "/");
+  const pathOf = (v, ev) => (v === "evenement" && ev ? `/evenement/${ev}` : v === "apropos" ? ABOUT_PATH : v === "pronos" ? PRONOS_PATH : v === "calendrier" ? CALENDAR_PATH : v === "simulateur" && duelRef.current ? duelRef.current : "/");
   // Duel affiché dans le Simulateur : l'adresse suit les deux combattants choisis (lien à partager).
   const duelRef = useRef(linkedDuel ? window.location.pathname : null);
   const onDuel = (a, b) => {
@@ -377,6 +380,7 @@ export default function App() {
   };
   // Page « Mes pronos » (/mes-pronos) : historique des pronos faits sur cet appareil.
   const openPronos = () => navigate("pronos");
+  const openCalendar = () => navigate("calendrier");
   // Simulateur prérempli avec ce duel (b facultatif : le Simulateur choisit alors l'adversaire).
   // `backToVote` : on vient du vote d'une page d'événement → le Simulateur propose d'y revenir.
   const simulate = (a, b = null, { backToVote = false } = {}) => {
@@ -391,7 +395,7 @@ export default function App() {
     const path = window.location.pathname;
     const f = fighterAt(path);
     depth.current = st?.depth || 0;
-    const v = st?.v || (f ? "combattants" : duelFromPath(path, FIGHTERS) ? "simulateur" : eventSlugFromPath(path) ? "evenement" : path === ABOUT_PATH ? "apropos" : path === PRONOS_PATH ? "pronos" : "landing");
+    const v = st?.v || (f ? "combattants" : duelFromPath(path, FIGHTERS) ? "simulateur" : eventSlugFromPath(path) ? "evenement" : path === ABOUT_PATH ? "apropos" : path === PRONOS_PATH ? "pronos" : path === CALENDAR_PATH ? "calendrier" : "landing");
     if (v === "evenement") setEventOpen(st?.ev || eventSlugFromPath(path));
     if (f) setSelected(f);
     else if (selected) hidePanel();
@@ -434,6 +438,7 @@ export default function App() {
     if (selected) document.title = fighterTitle(selected);
     else if (view === "apropos") document.title = ABOUT_TITLE;
     else if (view === "pronos") document.title = PRONOS_TITLE;
+    else if (view === "calendrier") document.title = CALENDAR_TITLE;
     else if (view !== "evenement" && view !== "simulateur") document.title = SITE_TITLE; // le Simulateur met le nom du duel
   }, [selected, view]);
   // Changement de page (« Explorer le site », onglets) : on repart du haut, pas de la position de défilement de l'accueil.
@@ -486,7 +491,7 @@ export default function App() {
   if (view === "hub") {
     return (
       <>
-        <Hub onPick={goTo} onHome={() => goTo("landing")} onBack={goBack} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} onPronos={hasPronos() ? openPronos : null} />
+        <Hub onPick={goTo} onHome={() => goTo("landing")} onBack={goBack} lang={lang} setLang={setLang} onLegal={() => changeView("mentions")} onCookies={() => setCookiesOpen(true)} onContact={() => changeView("contact")} onAbout={openAbout} voteEvent={voteEvent} onVote={(e) => openEvent(e, { vote: true })} onPronos={openPronos} onCalendar={openCalendar} />
         {banner}
         {veilEl}
       </>
@@ -624,9 +629,11 @@ export default function App() {
       ) : view === "evenement" ? (
         <EventPage slug={eventOpen} lang={lang} focusVote={voteFocus} onFighter={openFighter} onSimulate={simulate} />
       ) : view === "media" ? (
-        <Media lang={lang} onEvent={openEvent} onFighter={openFighter} />
+        <Media lang={lang} onEvent={openEvent} onFighter={openFighter} onCalendar={openCalendar} />
       ) : view === "apropos" ? (
         <About lang={lang} onGo={aboutGo} hasEvent={upcomingEvents(media, Date.now()).length > 0} />
+      ) : view === "calendrier" ? (
+        <Calendar lang={lang} upcoming={upcomingEvents(media, Date.now())} past={recapCards} voteEvent={voteEvent} onEvent={openEvent} />
       ) : view === "pronos" ? (
         <MyPronos lang={lang} cards={recapCards} upcoming={upcomingEvents(media, Date.now())} voteEvent={voteEvent} onEvent={openEvent} />
       ) : view === "mentions" ? (

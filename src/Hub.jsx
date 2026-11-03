@@ -1,8 +1,8 @@
-import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote, History, ChevronLeft } from "lucide-react";
+import { Trophy, Swords, Newspaper, ArrowRight, Info, Vote, History, ChevronLeft, CalendarDays } from "lucide-react";
 import { LANGUAGES, T } from "./i18n.js";
 
 // Page de choix, après « Explorer le site » : Combattants, Simulateur ou Médias.
-export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {}, onPronos = null }) {
+export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setLang = () => {}, onLegal = () => {}, onCookies = () => {}, onContact = () => {}, onAbout = () => {}, voteEvent = null, onVote = () => {}, onPronos = null, onCalendar = null }) {
   const t = T[lang];
   // Affiche du prochain événement ouvert au vote « Toi contre l'IA » (noms de famille : « Moicano vs. Nolan »).
   const lastName = (n) => n.split(" ").slice(-1)[0];
@@ -80,6 +80,13 @@ export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setL
           <p className="hub-rise text-neutral-400 text-sm sm:text-base mt-4" style={{ animationDelay: "140ms" }}>
             {t.hubSubtitle}
           </p>
+          <button
+            onClick={onAbout}
+            style={{ animationDelay: "180ms" }}
+            className="hub-rise tap mt-5 inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/80 backdrop-blur px-4 py-2 text-sm text-neutral-300 hover:text-amber-300 hover:border-amber-400/50"
+          >
+            <Info className="w-4 h-4 text-amber-400" /> {t.aboutCta}
+          </button>
         </div>
 
         <div className="grid gap-3 sm:gap-4 sm:grid-cols-3">
@@ -106,42 +113,47 @@ export default function Hub({ onPick, onHome, onBack = onHome, lang = "fr", setL
             </button>
           ))}
         </div>
-        {/* Pronostics ouverts sur le prochain événement : bandeau fin et discret sous les rubriques. */}
-        {voteEvent && (
-          <button
-            onClick={() => onVote(voteEvent)}
-            style={{ animationDelay: "500ms" }}
-            className="hub-rise tap group mt-3 sm:mt-4 w-full text-left rounded-2xl border border-amber-400/30 hover:border-amber-400/60 bg-neutral-900/80 backdrop-blur hover:bg-neutral-900 px-4 py-3 sm:px-5 flex items-center gap-3"
-          >
-            <span className="w-8 h-8 shrink-0 rounded-full bg-amber-400/10 border border-amber-400/40 flex items-center justify-center">
-              <Vote className="w-4 h-4 text-amber-400" />
-            </span>
-            <span className="flex-1 min-w-0 text-sm leading-snug">
-              <span className="text-amber-400 font-semibold">{t.hubPronoKicker}</span>
-              <span className="text-neutral-300"> · {t.hubPronoTitle(duel)}</span>
-            </span>
-            <span className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300 group-hover:text-amber-200">
-              <span className="hidden sm:inline">{t.pronoCta}</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-            </span>
-          </button>
+        {/* Pronos : le vote du prochain event et « Mes pronos » (si ce visiteur a déjà voté) sur la même ligne. */}
+        {(voteEvent || onPronos) && (
+          <div style={{ animationDelay: "500ms" }} className="hub-rise mt-3 sm:mt-4 flex items-stretch gap-2 sm:gap-3">
+            {voteEvent && (
+            <button
+              onClick={() => onVote(voteEvent)}
+              className="tap group flex-1 min-w-0 text-left rounded-2xl border border-amber-400/30 hover:border-amber-400/60 bg-neutral-900/80 backdrop-blur hover:bg-neutral-900 px-4 py-3 sm:px-5 flex items-center gap-3"
+            >
+              <span className="w-8 h-8 shrink-0 rounded-full bg-amber-400/10 border border-amber-400/40 flex items-center justify-center">
+                <Vote className="w-4 h-4 text-amber-400" />
+              </span>
+              <span className="flex-1 min-w-0 text-sm leading-snug">
+                <span className="text-amber-400 font-semibold">{t.hubPronoKicker}</span>
+                <span className="text-neutral-300"> · {t.hubPronoTitle(duel)}</span>
+              </span>
+              <span className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300 group-hover:text-amber-200">
+                <span className="hidden sm:inline">{t.pronoCta}</span>
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </button>
+            )}
+            {onPronos && (
+              <button
+                onClick={onPronos}
+                className={`tap shrink-0 rounded-2xl border border-amber-400/30 hover:border-amber-400/60 bg-neutral-900/80 backdrop-blur hover:bg-neutral-900 px-3 sm:px-5 py-2 flex items-center justify-center gap-1.5 sm:gap-2 text-amber-300 hover:text-amber-200 ${voteEvent ? "flex-col sm:flex-row" : "flex-1"}`}
+              >
+                <History className="w-4 h-4 text-amber-400" />
+                <span className="text-[11px] sm:text-sm font-semibold whitespace-nowrap">{t.myPronos}</span>
+              </button>
+            )}
+          </div>
         )}
         <div style={{ animationDelay: "520ms" }} className="hub-rise self-center mt-6 sm:mt-8 flex flex-wrap justify-center gap-2.5">
-          {/* « Mes pronos » : seulement si ce visiteur a déjà fait au moins un prono sur cet appareil. */}
-          {onPronos && (
+          {onCalendar && (
             <button
-              onClick={onPronos}
-              className="tap inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-neutral-900/80 backdrop-blur px-4 py-2.5 text-sm text-amber-300 hover:text-amber-200 hover:border-amber-400/70"
+              onClick={onCalendar}
+              className="tap inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/80 backdrop-blur px-4 py-2.5 text-sm text-neutral-300 hover:text-amber-300 hover:border-amber-400/50"
             >
-              <History className="w-4 h-4 text-amber-400" /> {t.myPronos}
+              <CalendarDays className="w-4 h-4 text-amber-400" /> {t.calendar}
             </button>
           )}
-          <button
-            onClick={onAbout}
-            className="tap inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/80 backdrop-blur px-4 py-2.5 text-sm text-neutral-300 hover:text-amber-300 hover:border-amber-400/50"
-          >
-            <Info className="w-4 h-4 text-amber-400" /> {t.aboutCta}
-          </button>
         </div>
       </main>
       {/* Mentions légales et cookies accessibles depuis chaque page (LCEN, CNIL). */}

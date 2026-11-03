@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Newspaper, MapPin, CheckCircle2, Search, Play, ChevronRight } from "lucide-react";
+import { Newspaper, MapPin, CheckCircle2, Search, Play, ChevronRight, CalendarDays } from "lucide-react";
 import { T, L, formatDate, translateMethod } from "./i18n.js";
 import { useMedia } from "./useMedia.js";
 import { usePhotos, creditOf } from "./usePhotos.js";
@@ -354,7 +354,7 @@ function searchTextFor(item) {
   return fields.flatMap(allLangs).filter(Boolean).join(" ").toLowerCase();
 }
 
-export default function Media({ lang = "fr", onEvent, onFighter }) {
+export default function Media({ lang = "fr", onEvent, onFighter, onCalendar = null }) {
   const t = T[lang];
   const fighters = useFighters();
   const [query, setQuery] = useState("");
@@ -410,7 +410,14 @@ export default function Media({ lang = "fr", onEvent, onFighter }) {
         <div className="px-5 pb-6 grid gap-6 lg:grid-cols-2">
           {nextPoster && (
             <div>
-              <div className="mono text-[10px] uppercase tracking-widest text-amber-400 mb-2">{t.upcomingLabel}</div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="mono text-[10px] uppercase tracking-widest text-amber-400">{t.upcomingLabel}</div>
+                {onCalendar && (
+                  <button onClick={onCalendar} className="tap inline-flex items-center gap-1 text-xs font-semibold text-amber-300 hover:text-amber-200">
+                    <CalendarDays className="w-3.5 h-3.5" /> {t.fullCalendar} <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
               <UpcomingPoster c={nextPoster} lang={lang} t={t} onEvent={onEvent} />
             </div>
           )}

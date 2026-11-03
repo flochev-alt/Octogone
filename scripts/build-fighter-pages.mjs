@@ -269,7 +269,33 @@ for (const { a, b, e, path } of duels) {
   writeFileSync(`dist/comparer/${path.slice("/comparer/".length)}.html`, fill(head, html));
 }
 
-const urls = [`${SITE}/`, `${SITE}/a-propos`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`), ...duels.map((d) => `${SITE}${d.path}`)];
+// evenements.html : le calendrier (cartes à venir puis résultats), lisible sans JavaScript.
+{
+  const url = `${SITE}/evenements`;
+  const title = "Calendrier des événements MMA et UFC | Octogone";
+  const desc = "Toutes les prochaines cartes UFC et MMA (dates, lieux, main events) et les derniers résultats, mois par mois, sur Octogone.";
+  const past = [...RECENT_CARDS].sort((a, b) => b.iso.localeCompare(a.iso));
+  const item = (e) => `<li><a href="/evenement/${eventSlug(e)}" style="color:#fbbf24">${esc(e.name)}</a> : ${formatDate(e.iso, "fr")}${e.location ? `, ${esc(L(e.location, "fr"))}` : ""}${e.main ? ` (${esc(L(e.main, "fr"))})` : ""}</li>`;
+  const head = [
+    `<title>${esc(title)}</title>`,
+    `<meta name="description" content="${esc(desc)}" />`,
+    `<link rel="canonical" href="${url}" />`,
+    `<meta property="og:type" content="website" />`,
+    `<meta property="og:site_name" content="Octogone" />`,
+    `<meta property="og:title" content="${esc(title)}" />`,
+    `<meta property="og:description" content="${esc(desc)}" />`,
+    `<meta property="og:url" content="${url}" />`,
+    `<meta property="og:image" content="${SITE}/og-image.jpg" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
+  ].join("\n    ");
+  writeFileSync("dist/evenements.html", fill(head, `<main style="max-width:720px;margin:0 auto;padding:24px 16px;color:#f5f5f5;font-family:Inter,system-ui,sans-serif;line-height:1.5">
+<h1>Calendrier des événements MMA</h1><p>${esc(desc)}</p>
+<h2>À venir</h2><ul>${upcoming.map(item).join("")}</ul>
+<h2>Résultats</h2><ul>${past.map(item).join("")}</ul>
+</main>`));
+}
+
+const urls = [`${SITE}/`, `${SITE}/a-propos`, `${SITE}/evenements`, ...events.map((e) => `${SITE}/evenement/${eventSlug(e)}`), ...all.map((f) => `${SITE}/combattant/${slugify(f.nom)}`), ...duels.map((d) => `${SITE}${d.path}`)];
 writeFileSync("dist/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${u}</loc><lastmod>${today}</lastmod></url>`).join("\n")}
