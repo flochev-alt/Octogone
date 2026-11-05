@@ -34,7 +34,7 @@ insert into public.fighters (id, nom, categorie, taille, allonge, victoires, def
   ('f031', 'Dan Hooker', 'Poids leger', 183, 191, 24, 15, 0, 46, 29, 25, 49, 33, 77, 0, 14, 11, 0, 0, null, '1990-02-13', array['kickboxing']::text[]),
   ('f032', 'Renato Moicano', 'Poids leger', 181, 183, 21, 8, 1, 10, 52, 38, 49, 42, 63, 0, 13, 8, 0, 0, 14, '1989-05-21', array['jjb', 'muaythai']::text[]),
   ('f033', 'Rafael Fiziev', 'Poids leger', 173, 182, 14, 5, 0, 64, 7, 29, 53, 71, 90, 0, 8, 5, 0, 0, 13, '1993-03-05', array['muaythai', 'kickboxing']::text[]),
-  ('f034', 'Mauricio Ruffy', 'Poids leger', 180, 191, 14, 3, 0, 93, 0, 7, 57, null, 88, 0, 5, 2, 0, 0, 10, '1993-06-17', array['kickboxing', 'jjb']::text[]),
+  ('f034', 'Mauricio Ruffy', 'Poids leger', 180, 191, 14, 3, 0, 93, 0, 7, 57, null, 88, 0, 5, 2, 0, 0, 10, '1996-06-17', array['kickboxing', 'jjb']::text[]),
   ('f035', 'Beneil Dariush', 'Poids leger', 178, 183, 23, 8, 1, 22, 35, 43, 49, 38, 83, 0, 17, 8, 1, 0, null, '1989-05-06', array['jjb']::text[]),
   ('f036', 'Quillan Salkilld', 'Poids leger', 183, 191, 13, 1, 0, 38, 38, 23, 58, 33, 77, 0, 6, 0, 0, 0, 6, '1999-12-28', array['jjb', 'lutte']::text[]),
   ('f037', 'Manuel Torres', 'Poids leger', 178, 185, 17, 4, 0, 53, 41, 6, 56, null, 75, 0, 5, 2, 0, 0, null, '1995-03-25', array['muaythai']::text[]),
