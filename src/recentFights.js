@@ -157,11 +157,11 @@ export const RECENT_FIGHTS = {
   ],
   // Virna Jandiroba
   f020: [
+    { opponent: "Tatiana Suarez", result: "D", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Tabatha Ricci", result: "V", method: "Décision unanime", event: "UFC Fight Night : Moicano vs. Duncan" },
     { opponent: "Mackenzie Dern", result: "D", method: "Décision unanime", event: "UFC 321" },
     { opponent: "Yan Xiaonan", result: "V", method: "Décision unanime", event: "UFC 314" },
     { opponent: "Amanda Lemos", result: "V", method: "Soumission", event: "UFC on ESPN : Lemos vs. Jandiroba" },
-    { opponent: "Loopy Godínez", result: "V", method: "Décision unanime", event: "UFC on ESPN : Blanchfield vs. Fiorot" },
   ],
   // Khabib Nurmagomedov
   f021: [
@@ -333,11 +333,11 @@ export const RECENT_FIGHTS = {
   ],
   // Waldo Cortes-Acosta
   f042: [
+    { opponent: "Johnny Walker", result: "D", method: "TKO", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Curtis Blaydes", result: "D", method: "Décision unanime", event: "Noche UFC : Silva vs. Delgado" },
     { opponent: "Alexander Volkov", result: "D", method: "Décision unanime", event: "UFC 328" },
     { opponent: "Derrick Lewis", result: "V", method: "TKO", event: "UFC 324" },
     { opponent: "Shamil Gaziev", result: "V", method: "KO", event: "UFC Fight Night : Tsarukyan vs. Hooker" },
-    { opponent: "Ante Delija", result: "V", method: "KO", event: "UFC Fight Night : Garcia vs. Onama" },
   ],
   // Rizvan Kuniev
   f043: [
@@ -517,11 +517,11 @@ export const RECENT_FIGHTS = {
   ],
   // Johnny Walker
   f065: [
+    { opponent: "Waldo Cortes-Acosta", result: "V", method: "TKO", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Mick Parkin", result: "V", method: "KO", event: "UFC 332" },
     { opponent: "Dominick Reyes", result: "D", method: "Décision partagée", event: "UFC 327" },
     { opponent: "Zhang Mingyang", result: "V", method: "TKO", event: "UFC Fight Night : Walker vs. Zhang" },
     { opponent: "Volkan Oezdemir", result: "D", method: "KO", event: "UFC on ABC : Whittaker vs. Aliskerov" },
-    { opponent: "Magomed Ankalaev", result: "D", method: "KO", event: "UFC Fight Night : Ankalaev vs. Walker 2" },
   ],
   // Alonzo Menifield
   f066: [
@@ -1253,11 +1253,11 @@ export const RECENT_FIGHTS = {
   ],
   // Mitch Raposo
   f157: [
+    { opponent: "Marcos Degli", result: "V", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Allan Nascimento", result: "V", method: "Décision partagée", event: "UFC Fight Night : Kape vs. Horiguchi" },
     { opponent: "Azat Maksum", result: "V", method: "Décision unanime", event: "UFC 321" },
     { opponent: "Sumudaerji", result: "D", method: "Décision partagée", event: "UFC 314" },
     { opponent: "André Lima", result: "D", method: "Décision partagée", event: "UFC 302" },
-    { opponent: "Justin Valentin", result: "V", method: "TKO", event: "Cage Titans 63" },
   ],
   // Imanol Rodriguez
   f158: [
@@ -1483,11 +1483,11 @@ export const RECENT_FIGHTS = {
   ],
   // Karine Silva
   f186: [
+    { opponent: "Gabriella Fernandes", result: "V", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Jasmine Jasudavicius", result: "D", method: "Décision unanime", event: "UFC Fight Night : Burns vs. Malott" },
     { opponent: "Maycee Barber", result: "D", method: "Décision unanime", event: "UFC 323" },
     { opponent: "Dione Barbosa", result: "V", method: "Décision unanime", event: "UFC 319" },
     { opponent: "Viviane Araújo", result: "D", method: "Décision unanime", event: "UFC 309" },
-    { opponent: "Ariane da Silva", result: "V", method: "Décision unanime", event: "UFC on ESPN : Nicolau vs. Perez" },
   ],
   // Casey O'Neill
   f187: [
@@ -1507,11 +1507,11 @@ export const RECENT_FIGHTS = {
   ],
   // Gabriella Fernandes
   f189: [
+    { opponent: "Karine Silva", result: "D", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Casey O'Neill", result: "D", method: "KO", event: "UFC Fight Night : Adesanya vs. Pyfer" },
     { opponent: "Julija Stoliarenko", result: "V", method: "Décision unanime", event: "UFC on ESPN : Dolidze vs. Hernandez" },
     { opponent: "Wang Cong", result: "V", method: "Soumission", event: "UFC Fight Night : Yan vs. Figueiredo" },
     { opponent: "Carli Judice", result: "V", method: "Décision partagée", event: "UFC on ESPN : Perez vs. Taira" },
-    { opponent: "Tereza Bleda", result: "D", method: "Décision unanime", event: "UFC on ESPN : Vettori vs. Cannonier" },
   ],
   // Regina Tarin
   f190: [
@@ -1539,11 +1539,11 @@ export const RECENT_FIGHTS = {
   ],
   // Tatiana Suarez
   f193: [
+    { opponent: "Virna Jandiroba", result: "V", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Loopy Godínez", result: "V", method: "Soumission", event: "UFC 327" },
     { opponent: "Amanda Lemos", result: "V", method: "Décision unanime", event: "Noche UFC : Lopes vs. Silva" },
     { opponent: "Zhang Weili", result: "D", method: "Décision unanime", event: "UFC 312" },
     { opponent: "Jéssica Andrade", result: "V", method: "Soumission", event: "UFC on ESPN : Sandhagen vs. Font" },
-    { opponent: "Montana De La Rosa", result: "V", method: "Soumission", event: "UFC Fight Night : Muniz vs. Allen" },
   ],
   // Denise Gomes
   f194: [
@@ -1702,34 +1702,37 @@ export const RECENT_FIGHTS = {
   ],
   // Davey Grant
   f226: [
+    { opponent: "Elijah Smith", result: "D", method: "KO", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Adrián Luna Martinetti", result: "V", method: "Décision unanime", event: "UFC Fight Night : Sterling vs. Zalal" },
     { opponent: "Charles Jourdain", result: "D", method: "Soumission", event: "UFC Fight Night : de Ridder vs. Allen" },
     { opponent: "Da'Mon Blackshear", result: "V", method: "Décision unanime", event: "UFC on ABC : Whittaker vs. de Ridder" },
     { opponent: "Ramon Taveras", result: "V", method: "Décision unanime", event: "UFC on ESPN : Covington vs. Buckley" },
-    { opponent: "Daniel Marcos", result: "D", method: "Décision partagée", event: "UFC Fight Night : Aspinall vs. Tybura" },
   ],
   // Elijah Smith
   f227: [
+    { opponent: "Davey Grant", result: "V", method: "KO", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "SuYoung You", result: "V", method: "Soumission", event: "UFC Fight Night : Emmett vs. Vallejos" },
     { opponent: "Toshiomi Kazama", result: "V", method: "KO", event: "UFC Fight Night" },
     { opponent: "Vince Morales", result: "V", method: "Décision unanime", event: "UFC Fight Night : Cannonier vs. Rodrigues" },
   ],
   // Seokhyeon Ko
   f228: [
+    { opponent: "Wellington Turman", result: "V", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Jean-Paul Lebosnoyani", result: "D", method: "Décision unanime", event: "UFC Fight Night 281" },
     { opponent: "Phil Rowe", result: "V", method: "Décision unanime", event: "UFC Fight Night : Garcia vs. Onama" },
     { opponent: "Oban Elliott", result: "V", method: "Décision unanime", event: "UFC on ABC : Hill vs. Rountree Jr." },
   ],
   // Wellington Turman
   f229: [
+    { opponent: "Seokhyeon Ko", result: "D", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Jared Gooden", result: "D", method: "Soumission", event: "UFC on ESPN : Dariush vs. Tsarukyan" },
     { opponent: "Randy Brown", result: "D", method: "Décision unanime", event: "UFC on ABC : Emmett vs. Topuria" },
     { opponent: "Andre Petroski", result: "D", method: "Décision unanime", event: "UFC 281" },
     { opponent: "Misha Cirkunov", result: "V", method: "Soumission", event: "UFC Fight Night : Makhachev vs. Green" },
-    { opponent: "Sam Alvey", result: "V", method: "Décision partagée", event: "UFC on ESPN : Barboza vs. Chikadze" },
   ],
   // Billy Elekana
   f230: [
+    { opponent: "Lucas Fernando", result: "D", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Junior Tafa", result: "V", method: "Soumission", event: "UFC 325" },
     { opponent: "Kevin Christian", result: "V", method: "Soumission", event: "UFC Fight Night : Garcia vs. Onama" },
     { opponent: "Ibo Aslan", result: "V", method: "Décision unanime", event: "UFC on ABC : Whittaker vs. de Ridder" },
@@ -1737,19 +1740,21 @@ export const RECENT_FIGHTS = {
   ],
   // Lucas Fernando
   f231: [
+    { opponent: "Billy Elekana", result: "V", method: "Décision unanime", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Rafael Tobias", result: "V", method: "TKO", event: "UFC 330" },
   ],
   // Mantas Kondratavičius
   f232: [
+    { opponent: "Andre Petroski", result: "D", method: "TKO", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Antonio Trócoli", result: "V", method: "Décision unanime", event: "UFC Fight Night : Evloev vs. Murphy" },
   ],
   // Andre Petroski
   f233: [
+    { opponent: "Mantas Kondratavičius", result: "V", method: "TKO", event: "UFC Fight Night : Cortes-Acosta vs. Walker" },
     { opponent: "Cody Brundage", result: "D", method: "TKO", event: "UFC Fight Night : Allen vs. Costa" },
     { opponent: "Cam Rowston", result: "D", method: "TKO", event: "UFC Fight Night : Ulberg vs. Reyes" },
     { opponent: "Edmen Shahbazyan", result: "D", method: "Décision unanime", event: "UFC on ESPN : Usman vs. Buckley" },
     { opponent: "Rodolfo Vieira", result: "V", method: "Décision unanime", event: "UFC Fight Night : Cannonier vs. Rodrigues" },
-    { opponent: "Dylan Budka", result: "V", method: "Décision unanime", event: "UFC Fight Night : Burns vs. Brady" },
   ],
   // Amanda Nunes
   f234: [
