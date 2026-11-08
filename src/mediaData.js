@@ -77,6 +77,8 @@ export const UPCOMING = [
   },
   {
     iso: "2026-11-14",
+    // Début de la carte principale (UTC) : 21 h ET (Paramount+, comparetv.com.au).
+    start: "2026-11-15T02:00:00Z",
     name: "UFC 334",
     location: "Madison Square Garden, New York",
     main: {
@@ -105,38 +107,29 @@ export const UPCOMING = [
     fighters: ["Ciryl Gane", "Josh Hokit"],
     highlight: true,
   },
-  {
-    iso: "2026-11-07",
-    // Début de la carte principale (UTC) : 20 h ET (ufc.com).
-    start: "2026-11-08T01:00:00Z",
-    name: "UFC Fight Night : Cortes-Acosta vs. Walker",
-    location: "Meta Apex, Las Vegas",
-    main: {
-      fr: "Waldo Cortes-Acosta vs. Johnny Walker (poids lourd)",
-      en: "Waldo Cortes-Acosta vs. Johnny Walker (heavyweight)",
-      es: "Waldo Cortes-Acosta vs. Johnny Walker (peso pesado)",
-    },
-    card: [
-      { a: "Waldo Cortes-Acosta", b: "Johnny Walker", cat: "Poids lourd" },
-      { a: "Tatiana Suarez", b: "Virna Jandiroba", cat: "Poids paille feminin" },
-      { a: "Davey Grant", b: "Elijah Smith", cat: "Poids coq" },
-      { a: "Seokhyeon Ko", b: "Wellington Turman", cat: "Poids welter" },
-      { a: "Billy Elekana", b: "Lucas Fernando", cat: "Poids mi-lourd" },
-      { a: "Mantas Kondratavičius", b: "Andre Petroski", cat: "Poids moyen" },
-      { a: "Gabriel Lorenco", b: "Alvin Hines", cat: "Poids lourd", part: "prelims" },
-      { a: "Karine Silva", b: "Gabriella Fernandes", cat: "Poids mouche feminin", part: "prelims" },
-      { a: "Mitch Raposo", b: "Marcos Degli", cat: "Poids mouche", part: "prelims" },
-      { a: "Jose Delano", b: "Murtazali Magomedov", cat: "Poids plume", part: "prelims" },
-      { a: "Keiichiro Nakamura", b: "Ollie Schmid", cat: "Poids plume", part: "prelims" },
-      { a: "Austin Bashi", b: "Lucas Brennan", cat: "Poids plume", part: "prelims" },
-      { a: "Priscila Cachoeira", b: "Nina Milošević", cat: "Poids coq feminin", part: "prelims" },
-    ],
-    fighters: ["Waldo Cortes-Acosta", "Johnny Walker"],
-  },
 ];
 
 // "UFC Fight Night : X" garde l'espace avant les deux-points en français uniquement.
 export const RECENT_CARDS = [
+  {
+    iso: "2026-11-07",
+    name: "UFC Fight Night : Cortes-Acosta vs. Walker",
+    location: "Meta Apex, Las Vegas",
+    results: [
+      { fight: "Johnny Walker def. Waldo Cortes-Acosta", method: "TKO", note: { fr: "Main event · R3, 2:27", en: "Main event · R3, 2:27", es: "Main event · R3, 2:27" } },
+      { fight: "Tatiana Suarez def. Virna Jandiroba", method: "Décision unanime", note: { fr: "Co-main event · 30-27, 30-27, 29-28", en: "Co-main event · 30-27, 30-27, 29-28", es: "Co-main event · 30-27, 30-27, 29-28" } },
+      { fight: "Elijah Smith def. Davey Grant", method: "KO", note: "R1, 1:00" },
+      { fight: "Lucas Fernando def. Billy Elekana", method: "Décision unanime", note: "29-28 x3" },
+      { fight: "Seokhyeon Ko def. Wellington Turman", method: "Décision unanime", note: "30-27 x3" },
+      { fight: "Andre Petroski def. Mantas Kondratavičius", method: "TKO", note: "R2, 4:39" },
+      { fight: "Mitch Raposo def. Marcos Degli", method: "Décision unanime", note: "29-28 x3" },
+    ],
+    note: {
+      fr: "Envoyé au tapis au 1er round puis dominé au sol au 2e, Johnny Walker renverse tout au 3e round : coup de pied « point d'interrogation », revers puis droite pour arrêter Cortes-Acosta. Tatiana Suarez bat Virna Jandiroba aux points et réclame un combat pour le titre.",
+      en: "Dropped in round 1 and controlled on the ground in round 2, Johnny Walker turned it around in round 3 with a question-mark kick, a backfist and a right hand to stop Cortes-Acosta. Tatiana Suarez outpointed Virna Jandiroba and called for a title shot.",
+      es: "Derribado en el primer asalto y dominado en el suelo en el segundo, Johnny Walker le dio la vuelta en el tercero con una patada «signo de interrogación», un revés y una derecha para detener a Cortes-Acosta. Tatiana Suarez venció a los puntos a Virna Jandiroba y pidió una pelea por el título.",
+    },
+  },
   {
     iso: "2026-10-31",
     name: "UFC Fight Night : Moicano vs. Nolan",
