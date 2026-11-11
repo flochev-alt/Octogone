@@ -31,4 +31,6 @@ export function usePhotos() {
 }
 
 // Ligne de crédit : « Photo : Auteur · CC BY-SA 4.0 · Wikimedia Commons ».
-export const creditOf = (p) => [p.author, p.license, p.source || "Wikimedia Commons"].filter(Boolean).join(" · ");
+// Commons répète parfois l'auteur (« Unknown authorUnknown author ») : on ne le garde qu'une fois.
+const cleanAuthor = (a = "") => a.replace(/^(.+?)\1$/, "$1");
+export const creditOf = (p) => [cleanAuthor(p.author), p.license, p.source || "Wikimedia Commons"].filter(Boolean).join(" · ");

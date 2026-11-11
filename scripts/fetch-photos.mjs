@@ -92,8 +92,8 @@ const solo = (file) => {
 // Combattants dont le nom est surtout porté par d'autres personnes sur Commons (basketteur, footballeur,
 // joueur de billard, cardinal, chanteur…) : pas de photo plutôt qu'une erreur.
 const NO_PHOTO = new Set([
-  "Alex Perez", "Anthony Hernandez", "Charles Johnson", "Daniel Rodriguez", "David Martínez", "Sean Brady",
-  "Tim Elliott", "Tom Nolan", "Manuel Torres", "Johnny Walker", "Mizuki Inoue",
+  "Alex Perez", "Anthony Hernandez", "Charles Johnson", "Daniel Rodriguez", "David Martínez",
+  "Tim Elliott", "Tom Nolan", "Manuel Torres", "Mizuki Inoue",
 ]);
 // Fichiers écartés après contrôle visuel (2026-10-30) : homonymes (basketteur, footballeur, joueur de
 // billard, cardinal…), photos de groupe ou où le combattant n'est pas reconnaissable.
@@ -116,6 +116,9 @@ const REJECTED = new Set([
   "Blue_Angels'_VIP_Rider_Max_Holloway_(1).jpg", "Wanderlei_Silva_2013.jpg", "Song_Yadong_at_UFC_Macau.jpg",
   // 2026-10-31 (Flo) : « Anderson-Silva.jpg » montre le kickboxeur néerlandais du même nom, pas « The Spider ».
   "Anderson-Silva.jpg",
+  // 2026-11-03 : photos officielles UFC republiées sous une fausse licence libre (Quillan Salkilld, Raoni Barcelos),
+  // capture d'une vidéo OnlyFans (Norma Dumont).
+  "QuillanSalkilld4.png", "Qsalkilld.png", "Photo_of_Raoni_Barcelos.png", "Norma_Dumont_OF.jpg",
   "Raquel_Pennington_MCCS_Twentynine_Palms_presents_an_action-packed_MMA_Fight_Night_Live_at_The_Combat_Center_(5).jpg",
 ]);
 // Nom du fichier d'une photo déjà choisie (photos.json garde le lien vers sa page Commons ou Openverse).
@@ -128,6 +131,14 @@ const PINNED = {
   "Joshua Van": "infobox",
   "Anderson Silva": "Anderson Silva.png",
   "Sean Strickland": "Sean Strickland at UFN 200.png",
+  // 2026-11-03 : identité vérifiée (page Wikipédia du combattant, Wikidata, catégorie Commons, contexte de la photo).
+  // Johnny Walker : photo de l'US Air Force (domaine public) dont la légende le nomme « UFC fighter » (Hurlburt Field, mai 2026).
+  "Johnny Walker": "AFSOC celebrates Outstanding Airmen of the Year (5).jpg",
+  "Sean Brady": "SeanBrady.jpg", // interview 2024 (chaîne YouTube WEIGHING IN, CC BY), photo de sa page Wikipédia
+  "Khamzat Chimaev": "Khamzat Chimaev 2022.png", // conférence de presse UFC 2022 (MMAnytt, CC BY)
+  "Alexander Volkov": "Alexander Volkov in M-1 (cropped).jpg", // image Wikidata du combattant (M-1 Global, 2016)
+  "Wellington Turman": "WelingtonTurman.jpg", // à la Gile Ribeiro Team, son club jusqu'en 2021 (2019)
+  "Mackenzie Dern": "Mackenzie Dern.png", // photo de sa page Wikipédia (2015, seule photo libre existante)
 };
 const pinFile = (name, infobox) => (PINNED[name] === "infobox" ? infobox[name] : PINNED[name]);
 // Date de prise de vue au format AAAA-MM-JJ (Commons mélange « 2024-02-17 », « Taken on 7 February 2024 »…).
