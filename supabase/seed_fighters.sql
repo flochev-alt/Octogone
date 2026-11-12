@@ -43,7 +43,7 @@ insert into public.fighters (id, nom, categorie, taille, allonge, victoires, def
   ('f040', 'Josh Hokit', 'Poids lourd', 185, 188, 10, 0, 0, 60, 30, 10, 64, 50, 78, 0, 4, 0, 0, 0, 5, '1997-11-12', array['lutte']::text[]),
   ('f041', 'Curtis Blaydes', 'Poids lourd', 193, 203, 20, 6, 0, 65, 0, 35, 51, 47, 35, 1, 15, 6, 0, 1, 7, '1991-02-18', array['lutte']::text[]),
   ('f042', 'Waldo Cortes-Acosta', 'Poids lourd', 193, 198, 17, 5, 0, 53, 6, 41, 48, 50, 70, 0, 10, 5, 0, 0, 12, '1991-10-03', array['boxe']::text[]),
-  ('f043', 'Rizvan Kuniev', 'Poids lourd', 193, 193, 14, 4, 1, 50, 14, 36, 50, null, 92, 1, 2, 2, 0, 0, 6, '1993-03-10', array['sanda']::text[]),
+  ('f043', 'Rizvan Kuniev', 'Poids lourd', 193, 193, 14, 4, 1, 50, 14, 36, 50, null, 92, 1, 2, 2, 0, 0, 6, '1992-03-10', array['sanda']::text[]),
   ('f044', 'Vitor Petrino', 'Poids lourd', 188, 197, 15, 2, 0, 53, 13, 34, 51, 49, 82, 0, 8, 2, 0, 0, 9, '1997-08-28', array['sanda', 'boxe']::text[]),
   ('f045', 'Serghei Spivac', 'Poids lourd', 191, 198, 18, 7, 0, 39, 44, 17, 47, 57, 53, 0, 9, 7, 0, 0, 14, '1995-01-24', array['sambo', 'jjb']::text[]),
   ('f046', 'Ante Delija', 'Poids lourd', 191, 198, 26, 8, 0, 50, 23, 27, 38, null, null, 0, 1, 2, 0, 0, null, '1990-08-07', array['judo']::text[]),
