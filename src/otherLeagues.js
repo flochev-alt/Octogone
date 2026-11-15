@@ -1,6 +1,6 @@
 // Champions des autres ligues (hors UFC) — affichés dans l'onglet Combattants, jamais dans le Simulateur.
 // Bilans vérifiés sur 2 sources (fiche Wikipédia + fiche Sherdog), 5 derniers combats du plus récent au plus ancien.
-// Résultats 2026 complétés par cagesidepress.com, lowkickmma.com, thegruelingtruth.com. Vérifié le 2026-10-30.
+// Résultats 2026 complétés par cagesidepress.com, lowkickmma.com, thegruelingtruth.com. Vérifié le 2026-10-30 ; PFL lourd mis à jour le 2026-11-15.
 // Même forme que fightersData.js (rang 0 = champion) pour réutiliser la fiche combattant.
 
 const f = (r, opponent, method, event, date) => ({ result: r, opponent, method, event, date });
@@ -18,14 +18,14 @@ export const LEAGUES = [
 export const LEAGUE_FIGHTERS = [
   // --- PFL ---
   {
-    id: "pfl-nemkov", ligue: "PFL", nom: "Vadim Nemkov", categorie: "Poids lourd", rang: 0,
-    victoires: 20, defaites: 2, nuls: 0, nc: 1, naissance: "1992-06-20", pays: { fr: "Russie", en: "Russia", es: "Rusia" },
+    id: "pfl-bilostenniy", ligue: "PFL", nom: "Sergei Bilostenniy", categorie: "Poids lourd", rang: 0,
+    victoires: 16, defaites: 4, nuls: 0, nc: 0, naissance: "1995-10-23", pays: { fr: "Russie", en: "Russia", es: "Rusia" },
     recent: [
-      f("V", "Renan Ferreira", SUB, "PFL Lyon", "2025-12-13"),
-      f("V", "Timothy Johnson", SUB, "PFL Champions Series 1", "2025-01-25"),
-      f("V", "Bruno Cappelozza", SUB, "PFL vs. Bellator", "2024-02-24"),
-      f("V", "Yoel Romero", DU, "Bellator 297", "2023-06-16"),
-      f("V", "Corey Anderson", DU, "Bellator 288", "2022-11-18"),
+      f("V", "Vadim Nemkov", DU, "PFL Dubai", "2026-11-14"),
+      f("V", "Renan Ferreira", "TKO", "PFL Sioux Falls", "2026-05-02"),
+      f("V", "Karl Williams", "TKO", "PFL World Tournament 10", "2025-08-21"),
+      f("D", "Valentin Moldavsky", DU, "PFL World Tournament 4", "2025-05-01"),
+      f("V", "Tyrell Fortune", SUB, "PFL 7", "2024-08-02"),
     ],
   },
   {

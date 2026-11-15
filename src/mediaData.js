@@ -75,42 +75,27 @@ export const UPCOMING = [
     ],
     fighters: ["Jiří Procházka", "Navajo Stirling"],
   },
-  {
-    iso: "2026-11-14",
-    // Début de la carte principale (UTC) : 21 h ET (Paramount+, comparetv.com.au).
-    start: "2026-11-15T02:00:00Z",
-    name: "UFC 334",
-    location: "Madison Square Garden, New York",
-    main: {
-      fr: "Ciryl Gane vs. Josh Hokit — titre des poids lourds",
-      en: "Ciryl Gane vs. Josh Hokit — heavyweight title",
-      es: "Ciryl Gane vs. Josh Hokit — título del peso pesado",
-    },
-    note: {
-      fr: "Première défense de Ciryl Gane comme champion incontesté. Co-main event : Kayla Harrison vs. Amanda Nunes, titre des poids coq féminins.",
-      en: "Ciryl Gane's first defense as undisputed champion. Co-main event: Kayla Harrison vs. Amanda Nunes, women's bantamweight title.",
-      es: "Primera defensa de Ciryl Gane como campeón indiscutible. Co-main event: Kayla Harrison vs. Amanda Nunes, título del peso gallo femenino.",
-    },
-    card: [
-      { a: "Ciryl Gane", b: "Josh Hokit", cat: "Poids lourd", belt: { fr: "Titre", en: "Title", es: "Título" } },
-      { a: "Kayla Harrison", b: "Amanda Nunes", cat: "Poids coq feminin", belt: { fr: "Titre", en: "Title", es: "Título" } },
-      { a: "Caio Borralho", b: "Yousri Belgaroui", cat: "Poids moyen" },
-      { a: "Uroš Medić", b: "Kevin Holland", cat: "Poids welter" },
-      { a: "Bilal Hasan", b: "Luis Gurule", cat: "Poids mouche" },
-      { a: "Stephen Thompson", b: "Charles Radtke", cat: "Poids welter", part: "prelims" },
-      { a: "Drew Dober", b: "Chris Duncan", cat: "Poids leger", part: "prelims" },
-      { a: "Jim Miller", b: "Terrance McKinney", cat: "Poids leger", part: "prelims" },
-      { a: "Bia Mesquita", b: "Macy Chiasson", cat: "Poids coq feminin", part: "early" },
-      { a: "Adrian Yanez", b: "Juan Díaz", cat: "Poids coq", part: "early" },
-      { a: "Nazim Sadykhov", b: "Jefferson Nascimento", cat: "Poids leger", part: "early" },
-    ],
-    fighters: ["Ciryl Gane", "Josh Hokit"],
-    highlight: true,
-  },
 ];
 
 // "UFC Fight Night : X" garde l'espace avant les deux-points en français uniquement.
 export const RECENT_CARDS = [
+  {
+    iso: "2026-11-14",
+    name: "UFC 334",
+    location: "Madison Square Garden, New York",
+    results: [
+      { fight: "Ciryl Gane def. Josh Hokit", method: "Décision unanime", note: { fr: "Titre des poids lourds · 48-47 x3", en: "Heavyweight title · 48-47 x3", es: "Título del peso pesado · 48-47 x3" } },
+      { fight: "Kayla Harrison def. Amanda Nunes", method: "Soumission", note: { fr: "Titre des poids coq féminins · étranglement arrière, R4 1:29", en: "Women's bantamweight title · rear-naked choke, R4 1:29", es: "Título del peso gallo femenino · mataleón, R4 1:29" } },
+      { fight: "Caio Borralho def. Yousri Belgaroui", method: "Décision unanime", note: "30-27 x3" },
+      { fight: "Uroš Medić vs. Kevin Holland", method: "Match nul majoritaire", note: { fr: "29-27 Medić, 28-28, 28-28", en: "29-27 Medić, 28-28, 28-28", es: "29-27 Medić, 28-28, 28-28" } },
+      { fight: "Luis Gurule def. Bilal Hasan", method: "Décision partagée", note: "29-28, 28-29, 29-28" },
+    ],
+    note: {
+      fr: "Ciryl Gane conserve sa ceinture des lourds aux points (48-47 x3) : bousculé par Josh Hokit sur les premiers rounds, il remporte les deux derniers. Kayla Harrison soumet Amanda Nunes au 4e round et garde son titre. Le nul entre Medić et Holland fait polémique.",
+      en: "Ciryl Gane kept his heavyweight belt on points (48-47 x3): pushed by Josh Hokit early, he took the last two rounds. Kayla Harrison submitted Amanda Nunes in round 4 to keep her title. The Medić–Holland draw was widely disputed.",
+      es: "Ciryl Gane retuvo su cinturón del peso pesado a los puntos (48-47 x3): presionado por Josh Hokit al inicio, ganó los dos últimos asaltos. Kayla Harrison sometió a Amanda Nunes en el cuarto asalto y conservó su título. El empate entre Medić y Holland generó polémica.",
+    },
+  },
   {
     iso: "2026-11-07",
     name: "UFC Fight Night : Cortes-Acosta vs. Walker",
