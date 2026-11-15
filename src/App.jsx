@@ -98,9 +98,9 @@ const CHAMPIONS = [
   {
     categorie: "Poids lourd", name: "Ciryl Gane", since: "2026-09-20",
     note: {
-      fr: "Champion intérimaire (KO face à Alex Pereira, UFC Freedom 250), promu champion incontesté après l'abandon du titre par Tom Aspinall, blessé à l'œil. Première défense face à Josh Hokit le 14 nov. 2026 (UFC 334).",
-      en: "Interim champion (KO over Alex Pereira, UFC Freedom 250), promoted to undisputed champion after Tom Aspinall vacated the title with an eye injury. First defense against Josh Hokit on Nov. 14, 2026 (UFC 334).",
-      es: "Campeón interino (KO a Alex Pereira, UFC Freedom 250), ascendido a campeón indiscutible tras la renuncia al título de Tom Aspinall, lesionado en un ojo. Primera defensa ante Josh Hokit el 14 de nov. de 2026 (UFC 334).",
+      fr: "Champion intérimaire (KO face à Alex Pereira, UFC Freedom 250), promu champion incontesté après l'abandon du titre par Tom Aspinall, blessé à l'œil. A conservé son titre face à Josh Hokit, décision unanime (UFC 334).",
+      en: "Interim champion (KO over Alex Pereira, UFC Freedom 250), promoted to undisputed champion after Tom Aspinall vacated the title with an eye injury. Retained his title against Josh Hokit by unanimous decision (UFC 334).",
+      es: "Campeón interino (KO a Alex Pereira, UFC Freedom 250), ascendido a campeón indiscutible tras la renuncia al título de Tom Aspinall, lesionado en un ojo. Retuvo su título ante Josh Hokit por decisión unánime (UFC 334).",
     },
   },
   {
@@ -162,9 +162,9 @@ const CHAMPIONS = [
   {
     categorie: "Poids coq feminin", name: "Kayla Harrison", since: "2025-06-07", female: true,
     note: {
-      fr: "Soumission face à Julianna Peña (UFC 316). Son combat face à Amanda Nunes, prévu à l'UFC 324, a été reporté (blessure au cou) : il aura lieu le 14 nov. 2026 (UFC 334).",
-      en: "Submission win over Julianna Peña (UFC 316). Her fight with Amanda Nunes, planned for UFC 324, was postponed (neck injury): it will take place on Nov. 14, 2026 (UFC 334).",
-      es: "Victoria por sumisión ante Julianna Peña (UFC 316). Su combate ante Amanda Nunes, previsto en UFC 324, se aplazó (lesión en el cuello): será el 14 de nov. de 2026 (UFC 334).",
+      fr: "Soumission face à Julianna Peña (UFC 316). A conservé son titre face à Amanda Nunes, soumission au 4e round (UFC 334).",
+      en: "Submission win over Julianna Peña (UFC 316). Retained her title against Amanda Nunes by fourth-round submission (UFC 334).",
+      es: "Victoria por sumisión ante Julianna Peña (UFC 316). Retuvo su título ante Amanda Nunes por sumisión en el cuarto asalto (UFC 334).",
     },
   },
   {
