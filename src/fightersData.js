@@ -1,6 +1,6 @@
 // Données vérifiées manuellement (voir combattants-template.csv) — combattants (classement UFC actuel de chaque catégorie + autres combattants notables)
 // avec leurs vraies stats. victoires/defaites/nuls/nc = bilan pro complet,
-// ufcV/ufcD/ufcN/ufcNc = bilan à l'UFC uniquement (mis à jour le 18 nov. 2026).
+// ufcV/ufcD/ufcN/ufcNc = bilan à l'UFC uniquement (mis à jour le 19 nov. 2026).
 // rang = classement UFC officiel (0 = champion, 1-15, null = non classé) au 26 oct. 2026, d'après ufc-fr.com.
 // naissance = date de naissance (ufc-fr.com, sinon Wikipédia) : l'âge affiché est calculé à partir d'elle.
 // style = disciplines de base, la principale en premier (clés traduites dans i18n.js, STYLE_LABELS),
@@ -101,7 +101,7 @@ export const FIGHTERS = [
   { id: "f092", nom: "Gabriel Bonfim", categorie: "Poids welter", taille: 185, allonge: 183, victoires: 20, defaites: 1, nuls: 0, ko: 20, sub: 65, dec: 15, striking: 48, tdAcc: 52, tdDef: 79, nc: 0, ufcV: 7, ufcD: 1, ufcN: 0, ufcNc: 0, rang: 6, naissance: "1997-08-20", style: ["boxe","jjb"] },
   { id: "f093", nom: "Sean Brady", categorie: "Poids welter", taille: 175, allonge: 183, victoires: 19, defaites: 2, nuls: 0, ko: 16, sub: 32, dec: 52, striking: 53, tdAcc: 51, tdDef: 87, nc: 0, ufcV: 9, ufcD: 2, ufcN: 0, ufcNc: 0, rang: 5, naissance: "1992-11-23", style: ["jjb"] },
   { id: "f094", nom: "Belal Muhammad", categorie: "Poids welter", taille: 178, allonge: 183, victoires: 24, defaites: 6, nuls: 0, ko: 21, sub: 4, dec: 75, striking: 42, tdAcc: 36, tdDef: 91, nc: 1, ufcV: 15, ufcD: 6, ufcN: 0, ufcNc: 1, rang: 7, naissance: "1988-07-09", style: ["lutte","jjb"] },
-  { id: "f095", nom: "Leon Edwards", categorie: "Poids welter", taille: 183, allonge: 188, victoires: 22, defaites: 6, nuls: 0, ko: 32, sub: 14, dec: 54, striking: 54, tdAcc: 37, tdDef: 64, nc: 1, ufcV: 14, ufcD: 5, ufcN: 0, ufcNc: 1, rang: 11, naissance: "1991-08-25", style: ["kickboxing","boxe"] },
+  { id: "f095", nom: "Leon Edwards", categorie: "Poids welter", taille: 188, allonge: 188, victoires: 22, defaites: 6, nuls: 0, ko: 32, sub: 14, dec: 54, striking: 54, tdAcc: 37, tdDef: 64, nc: 1, ufcV: 14, ufcD: 5, ufcN: 0, ufcNc: 1, rang: 11, naissance: "1991-08-25", style: ["kickboxing","boxe"] },
   { id: "f096", nom: "Kamaru Usman", categorie: "Poids welter", taille: 183, allonge: 193, victoires: 21, defaites: 5, nuls: 0, ko: 43, sub: 5, dec: 52, striking: 51, tdAcc: 42, tdDef: 90, nc: 0, ufcV: 16, ufcD: 4, ufcN: 0, ufcNc: 0, rang: 12, naissance: "1987-05-11", style: ["lutte","jjb"] },
   { id: "f097", nom: "Joaquin Buckley", categorie: "Poids welter", taille: 178, allonge: 193, victoires: 21, defaites: 9, nuls: 0, ko: 71, sub: 0, dec: 29, striking: 36, tdAcc: 45, tdDef: 70, nc: 0, ufcV: 11, ufcD: 7, ufcN: 0, ufcNc: 0, rang: 13, naissance: "1994-04-27", style: ["kickboxing","lutte"] },
   { id: "f098", nom: "Yaroslav Amosov", categorie: "Poids welter", taille: 180, allonge: 191, victoires: 30, defaites: 1, nuls: 0, ko: 30, sub: 43, dec: 27, striking: null, tdAcc: 54, tdDef: null, nc: 0, ufcV: 2, ufcD: 0, ufcN: 0, ufcNc: 0, rang: 14, naissance: "1993-09-09", style: ["sambo","lutte"] },

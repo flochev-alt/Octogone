@@ -95,7 +95,7 @@ insert into public.fighters (id, nom, categorie, taille, allonge, victoires, def
   ('f092', 'Gabriel Bonfim', 'Poids welter', 185, 183, 20, 1, 0, 20, 65, 15, 48, 52, 79, 0, 7, 1, 0, 0, 6, '1997-08-20', array['boxe', 'jjb']::text[]),
   ('f093', 'Sean Brady', 'Poids welter', 175, 183, 19, 2, 0, 16, 32, 52, 53, 51, 87, 0, 9, 2, 0, 0, 5, '1992-11-23', array['jjb']::text[]),
   ('f094', 'Belal Muhammad', 'Poids welter', 178, 183, 24, 6, 0, 21, 4, 75, 42, 36, 91, 1, 15, 6, 0, 1, 7, '1988-07-09', array['lutte', 'jjb']::text[]),
-  ('f095', 'Leon Edwards', 'Poids welter', 183, 188, 22, 6, 0, 32, 14, 54, 54, 37, 64, 1, 14, 5, 0, 1, 11, '1991-08-25', array['kickboxing', 'boxe']::text[]),
+  ('f095', 'Leon Edwards', 'Poids welter', 188, 188, 22, 6, 0, 32, 14, 54, 54, 37, 64, 1, 14, 5, 0, 1, 11, '1991-08-25', array['kickboxing', 'boxe']::text[]),
   ('f096', 'Kamaru Usman', 'Poids welter', 183, 193, 21, 5, 0, 43, 5, 52, 51, 42, 90, 0, 16, 4, 0, 0, 12, '1987-05-11', array['lutte', 'jjb']::text[]),
   ('f097', 'Joaquin Buckley', 'Poids welter', 178, 193, 21, 9, 0, 71, 0, 29, 36, 45, 70, 0, 11, 7, 0, 0, 13, '1994-04-27', array['kickboxing', 'lutte']::text[]),
   ('f098', 'Yaroslav Amosov', 'Poids welter', 180, 191, 30, 1, 0, 30, 43, 27, null, 54, null, 0, 2, 0, 0, 0, 14, '1993-09-09', array['sambo', 'lutte']::text[]),
