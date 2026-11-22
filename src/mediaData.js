@@ -54,31 +54,30 @@ export const UPCOMING = [
     highlight: true,
     badge: { fr: "Titre BMF", en: "BMF title", es: "Título BMF" },
   },
-  {
-    iso: "2026-11-21",
-    name: "UFC Fight Night : Procházka vs. Stirling",
-    location: { fr: "Ali Bin Hamad al-Attiyah Arena, Doha, Qatar", en: "Ali Bin Hamad al-Attiyah Arena, Doha, Qatar", es: "Ali Bin Hamad al-Attiyah Arena, Doha, Catar" },
-    main: {
-      fr: "Jiří Procházka vs. Navajo Stirling (poids mi-lourd)",
-      en: "Jiří Procházka vs. Navajo Stirling (light heavyweight)",
-      es: "Jiří Procházka vs. Navajo Stirling (semipesado)",
-    },
-    card: [
-      { a: "Jiří Procházka", b: "Navajo Stirling", cat: "Poids mi-lourd" },
-      { a: "Aljamain Sterling", b: "Kevin Vallejos", cat: "Poids plume" },
-      { a: "Dan Hooker", b: "Brian Ortega", cat: "Poids leger" },
-      { a: "Jared Cannonier", b: "Ikram Aliskerov", cat: "Poids moyen" },
-      { a: "Shamil Gaziev", b: "Tallison Teixeira", cat: "Poids lourd" },
-      { a: "Aleksandre Topuria", b: "Santiago Luna", cat: "Poids coq" },
-      { a: "Asu Almabayev", b: "Kyoji Horiguchi", cat: "Poids mouche" },
-      { a: "Amir Albazi", b: "Alessandro Costa", cat: "Poids mouche" },
-    ],
-    fighters: ["Jiří Procházka", "Navajo Stirling"],
-  },
 ];
 
 // "UFC Fight Night : X" garde l'espace avant les deux-points en français uniquement.
 export const RECENT_CARDS = [
+  {
+    iso: "2026-11-21",
+    name: "UFC Fight Night : Procházka vs. Stirling",
+    location: "ABHA Arena, Doha",
+    results: [
+      { fight: "Navajo Stirling def. Jiří Procházka", method: "KO", note: { fr: "Main event · R2, 4:58", en: "Main event · R2, 4:58", es: "Main event · R2, 4:58" } },
+      { fight: "Kevin Vallejos def. Aljamain Sterling", method: "Décision unanime", note: { fr: "Co-main event · 30-27, 30-27, 29-28", en: "Co-main event · 30-27, 30-27, 29-28", es: "Co-main event · 30-27, 30-27, 29-28" } },
+      { fight: "Dan Hooker def. Brian Ortega", method: "Décision unanime", note: "30-27 x3" },
+      { fight: "Kyoji Horiguchi def. Asu Almabayev", method: "Décision unanime", note: "30-27, 30-27, 29-28" },
+      { fight: "Ikram Aliskerov def. Jared Cannonier", method: "Décision unanime", note: "30-27 x3" },
+      { fight: "Santiago Luna def. Aleksandre Topuria", method: "Décision partagée", note: "30-27, 28-29, 29-28" },
+      { fight: "Tallison Teixeira def. Shamil Gaziev", method: "Décision unanime", note: "30-27, 29-28, 29-28" },
+      { fight: "Amir Albazi def. Alessandro Costa", method: "Soumission", note: { fr: "Étranglement arrière · R3, 4:34", en: "Rear-naked choke · R3, 4:34", es: "Mataleón · R3, 4:34" } },
+    ],
+    note: {
+      fr: "Navajo Stirling reste invaincu (12-0) en mettant KO Jiří Procházka d'une droite à 2 secondes de la fin du 2e round. Kevin Vallejos bat Aljamain Sterling aux points. Brian Ortega annonce sa retraite après sa défaite contre Dan Hooker.",
+      en: "Navajo Stirling stayed unbeaten (12-0), knocking out Jiří Procházka with a right hand two seconds before the end of round 2. Kevin Vallejos outpointed Aljamain Sterling. Brian Ortega announced his retirement after losing to Dan Hooker.",
+      es: "Navajo Stirling sigue invicto (12-0) tras noquear a Jiří Procházka con una derecha a dos segundos del final del segundo asalto. Kevin Vallejos venció a los puntos a Aljamain Sterling. Brian Ortega anunció su retiro tras perder ante Dan Hooker.",
+    },
+  },
   {
     iso: "2026-11-14",
     name: "UFC 334",

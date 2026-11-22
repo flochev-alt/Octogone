@@ -1,6 +1,6 @@
 // Champions des autres ligues (hors UFC) — affichés dans l'onglet Combattants, jamais dans le Simulateur.
 // Bilans vérifiés sur 2 sources (fiche Wikipédia + fiche Sherdog), 5 derniers combats du plus récent au plus ancien.
-// Résultats 2026 complétés par cagesidepress.com, lowkickmma.com, thegruelingtruth.com. Vérifié le 2026-10-30 ; PFL lourd mis à jour le 2026-11-15.
+// Résultats 2026 complétés par cagesidepress.com, lowkickmma.com, thegruelingtruth.com. Vérifié le 2026-10-30 ; PFL lourd mis à jour le 2026-11-15 ; KSW léger et ARES welter le 2026-11-22.
 // Même forme que fightersData.js (rang 0 = champion) pour réutiliser la fiche combattant.
 
 const f = (r, opponent, method, event, date) => ({ result: r, opponent, method, event, date });
@@ -156,6 +156,17 @@ export const LEAGUE_FIGHTERS = [
     ],
   },
   {
+    id: "ksw-held", ligue: "KSW", nom: "Marcin Held", categorie: "Poids leger", rang: 0,
+    victoires: 32, defaites: 11, nuls: 0, nc: 0, naissance: "1992-01-18", pays: { fr: "Pologne", en: "Poland", es: "Polonia" },
+    recent: [
+      f("V", "Valeriu Mircea", DU, "KSW 123", "2026-11-21"),
+      f("D", "Salahdine Parnasse", "TKO", "KSW 114", "2026-01-17"),
+      f("V", "Marian Ziółkowski", DU, "KSW 112", "2025-11-15"),
+      f("V", "Davy Gallon", SUB, "KSW 101", "2024-12-20"),
+      f("V", "Roman Szymański", DU, "KSW 95", "2024-06-07"),
+    ],
+  },
+  {
     id: "ksw-kaczmarczyk", ligue: "KSW", nom: "Patryk Kaczmarczyk", categorie: "Poids plume", rang: 0,
     victoires: 14, defaites: 3, nuls: 0, nc: 0, naissance: "1998-06-23", pays: { fr: "Pologne", en: "Poland", es: "Polonia" },
     recent: [
@@ -199,6 +210,17 @@ export const LEAGUE_FIGHTERS = [
       f("V", "Sofiane Boukichou", SUB, "ARES 24", "2024-09-05"),
       f("V", "Rony Bouzy", "TKO", "ARES 17", "2023-11-17"),
       f("V", "Badr Medkouri", DU, "ARES 13", "2023-03-09"),
+    ],
+  },
+  {
+    id: "ares-baki", ligue: "ARES", nom: "Baissangour « Baki » Chamsoudinov", categorie: "Poids welter", rang: 0,
+    victoires: 10, defaites: 1, nuls: 0, nc: 0, naissance: null, pays: { fr: "France", en: "France", es: "Francia" },
+    recent: [
+      f("V", "Jordan Zébo", DU, "ARES 45", "2026-11-20"),
+      f("D", "Jordan Zébo", "KO", "ARES 35", "2025-10-18"),
+      f("V", "Thiago Lima", "TKO", "ARES 30", "2025-05-16"),
+      f("V", "Cédric Doumbè", "TKO", "PFL Europe 1", "2024-03-07"),
+      f("V", "Efrain Escudero", "TKO", "ARES 16", "2023-06-23"),
     ],
   },
   {
@@ -252,5 +274,4 @@ export const LEAGUE_FIGHTERS = [
 // Ceintures sans titulaire, avec le combat qui doit l'attribuer.
 export const VACANT = [
   { ligue: "PFL", categorie: "Poids coq", fight: "Taylor Lapilus vs. Mitch McKee", event: "PFL Lyon", date: "2026-12-19" },
-  { ligue: "KSW", categorie: "Poids leger", fight: "Valeriu Mircea vs. Marcin Held", event: "KSW 123", date: "2026-11-21" },
 ];
